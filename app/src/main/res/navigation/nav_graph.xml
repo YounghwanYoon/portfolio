@@ -7,8 +7,8 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.portfolio.HomeFragment"
-        android:label="fragment_home"
+        android:name="com.example.portfolio.view.HomeFragment"
+        android:label="@string/homeFrag"
         tools:layout="@layout/fragment_home" >
         <action
             android:id="@+id/action_homeFragment_to_myAppListFragment"
@@ -19,8 +19,8 @@
     </fragment>
     <fragment
         android:id="@+id/myAppListFragment"
-        android:name="com.example.portfolio.MyAppListFragment"
-        android:label="fragment_my_app_list"
+        android:name="com.example.portfolio.view.MyAppListFragment"
+        android:label="@string/myAppListFrag"
         tools:layout="@layout/fragment_my_app_list" >
         <action
             android:id="@+id/action_myAppListFragment_to_resumeFragment"
@@ -31,8 +31,8 @@
     </fragment>
     <fragment
         android:id="@+id/resumeFragment"
-        android:name="com.example.portfolio.ResumeFragment"
-        android:label="fragment_resume"
+        android:name="com.example.portfolio.view.ResumeFragment"
+        android:label="@string/resumeFrag"
         tools:layout="@layout/fragment_resume" >
         <action
             android:id="@+id/action_resumeFragment_to_myAppListFragment"
@@ -40,8 +40,8 @@
     </fragment>
     <fragment
         android:id="@+id/demoApps"
-        android:name="com.example.portfolio.DemoApps"
-        android:label="fragment_demo_apps"
+        android:name="com.example.portfolio.view.DemoApps"
+        android:label="@string/demoAppFrag"
         tools:layout="@layout/fragment_demo_apps" >
         <action
             android:id="@+id/action_demoApps_to_homeFragment"

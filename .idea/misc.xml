@@ -3,7 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/activity_main.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_demo_apps.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_home.xml" value="0.4" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_my_app_list.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_resume.xml" value="0.25416666666666665" />
       </map>
     </option>
   </component>
