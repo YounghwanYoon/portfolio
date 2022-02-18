@@ -6,4 +6,8 @@
     <string name="myAppListFrag">fragment_my_app_list</string>
     <string name="resumeFrag">fragment_resume</string>
     <string name="demoAppFrag">fragment_demo_apps</string>
+    <string name="profile">Profile</string>
+    <string name="my_apps">My Apps</string>
+    <string name="resume">Resume</string>
+    <string name="demo_apps">Demo Apps</string>
 </resources>

@@ -5,14 +5,14 @@ plugins {
 //    id 'com.android.library'
 //    id 'com.android.instantapp'
     id 'kotlin-android'
-    id 'kotlin-android-extensions'
+//    id 'kotlin-android-extensions'
     id 'kotlin-kapt'
     id "androidx.navigation.safeargs.kotlin"
     id 'dagger.hilt.android.plugin'
 }
 
 android {
-    compileSdk 32
+    compileSdkPreview kotlin_version
 
     defaultConfig {
         applicationId "com.example.portfolio"

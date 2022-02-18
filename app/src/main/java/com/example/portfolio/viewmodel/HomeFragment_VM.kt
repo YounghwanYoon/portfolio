@@ -17,7 +17,7 @@ class HomeFragment_VM(private val savedStateHandle: SavedStateHandle): ViewModel
         savedStateHandle.set(key,value)
     }
 
-    var savedText:String = ""
+    private var savedText:String = ""
         set(value){
             field = value
             savedStateHandle.set(SAVED_EDIT_TEXT, value)

@@ -10,7 +10,6 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import com.example.portfolio.R
 import com.example.portfolio.viewmodel.HomeFragment_VM
-import com.example.portfolio.viewmodel.HomeFragment_VM.Companion.SAVED_EDIT_TEXT
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
 
@@ -40,7 +39,7 @@ class HomeFragment : Fragment(),View.OnClickListener {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         val action = HomeFragmentDirections.actionHomeFragmentToMyAppListFragment()
 
-        view.toNext.setOnClickListener(this)
+        view.to_next_btn.setOnClickListener(this)
 
         return view
     }
@@ -48,11 +47,20 @@ class HomeFragment : Fragment(),View.OnClickListener {
     override fun onClick(view: View?) {
 
         when(view){
+            demo_apps -> {
+
+            }
+            to_resume_btn->{
+
+            }
+            /*
             hometitle_edittext -> {
                 val tempText = hometitle_edittext.text
                 vm.saveState(HomeFragment_VM.SAVED_EDIT_TEXT, tempText)
             }
-            toNext -> {
+
+             */
+            to_next_btn -> {
                 val action = HomeFragmentDirections.actionHomeFragmentToMyAppListFragment()
                 navController.navigate(action)
             }
