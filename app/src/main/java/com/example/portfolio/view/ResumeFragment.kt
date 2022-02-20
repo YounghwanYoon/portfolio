@@ -5,56 +5,68 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.portfolio.R
+import androidx.fragment.app.FragmentManager
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
+import com.example.portfolio.databinding.FragmentResumeBinding
+import kotlinx.android.synthetic.main.activity_main.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [ResumeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class ResumeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+class ResumeFragment : Fragment(), View.OnClickListener {
+    private var _viewBinding:FragmentResumeBinding? = null
+    private val viewBinding get()= _viewBinding
+    private lateinit var navController: NavController
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_resume, container, false)
+
+        _viewBinding = FragmentResumeBinding.inflate(inflater, container, false)
+        return _viewBinding!!.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupNavigation()
+        setupListeners()
+    }
+
+    private fun setupListeners(){
+        viewBinding?.toNextBtn?.setOnClickListener(this)
+    }
+
+    private fun setupNavigation(){
+        navController = findNavController()
+    }
+
+    //clear backstack of previous fragment
+    private fun clearBackStack(){
+        val supportFragmentManager = activity?.supportFragmentManager
+
+        repeat(supportFragmentManager!!.backStackEntryCount){
+            supportFragmentManager.popBackStack()
+        }
+    }
+
+
+    override fun onClick(view: View?) {
+        when(view){
+            viewBinding?.toNextBtn -> {
+                clearBackStack()
+                val action = ResumeFragmentDirections.actionResumeFragmentToHomeFragment()
+                navController.navigate(action)
+
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _viewBinding = null
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ResumeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ResumeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        private const val TAG = "ResumeFragment"
     }
 }

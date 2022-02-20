@@ -35,8 +35,8 @@
         android:label="@string/resumeFrag"
         tools:layout="@layout/fragment_resume" >
         <action
-            android:id="@+id/action_resumeFragment_to_myAppListFragment"
-            app:destination="@id/myAppListFragment" />
+            android:id="@+id/action_resumeFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
     </fragment>
     <fragment
         android:id="@+id/demoApps"

@@ -18,6 +18,7 @@ class HomeFragment : Fragment(),View.OnClickListener {
     private lateinit var navController:NavController
     private val vm:HomeFragment_VM by viewModels()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupNavController()
@@ -40,10 +41,15 @@ class HomeFragment : Fragment(),View.OnClickListener {
         val action = HomeFragmentDirections.actionHomeFragmentToMyAppListFragment()
 
         view.to_next_btn.setOnClickListener(this)
-
         return view
     }
+    private fun clearBackStack(){
+        val supportFragmentManager = activity?.supportFragmentManager
 
+        repeat(supportFragmentManager!!.backStackEntryCount){
+            supportFragmentManager.popBackStack()
+        }
+    }
     override fun onClick(view: View?) {
 
         when(view){
