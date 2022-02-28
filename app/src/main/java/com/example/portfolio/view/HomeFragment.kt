@@ -40,16 +40,35 @@ class HomeFragment : Fragment(),View.OnClickListener {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         val action = HomeFragmentDirections.actionHomeFragmentToMyAppListFragment()
 
-        view.to_next_btn.setOnClickListener(this)
+        setOnClickListeners(view)
         return view
     }
+
+    private fun setOnClickListeners(view:View){
+        view.to_next_btn.setOnClickListener(this)
+        view.to_resume_btn.setOnClickListener(this)
+    }
+
     private fun clearBackStack(){
+        /*
         val supportFragmentManager = activity?.supportFragmentManager
 
         repeat(supportFragmentManager!!.backStackEntryCount){
             supportFragmentManager.popBackStack()
         }
+
+         */
+        navController.popBackStack(R.id.resumeFragment, true)
+        //or
+
     }
+
+    override fun onResume() {
+        super.onResume()
+        //clearBackStack()
+
+    }
+
     override fun onClick(view: View?) {
 
         when(view){
@@ -57,6 +76,8 @@ class HomeFragment : Fragment(),View.OnClickListener {
 
             }
             to_resume_btn->{
+                val action = HomeFragmentDirections.actionHomeFragmentToResumeFragment()
+                navController.navigate(action)
 
             }
             /*
@@ -70,6 +91,7 @@ class HomeFragment : Fragment(),View.OnClickListener {
                 val action = HomeFragmentDirections.actionHomeFragmentToMyAppListFragment()
                 navController.navigate(action)
             }
+
         }
     }
 }

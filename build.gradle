@@ -3,9 +3,25 @@ buildscript {
     ext.kotlin_version ="1.6.10"
 
     repositories {
+
+        maven { url "http://jcenter.bintray.com";
+            allowInsecureProtocol(true)
+        }
+        maven { url 'https://jitpack.io'
+            allowInsecureProtocol(true)
+        }
+
+        //noinspection JcenterRepositoryObsolete
+        jcenter(){
+            allowInsecureProtocol(true)
+        }
+
+
         google()
         mavenCentral()
+        //gradlePluginPortal()
 
+        //jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.3.0-alpha03'

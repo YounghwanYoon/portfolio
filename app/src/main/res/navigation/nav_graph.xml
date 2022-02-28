@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_homeFragment_to_demoApps"
             app:destination="@id/demoApps" />
+        <action
+            android:id="@+id/action_homeFragment_to_resumeFragment"
+            app:destination="@id/resumeFragment" />
     </fragment>
     <fragment
         android:id="@+id/myAppListFragment"
