@@ -3,9 +3,16 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.124" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/drawable/divider.xml" value="0.141" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/drawable/ic_launcher_background.xml" value="0.124" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/drawable/round_shape.xml" value="0.1825" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/each_view.xml" value="0.24010416666666667" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_carousel_dispaly.xml" value="0.1" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_carousel_display.xml" value="0.44380069524913096" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_demo_apps.xml" value="0.25416666666666665" />
-        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_home.xml" value="0.4" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_home.xml" value="0.1" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_my_app_list.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_resume.xml" value="0.1" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/myapp_individual.xml" value="0.22826086956521738" />

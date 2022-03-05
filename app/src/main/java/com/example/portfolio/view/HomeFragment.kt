@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import com.example.portfolio.R
 import com.example.portfolio.viewmodel.HomeFragment_VM
@@ -38,15 +39,17 @@ class HomeFragment : Fragment(),View.OnClickListener {
         // Inflate the layout for this fragment
 
         val view = inflater.inflate(R.layout.fragment_home, container, false)
-        val action = HomeFragmentDirections.actionHomeFragmentToMyAppListFragment()
 
         setOnClickListeners(view)
+
         return view
     }
 
     private fun setOnClickListeners(view:View){
+        view.demo_apps_btn.setOnClickListener(this)
         view.to_next_btn.setOnClickListener(this)
         view.to_resume_btn.setOnClickListener(this)
+        view.to_demo_btn.setOnClickListener(this)
     }
 
     private fun clearBackStack(){
@@ -70,15 +73,14 @@ class HomeFragment : Fragment(),View.OnClickListener {
     }
 
     override fun onClick(view: View?) {
-
+        val action:NavDirections
         when(view){
-            demo_apps -> {
+            demo_apps_btn -> {
 
             }
             to_resume_btn->{
-                val action = HomeFragmentDirections.actionHomeFragmentToResumeFragment()
+                action = HomeFragmentDirections.actionHomeFragmentToResumeFragment()
                 navController.navigate(action)
-
             }
             /*
             hometitle_edittext -> {
@@ -88,7 +90,17 @@ class HomeFragment : Fragment(),View.OnClickListener {
 
              */
             to_next_btn -> {
-                val action = HomeFragmentDirections.actionHomeFragmentToMyAppListFragment()
+                action = HomeFragmentDirections.actionHomeFragmentToMyAppListFragment()
+                navController.navigate(action)
+            }
+
+            demo_apps_btn -> {
+                action = HomeFragmentDirections.actionHomeFragmentToDemoApps()
+                navController.navigate(action)
+            }
+            to_demo_btn -> {
+                action = HomeFragmentDirections.actionHomeFragmentToCarouselDisplayFragment()
+
                 navController.navigate(action)
             }
 
