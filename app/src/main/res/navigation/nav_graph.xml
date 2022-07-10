@@ -54,4 +54,9 @@
         android:name="com.example.portfolio.view.CarouselDisplayFragment"
         android:label="Carousel_Display_Fragment"
         tools:layout="@layout/fragment_carousel_display"/>
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.example.portfolio.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" />
 </navigation>

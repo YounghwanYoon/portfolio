@@ -99,8 +99,6 @@ class CarouselDisplayFragment : Fragment(R.layout.fragment_carousel_display) {
         }
     }
 
-
-
     private fun displayProgressBar(isDisplayed:Boolean){
         binding.progressbarCarousel.visibility = if(isDisplayed) View.VISIBLE else View.GONE
 

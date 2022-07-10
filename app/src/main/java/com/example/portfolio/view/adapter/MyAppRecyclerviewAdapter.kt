@@ -20,6 +20,7 @@ class MyAppRecyclerviewAdapter(val data:List<AppData>):
     fun updateData(newData:List<AppData>){
         this._data = newData
         notifyDataSetChanged()
+        
     }
 
     override fun onCreateViewHolder(

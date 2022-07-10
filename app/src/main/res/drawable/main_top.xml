@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="200dp"
+    android:width="100dp"
+    android:viewportHeight="200.0"
+    android:viewportWidth="100.0">
+    <path
+        android:name="mainTop_backgroud"
+        android:fillColor="#6CCA80"
+        android:pathData="
+        M0,0
+        L100,0
+        C140,30 50,80 0,35
+        "
+
+        android:strokeWidth="1"
+        android:strokeColor="@color/black"
+        >
+
+    </path>
+
+</vector>

@@ -6,6 +6,7 @@ plugins {
 //    id 'com.android.instantapp'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
+    //kotlin("android.extensions")
     id 'kotlin-kapt'
     id "androidx.navigation.safeargs.kotlin"
     id 'dagger.hilt.android.plugin'
@@ -51,6 +52,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.github.barteksc:pdfium-android:1.9.0'
+    //implementation files('libs\\/kotlin-compiler-embeddable-1.6.21.jar')
 
     // Timber
     //implementation 'com.jakewharton.timber:timber:4.7.1'
