@@ -3,11 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/mainFragment">
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.portfolio.view.HomeFragment"
+        android:name="com.example.portfolio.feature_myapp.presentation.view.HomeFragment"
         android:label="@string/homeFrag"
         tools:layout="@layout/fragment_home" >
         <action
@@ -25,7 +25,7 @@
     </fragment>
     <fragment
         android:id="@+id/myAppListFragment"
-        android:name="com.example.portfolio.view.MyAppListFragment"
+        android:name="com.example.portfolio.feature_myapp.presentation.view.MyAppListFragment"
         android:label="@string/myAppListFrag"
         tools:layout="@layout/fragment_my_app_list" >
         <action
@@ -37,7 +37,7 @@
     </fragment>
     <fragment
         android:id="@+id/resumeFragment"
-        android:name="com.example.portfolio.view.ResumeFragment"
+        android:name="com.example.portfolio.feature_myapp.presentation.view.ResumeFragment"
         android:label="@string/resumeFrag"
         tools:layout="@layout/fragment_resume" >
         <action
@@ -46,17 +46,30 @@
     </fragment>
     <fragment
         android:id="@+id/demoApps"
-        android:name="com.example.portfolio.view.DemoApps"
+        android:name="com.example.portfolio.feature_myapp.presentation.view.DemoApps"
         android:label="@string/demoAppFrag"
         tools:layout="@layout/fragment_demo_apps" />
     <fragment
         android:id="@+id/carousel_display_fragment"
-        android:name="com.example.portfolio.view.CarouselDisplayFragment"
+        android:name="com.example.portfolio.feature_myapp.presentation.view.CarouselDisplayFragment"
         android:label="Carousel_Display_Fragment"
         tools:layout="@layout/fragment_carousel_display"/>
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.example.portfolio.MainFragment"
+        android:name="com.example.portfolio.feature_myapp.presentation.view.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_weatherFragment"
+            app:destination="@id/weatherFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/weatherFragment"
+        android:name="com.example.portfolio.feature_weather.presentation.WeatherFragment"
+        android:label="fragment_weather"
+        tools:layout="@layout/fragment_weather" >
+        <action
+            android:id="@+id/action_weatherFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+    </fragment>
 </navigation>

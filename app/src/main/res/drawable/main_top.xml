@@ -14,7 +14,7 @@
         "
 
         android:strokeWidth="1"
-        android:strokeColor="@color/black"
+        android:strokeColor="@color/custom_gradient_green"
         >
 
     </path>

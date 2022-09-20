@@ -10,16 +10,16 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private lateinit var navController: NavController
+    private var navController: NavController? = null
+    private var navHostFragment:NavHostFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        //supportFragmentManager.beginTransaction().add(R.id.newFaceContainer, MainFragment()).commit()
     }
-
     override fun onResume() {
         setupNavigation()
-
         super.onResume()
     }
 
@@ -27,8 +27,10 @@ class MainActivity : AppCompatActivity() {
         //attempting to retrieve the NavController in onCreate() of an Activity via Navigation.
         // findNavController(Activity, @IdRes int) will fail.
         // You should retrieve the NavController directly from the NavHostFragment instead.
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        navController = navHostFragment.navController
+        if(navHostFragment == null)
+            navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        if(navController == null)
+            navController = navHostFragment!!.navController
     }
 
 

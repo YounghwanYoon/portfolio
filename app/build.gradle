@@ -23,10 +23,26 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file("local.properties").newDataInputStream())
+
+        //read field
+        //type, name of field, and location of value
+        buildConfigField "String", "API_KEY", "\"${properties.getProperty("API_KEY")}\""
+
+
     }
 
     buildTypes {
         release {
+/*
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file("local.properties").newDataInputSteam())
+
+            //type, name of field, and location of value
+            buildConfigField ("String", "API_KEY", "\"${properties.getProperty("API_KEY")}\"")
+            */
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -62,6 +78,8 @@ dependencies {
     // (Required) Writing and executing Unit Tests on the JUnit Platform
     testImplementation('org.junit.jupiter:junit-jupiter-api:5.8.2')
     testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.8.2')
+    //mock testing
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
 
     testImplementation  "junit:junit:4.13.2"
     testImplementation "androidx.test:core:1.4.0" //lower version caused error
@@ -99,6 +117,10 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
 
+    // For developers using AndroidX in their applications
+    // Permission
+    implementation 'pub.devrel:easypermissions:3.0.0'
+
     // Material Design
     implementation 'com.google.android.material:material:1.6.0-alpha02'
 
@@ -128,16 +150,16 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
     //okhttp
-    implementation ("com.squareup.okhttp3:okhttp:3.14.9")
-    implementation ("com.squareup.okhttp3:logging-interceptor:4.2.1")
+    //implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+    //implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")
 
     // Coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
 
     // Coroutine Lifecycle Scopes
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.1"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
 
     // Navigation Components
     implementation "androidx.navigation:navigation-fragment-ktx:2.4.1"

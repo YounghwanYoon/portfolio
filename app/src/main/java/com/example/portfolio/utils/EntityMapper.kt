@@ -1,4 +1,4 @@
-package com.example.demoapp.utils
+package com.example.portfolio.utils
 
 interface EntityMapper<in I, out O> {
 
