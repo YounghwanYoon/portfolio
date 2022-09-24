@@ -12,8 +12,9 @@ data class ForecastHourlyDto(
     val type: String
 ){
     fun toForecastHourlyEntity()= ForecastHourlyEntity(
-        context = context,
-        geometry = geometry.toGeometryEntity(),
+        //context = context,
+        //geometry = geometry.toGeometryEntity(),
+
         properties = properties,
         type = type
     )

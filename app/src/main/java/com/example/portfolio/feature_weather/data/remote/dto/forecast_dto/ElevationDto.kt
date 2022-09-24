@@ -2,7 +2,7 @@ package com.example.portfolio.feature_weather.data.remote.dto.forecast_dto
 
 import com.example.portfolio.feature_weather.data.local.entity.forecast.ElevationEntity
 
-data class Elevation(
+data class ElevationDto(
     val unitCode: String,
     val value: Double
 ){

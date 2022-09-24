@@ -1,9 +1,13 @@
 package com.example.portfolio.feature_weather.data.local.entity.forecasthourly
 
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import com.example.portfolio.feature_weather.domain.model.forecasthourly.Properties
 
 
 data class PropertiesEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int? = null,
     val elevation: ElevationEntity,
     val forecastGenerator: String,
     val generatedAt: String,

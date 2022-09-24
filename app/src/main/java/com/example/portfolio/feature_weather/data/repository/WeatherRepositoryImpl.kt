@@ -5,6 +5,7 @@ import com.example.portfolio.utils.DataState
 import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
 import com.example.portfolio.feature_weather.data.local.WeatherDao
 import com.example.portfolio.feature_weather.data.local.entity.forecast.ForecastDao
+import com.example.portfolio.feature_weather.data.local.entity.forecasthourly.ForecastHourlyDao
 import com.example.portfolio.feature_weather.data.remote.dto.WeatherDto
 import com.example.portfolio.feature_weather.domain.model.Weather
 import com.example.portfolio.feature_weather.domain.model.forecasthourly.ForecastHourly
@@ -22,6 +23,7 @@ class WeatherRepositoryImpl @Inject constructor(
     private val weatherServices: WeatherServices,
     private val weather_dao: WeatherDao? = null,
     private val forecast_dao: ForecastDao,
+    private val forecastHourly_dao: ForecastHourlyDao,
     private val ioDispatcher:CoroutineDispatcher = Dispatchers.IO
     ): WeatherRepository{
 
@@ -152,7 +154,7 @@ class WeatherRepositoryImpl @Inject constructor(
         Log.d(TAG, "getForecast: getForecast is called from repository implement")
         return flow{
             emit(DataState.Loading())
-            val entities = weather_dao!!.getAllForecast()
+            val entities = forecast_dao!!.getAllForecast()
             entities?.let{
                 emit(DataState.Loading(entities.toForecast()))
             }
@@ -164,10 +166,10 @@ class WeatherRepositoryImpl @Inject constructor(
 
                 //Insert data from server to local db
                 data?.let{
-                    weather_dao!!.insertForecast(data.toForecastEntity())
+                    forecast_dao!!.insertForecast(data.toForecastEntity())
                 }
                 //get data from local db
-                val forecast = weather_dao!!.getAllForecast().toForecast()
+                val forecast = forecast_dao!!.getAllForecast().toForecast()
 
                 //emit data for observer/client
                 emit(DataState.Success(forecast))
@@ -182,7 +184,7 @@ class WeatherRepositoryImpl @Inject constructor(
         Log.d(TAG, "getForecast: getForecast is called from repository implement")
         return flow{
             emit(DataState.Loading())
-            val entities = weather_dao!!.getAllForecastHourly()
+            val entities = forecastHourly_dao!!.getAllForecastHourly()
             entities?.let{
                 emit(DataState.Loading(entities.toForecastHourly()))
             }
@@ -194,10 +196,10 @@ class WeatherRepositoryImpl @Inject constructor(
 
                 //Insert data from server to local db
                 data?.let{
-                    weather_dao!!.insertForecastHourly(data.toForecastHourlyEntity())
+                    forecastHourly_dao!!.insertForecastHourly(data.toForecastHourlyEntity())
                 }
                 //get data from local db
-                val forecastHourly = weather_dao!!.getAllForecastHourly().toForecastHourly()
+                val forecastHourly = forecastHourly_dao!!.getAllForecastHourly().toForecastHourly()
 
                 //emit data for observer/client
                 emit(DataState.Success(forecastHourly))

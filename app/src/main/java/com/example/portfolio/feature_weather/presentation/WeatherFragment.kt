@@ -1,25 +1,11 @@
 package com.example.portfolio.feature_weather.presentation
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.app.AlertDialog
-import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
-import android.os.Build
+
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -29,20 +15,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.portfolio.R
 import com.example.portfolio.databinding.FragmentWeatherBinding
 import com.example.portfolio.feature_myapp.presentation.viewmodel.*
-import com.example.portfolio.feature_weather.domain.model.Weather
 import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
 import com.example.portfolio.feature_weather.presentation.adapter.WeatherWeeklyAdapter
 import com.example.portfolio.utils.DataState
 import com.example.portfolio.utils.LocationService
-import com.example.portfolio.utils.TrackingUtility
-import com.example.portfolio.utils.constants.REQUEST_CODE_LOCATION_PERMISSION
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_weather.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import pub.devrel.easypermissions.AppSettingsDialog
-import pub.devrel.easypermissions.EasyPermissions
 import java.util.*
 
 
@@ -78,34 +61,29 @@ class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.P
     }
 
     private fun handlePermission(){
-        val locationJob = CoroutineScope(Dispatchers.IO).async {
+        locationService = LocationService(fragment = this@WeatherFragment)
+/*        val locationJob = CoroutineScope(Dispatchers.IO).async {
             locationService = LocationService(fragment = this@WeatherFragment)
         }
         viewLifecycleOwner.lifecycleScope.launch{
             locationJob.await()
             setGPSState()
-        }
-
-
+        }*/
 
     }
+    private fun requestLocation():Map<String,Int?>{
+        return locationService.getCoordination()
+    }
     private fun setGPSState() {
-        val coordination = locationService.getCoordination()
-        Log.d(TAG, "setGPSState: coordination is ${coordination["longitude"]}")
-        
-        vm.setPermState(
-            GPSState(
-                isGPSGranted = true,
-                currentGPS = CurrentGPS(coordination),
-                currentTime = Calendar.getInstance().timeInMillis
-            )
-        )
+        val currentGPS = CurrentGPS(requestLocation())
+        Log.d(TAG, "setGPSState: coordination is ${currentGPS.gps?.get("longitude")}")
+        vm.setPermState(PermissionState.Granted(currentGPS))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         handlePermission()
         //locationService = LocationService(fragment = this)
-
+        setGPSState()
         setUpRecyclerView()
         subscribeObserver()
         //initLocationService()
@@ -152,11 +130,25 @@ class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.P
 
        viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED){
-                vm.permState.collect{ gpsState ->
-                    Log.d(TAG, "subscribeObserver: GPS State ${gpsState.currentGPS?.gps?.get("longitude")}")
-                    if(gpsState.isGPSGranted && gpsState.currentGPS !=null)
-                        vm.getWeather(gpsState.currentGPS)
 
+                launch{
+                    vm.forecastState.collect{ forecastState ->
+                        when(forecastState){
+                            is DataState.Error -> Log.d(TAG, "subscribeObserver: Error")
+                            is DataState.Loading -> Log.d(TAG, "subscribeObserver: Loading")
+                            is DataState.Success -> Log.d(TAG, "subscribeObserver: Success")
+                        }
+                    }
+                }
+
+                launch{
+                    vm.forecastHourlyState.collect{ forecastHourlyState ->
+                        when(forecastHourlyState){
+                            is DataState.Error -> Log.d(TAG, "subscribeObserver: Error")
+                            is DataState.Loading -> Log.d(TAG, "subscribeObserver: Loading")
+                            is DataState.Success -> Log.d(TAG, "subscribeObserver: Success")
+                        }
+                    }
                 }
             }
         }
@@ -192,8 +184,12 @@ class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.P
         }
     }
 
+    override fun onStop() {
+        locationService.onStop()
+        super.onStop()
+    }
 
-    /*
+/*
     @SuppressLint("MissingPermission")
     //https://stackoverflow.com/questions/2227292/how-to-get-latitude-and-longitude-of-the-mobile-device-in-android
     private fun getCoordination():Map<String,Int?>{

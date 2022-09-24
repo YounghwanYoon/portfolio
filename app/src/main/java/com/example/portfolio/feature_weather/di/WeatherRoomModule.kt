@@ -6,9 +6,12 @@ import com.example.portfolio.feature_weather.data.local.WeatherDao
 import com.example.portfolio.feature_weather.data.local.WeatherDataBase
 import com.example.portfolio.feature_weather.data.local.entity.forecast.ForecastDao
 import com.example.portfolio.feature_weather.data.local.entity.forecast.ForecastDataBase
+import com.example.portfolio.feature_weather.data.local.entity.forecasthourly.ForecastHourlyDao
+import com.example.portfolio.feature_weather.data.utils.ForecastHourlyTypeConverter
 import com.example.portfolio.feature_weather.data.utils.ForecastTypeConverter
 import com.example.portfolio.feature_weather.data.utils.GsonParser
 import com.example.portfolio.feature_weather.data.utils.WeatherTypeConverter
+import com.example.portfolio.feature_weather.domain.model.forecasthourly.ForecastHourly
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
@@ -29,32 +32,27 @@ object WeatherRoomModule {
             WeatherDataBase.DATABASE_NAME
         )
             .addTypeConverter(WeatherTypeConverter(GsonParser(Gson())))
+            .addTypeConverter(ForecastTypeConverter(GsonParser(Gson())))
+            .addTypeConverter(ForecastHourlyTypeConverter(GsonParser(Gson())))
             .fallbackToDestructiveMigration()
             .build()
     }
     @Singleton
     @Provides
-    fun provideWeatherDB(weatherDB: WeatherDataBase): WeatherDao {
+    fun provideWeatherDao(weatherDB: WeatherDataBase): WeatherDao {
         return weatherDB.weatherDao()
     }
 
     @Singleton
     @Provides
-    fun provideForecastDatabase(@ApplicationContext context: Context): ForecastDataBase {
-        return Room.databaseBuilder(
-            context,
-            ForecastDataBase::class.java,
-            ForecastDataBase.DATABASE_NAME
-        )
-            .addTypeConverter(ForecastTypeConverter(GsonParser(Gson())))
-            .fallbackToDestructiveMigration()
-            .build()
+    fun provideForecastDao(weatherDB: WeatherDataBase): ForecastDao {
+        return weatherDB.forecastDao()
     }
 
     @Singleton
     @Provides
-    fun provideForecastDB(forecastDB: ForecastDataBase): ForecastDao {
-        return forecastDB.forecastDao()
+    fun provideForecastHourlyDao(weatherDB: WeatherDataBase): ForecastHourlyDao {
+        return weatherDB.forecastHourlyDao()
     }
 
 

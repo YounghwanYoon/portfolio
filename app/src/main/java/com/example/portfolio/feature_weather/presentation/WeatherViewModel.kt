@@ -13,14 +13,18 @@ import com.example.portfolio.feature_weather.domain.model.Weather
 import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
 import com.example.portfolio.feature_weather.domain.model.forecasthourly.ForecastHourly
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
 import javax.inject.Inject
 
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
     private val weatherRepositoryImpl: WeatherRepositoryImpl,
     private val getWeatherInfo: GetWeatherInfo,
+    private val dispatcherIO: CoroutineDispatcher,
     application: Application
 ): AndroidViewModel(application) {
 
@@ -63,32 +67,76 @@ class WeatherViewModel @Inject constructor(
         }
     }*/
 
-    fun getWeather(currentGPS: CurrentGPS?){
+    private fun getWeather(currentGPS: CurrentGPS = CurrentGPS(gps= mutableMapOf("latitude" to 37, "longitude" to -122))){
         viewModelScope.launch {
-            if(currentGPS != null)
-                getWeatherInfo(currentGPS.gps!!).collect{
+            withContext(dispatcherIO){
+                getWeatherInfo(currentGPS.gps!!).collect{ it ->
                     when(it){
-                        is DataState.Error -> Log.d(TAG, "getWeather: Error with ${it.message}")
-                        is DataState.Loading -> Log.d(TAG, "getWeather: Loading")
+                        is DataState.Error -> {
+                            _weatherState.value = it
+                            Log.d(TAG, "getWeather: Error with ${it.message}")
+                        }
+                        is DataState.Loading -> {
+                            _weatherState.value = it
+                            Log.d(TAG, "getWeather: Loading")
+                        }
                         is DataState.Success -> {
                             Log.d(TAG, "getWeather: Success with ${it.data!!.properties.timeZone}")
-                            weatherState.value.data!!.properties.apply{
-                                getWeatherInfo.getForecast(gridId,gridX, gridY)
-                                getWeatherInfo.getForecastHourly(gridId,gridX, gridY)
+                            //store weatherState
+                            _weatherState.value = it
+                            _weatherState.value.data!!.properties.apply{
+                                launch{
+                                    getForecast(gridId,gridX, gridY)
+                                }
+                                launch{
+                                    getForecastHourly(gridId,gridX, gridY)
+                                }
                             }
                         }
                     }
                 }
+            }
+        }
+    }
+    private suspend fun getForecast(gridId:String, gridX:Int, gridY:Int){
+        getWeatherInfo.getForecast(gridId,gridX, gridY).collectLatest{ dataState ->
+            when(dataState){
+                is DataState.Error -> {
+                    Log.d(TAG, "getForecast: Error()")
+                }
+                is DataState.Loading -> {
+                    Log.d(TAG, "getForecast: Loading()")
+                }
+                is DataState.Success -> {
+                    Log.d(TAG, "getForecast: SUCCESS")
+                }
+            }
         }
     }
 
-    private val _permState:MutableStateFlow<GPSState> = MutableStateFlow<GPSState>(
-        GPSState()
+    private suspend fun getForecastHourly(gridId:String,gridX:Int,gridY:Int){
+        getWeatherInfo.getForecastHourly(gridId,gridX, gridY).collectLatest{ dataState ->
+            when(dataState){
+                is DataState.Error -> {
+                    Log.d(TAG, "getForecastHourly: Error()")
+                }
+                is DataState.Loading -> {
+                    Log.d(TAG, "getForecastHourly: Loading()")
+                }
+                is DataState.Success -> {
+                    Log.d(TAG, "getForecastHourly: SUCCESS")
+                }
+            }
+        }
+    }
+    private val _permState:MutableStateFlow<PermissionState> = MutableStateFlow<PermissionState>(
+        PermissionState.Requesting
     )
-    val permState:StateFlow<GPSState> = _permState.asStateFlow()
+    val permState:StateFlow<PermissionState> = _permState.asStateFlow()
 
     //update PermState
-    fun setPermState(newPermState:GPSState){
+    fun setPermState(newPermState:PermissionState){
+/*
         _permState.update{
             it.copy(
                 isGPSGranted = newPermState.isGPSGranted,
@@ -96,9 +144,29 @@ class WeatherViewModel @Inject constructor(
                 currentTime = newPermState.currentTime
             )
         }
+*/
+
+        when(newPermState){
+            is Requesting -> {
+                _permState.value = newPermState
+            }
+            is Granted -> {
+                _permState.value = newPermState
+
+                getWeather(newPermState.gpsData)
+            }
+
+            is Error -> {
+                _permState.value = newPermState
+            }
+
+        }
+
     }
 
 }
+
+
 
 data class GPSState(
     val isGPSGranted:Boolean = false,
@@ -110,9 +178,10 @@ data class CurrentGPS(
 )
 
 sealed class PermissionState(){
+    data class Granted(val gpsData: CurrentGPS):PermissionState()
+    class Error(val message:String):PermissionState()
     object Requesting:PermissionState()
-    data class Success(val gpsState: GPSState ): PermissionState()
-    data class Error(val gpsState: GPSState, val e:Exception):PermissionState()
+    //data class Error(val gpsState: GPSState, val e:Exception):PermissionState()
 }
 
 

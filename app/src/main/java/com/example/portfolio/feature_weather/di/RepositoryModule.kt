@@ -3,6 +3,7 @@ package com.example.portfolio.feature_weather.di
 import com.example.portfolio.feature_weather.data.repository.WeatherRepositoryImpl
 import com.example.portfolio.feature_weather.data.local.WeatherDao
 import com.example.portfolio.feature_weather.data.local.entity.forecast.ForecastDao
+import com.example.portfolio.feature_weather.data.local.entity.forecasthourly.ForecastHourlyDao
 import com.example.portfolio.feature_weather.domain.repository.WeatherRepository
 import com.example.portfolio.feature_weather.domain.repository.WeatherServices
 import com.example.portfolio.feature_weather.domain.use_case.GetWeatherInfo
@@ -39,12 +40,15 @@ object RepositoryModule {
         weatherApiServices: WeatherServices,
         weather_dao: WeatherDao,
         forecast_dao: ForecastDao,
+        forecastHourly_dao:ForecastHourlyDao,
         dispatcherIO:CoroutineDispatcher
     ): WeatherRepository {
         return WeatherRepositoryImpl(
             weatherApiServices,
             weather_dao,
             forecast_dao,
+            forecastHourly_dao,
+            dispatcherIO
         )
     }
 

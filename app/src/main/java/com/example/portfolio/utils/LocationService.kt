@@ -6,6 +6,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import android.content.DialogInterface.OnClickListener
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -15,19 +16,19 @@ import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import androidx.core.content.ContextCompat
-import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
-import com.example.portfolio.feature_myapp.presentation.viewmodel.CurrentGPS
-import com.example.portfolio.feature_myapp.presentation.viewmodel.GPSState
-import com.example.portfolio.feature_weather.presentation.WeatherFragment
+import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
+import com.google.android.gms.tasks.CancellationTokenSource
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 
 //https://stackoverflow.com/questions/32491960/android-check-permission-for-locationmanager
 class LocationService(private val activity: Activity? = null, private val fragment: Fragment?= null):LocationListener, EasyPermissions.PermissionCallbacks {
-    private val context = activity ?: (fragment!!.requireContext())
-    var locationManager: LocationManager? = null
-    private lateinit var currlocation: Location
+    private val mContext = activity ?: (fragment!!.requireContext())
+    private var mLocationManager: LocationManager? = null
+    private var mLocation: Location? = null
+    private val cts = CancellationTokenSource()
 
     var longitude:Int = 0
     var latitude:Int? = 0
@@ -40,30 +41,29 @@ class LocationService(private val activity: Activity? = null, private val fragme
         when{
             Build.VERSION.SDK_INT < Build.VERSION_CODES.Q -> {
                 return (
-                        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                        ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
                                 == PackageManager.PERMISSION_GRANTED &&
-                                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                                ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
                                 == PackageManager.PERMISSION_GRANTED
                         )
             }
-
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
                 return (
-                        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                        ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                                 == PackageManager.PERMISSION_GRANTED &&
-                                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                                ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
                                 == PackageManager.PERMISSION_GRANTED &&
-                                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
                                 == PackageManager.PERMISSION_GRANTED
                         )
             }
             else ->{
                 return (
-                        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                        ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                                 == PackageManager.PERMISSION_GRANTED &&
-                                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                                ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
                                 == PackageManager.PERMISSION_GRANTED &&
-                                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
                                 == PackageManager.PERMISSION_GRANTED
                         )
             }
@@ -189,29 +189,29 @@ class LocationService(private val activity: Activity? = null, private val fragme
         //else Permission is granted
         Log.d(TAG, "initLocationService: permission is granted")
 
-        var gps_enabled = false
-        var network_enabled = false
+        var gpsEnabled = false
+        var networkEnabled = false
 
         initLM()
 
-        currlocation = updateLocation()
+        mLocation = updateLocation()
 
         try{
-            gps_enabled = locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER)
+            gpsEnabled = mLocationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER)
         } catch(e:Exception){
 
         }
         try{
-            network_enabled = locationManager!!.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            networkEnabled = mLocationManager!!.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         }catch(e:Exception){
 
         }
-        if(!gps_enabled && !network_enabled){
-            AlertDialog.Builder(context)
+        if(!gpsEnabled && !networkEnabled){
+            AlertDialog.Builder(mContext)
                 .setMessage("Please turn on GPS or Network for this service")
-                .setPositiveButton("Enable", object: DialogInterface.OnClickListener{
+                .setPositiveButton("Enable", object: OnClickListener{
                     override fun onClick(dialog: DialogInterface?, which: Int) {
-                        context.startActivity(
+                        mContext.startActivity(
                             Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                         )
                     }
@@ -222,31 +222,93 @@ class LocationService(private val activity: Activity? = null, private val fragme
         return true
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission", "VisibleForTests")
     private fun updateLocation(location:Location? = null):Location{
-        currlocation = (location ?: locationManager!!.getLastKnownLocation(LocationManager.GPS_PROVIDER)) as Location
-        Log.d(TAG, "updateLocation: is currentLocation null? ${currlocation.latitude}, ${currlocation.longitude}")
-        return currlocation
+        Log.d(TAG, "updateLocation: isLMAvailable() = ${isLMAvailable()}")
+
+        if(location != null){
+            mLocation = location
+            return mLocation as Location
+        }
+        //mCurlocation = (location ?: mLocationManager!!.getLastKnownLocation(LocationManager.GPS_PROVIDER)) as Location
+
+        val providers = mLocationManager!!.allProviders
+        val bestLocation:Location? = null
+        for(provider in providers){
+            mLocation = mLocationManager!!.getLastKnownLocation(provider)!!
+            if(mLocation == null)
+                continue
+            if(bestLocation != null || mLocation?.accuracy!! > bestLocation?.accuracy!!){
+                // Found best last known location: %s", l);
+                mLocation = bestLocation
+            }
+        }
+
+        //https://developer.android.com/training/location/request-updates
+        //https://developers.google.com/android/reference/com/google/android/gms/tasks/CancellationToken
+        if(mLocation?.latitude == null) {
+            val locationRequest = LocationRequest.create().apply{
+                interval = 100000
+                fastestInterval = 30000
+                priority = PRIORITY_HIGH_ACCURACY//LocationRequest.PRIORITY_HIGH_ACCURACY
+                maxWaitTime = 100
+            }
+            val locationCallback = object:LocationCallback(){
+                override fun onLocationResult(locationResult: LocationResult) {
+                    super.onLocationResult(locationResult)
+                }
+
+                override fun onLocationAvailability(locationAvailability: LocationAvailability) {
+                    super.onLocationAvailability(locationAvailability)
+                }
+            }
+
+/*            val task = FusedLocationProviderClient(mContext)
+                .requestLocationUpdates(
+                    locationRequest,
+                    locationCallback,
+                    Looper.getMainLooper()
+                )
+                .result*/
+            mLocation = FusedLocationProviderClient(mContext)
+                .getCurrentLocation(PRIORITY_HIGH_ACCURACY,cts.token)
+                .result
+
+        }
+
+        Log.d(TAG, "updateLocation: is currentLocation null? ${mLocation?.provider} ${mLocation?.latitude}, ${mLocation?.longitude}")
+        return mLocation!!
+    }
+
+    fun onStop(){
+        cts.cancel()
+
     }
     override fun onLocationChanged(location: Location) {
         updateLocation(location)
     }
 
     private fun isLMAvailable():Boolean{
-        return locationManager != null
+        return mLocationManager != null
     }
     private fun initLM(){
-        if(locationManager == null){
-            Log.d(TAG, "initLocationService: locationManager is null and now initiated")
-            locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if(mLocationManager == null){
+            Log.d(TAG, "initLM: locationManager is null and now initiated")
+            mLocationManager = mContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            //if location manager is still null
+            if(mLocationManager == null){
+                Log.d(TAG, "initLM: location manager is still ${isLMAvailable()}")
+            }
         }
     }
 
     fun getCoordination():Map<String, Int?>{
         //Double Check although it is invoked at the beginning
         if(!isPermissionAvailable()){
+            Log.d(TAG, "getCoordination: permission is not available")
             requestPermission()}
         if(!isLMAvailable()){
+            Log.d(TAG, "getCoordination: location manager is not available calling initLM()s")
             initLM()
         }
 
@@ -261,7 +323,9 @@ class LocationService(private val activity: Activity? = null, private val fragme
         return mapOf("latitude" to latitude, "longitude" to longitude)
     }
 
-    private val TAG = "LocationService"
+    companion object {
+        private const val TAG = "LocationService"
+    }
 }
 
 /*
