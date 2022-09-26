@@ -1,40 +1,278 @@
 package com.example.portfolio.feature_weather.presentation
 
 
+
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.portfolio.R
-import com.example.portfolio.databinding.FragmentWeatherBinding
 import com.example.portfolio.feature_myapp.presentation.viewmodel.*
-import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
-import com.example.portfolio.feature_weather.presentation.adapter.WeatherWeeklyAdapter
-import com.example.portfolio.utils.DataState
 import com.example.portfolio.utils.LocationService
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.fragment_weather.view.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import java.util.*
 
 
-class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.PermissionCallbacks, LocationListener*/ {
+class WeatherFragment : Fragment(R.layout.fragment_weather){
+    private lateinit var locationService:LocationService
+    
+    companion object {
+        private const val TAG = "WeatherFragment"
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        Log.d(TAG, "onViewCreated: ")
+        locationHandler()
+        super.onViewCreated(view, savedInstanceState)
+    }
+
+    private fun locationHandler(){
+        locationService = LocationService(requireActivity())
+        var currentGPS:CurrentGPS? = null
+        if(LocationService.hasLocationForegroundPermission(requireContext()))
+            currentGPS = locationService.provideLocation()
+
+        currentGPS?.let{
+            Log.d(TAG, "locationHandler: ${it.gps?.get("longitude")}")
+        }
+    }
+
+    override fun onResume() {
+
+        super.onResume()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        Log.d(TAG, "onRequestPermissionsResult: ")
+        locationService.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+}
+
+/*
+//GPS was fixed version
+class WeatherFragment : Fragment(R.layout.fragment_weather), EasyPermissions.PermissionCallbacks,
+    LocationListener {
+    private lateinit var mContext:Context
+    companion object {
+        private const val TAG = "WeatherFragment"
+
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        mContext =requireContext()
+        requestPermission()
+        super.onViewCreated(view, savedInstanceState)
+    }
+
+    private fun isPermissionAvailable():Boolean{
+        when{
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.Q -> {
+                return (
+                        ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED &&
+                                ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED
+                        )
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                return (
+                        ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED &&
+                                ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED &&
+                                ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED
+                        )
+            }
+            else ->{
+                return (
+                        ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED &&
+                                ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED &&
+                                ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED
+                        )
+            }
+        }
+    }
+
+    private fun hasLocationPermission():Boolean{
+        when{
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.Q -> {
+               return EasyPermissions.hasPermissions(
+                    mContext,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                return EasyPermissions.hasPermissions(
+                    mContext,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            }
+            else ->
+                    return EasyPermissions.hasPermissions(
+                        mContext,
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+        }
+    }
+
+
+    private fun requestPermission(){
+        when{
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.Q -> {
+                EasyPermissions.requestPermissions(
+                    this,
+                    "Please accept location permission. Otherwise, this app will not work properly",
+                    constants.REQUEST_CODE_LOCATION_PERMISSION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                EasyPermissions.requestPermissions(
+                    this,
+                    "Without Location Permission, this app will not work properly",
+                    constants.REQUEST_CODE_LOCATION_PERMISSION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+
+                val shouldshow = ActivityCompat.shouldShowRequestPermissionRationale(
+                    requireActivity(),
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                )
+                Log.d(TAG, "requestPermission: $shouldshow")
+                //Q or higher require to request it separately and also device should work without the background location permission.
+                EasyPermissions.requestPermissions(
+                    this,
+                    "Newer phone requires background service permission" +
+                            ", otherwise app will not work properly.",
+                    constants.REQUEST_CODE_LOCATION_PERMISSION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                )
+            }
+            else ->{
+                EasyPermissions.requestPermissions(
+                    this,
+                    "Else is called..not cool",
+                    constants.REQUEST_CODE_LOCATION_PERMISSION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(
+            requestCode,
+            permissions,
+            grantResults
+        )
+
+    }
+
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
+        Log.d(TAG, "onPermissionsGranted: ")
+    }
+    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
+        Log.d(TAG, "onPermissionsDenied: ")
+        Toast.makeText(mContext, "Perm Denied", Toast.LENGTH_SHORT).show()
+        if(EasyPermissions.somePermissionPermanentlyDenied(this, perms)){
+            AppSettingsDialog.Builder(this).build().show()
+
+        }else{
+            requestPermission()
+        }
+    }
+    override fun onLocationChanged(location: Location) {
+        Log.d(TAG, "onLocationChanged: ")
+        provideLocation(location)
+    }
+    private fun hasLocationForegroundPermission() =
+        ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+    @SuppressLint("MissingPermission", "ServiceCast")
+    private fun provideLocation (location:Location?=null):CurrentGPS{
+        Log.d(TAG, "provideLocation: is permission granted(): ${hasLocationForegroundPermission()}")
+        var currentLocation:Location ? = null
+        val currentGPS = CurrentGPS()
+
+        return if(location == null){
+            val locationManager = mContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val providers = locationManager.allProviders
+
+            for(provider in providers){
+                //if currentLocation is not null then return
+                if(currentLocation?.latitude != null){
+                    currentGPS.gps = mutableMapOf(
+                        "latitude" to currentLocation!!.latitude.toInt(),
+                        "longitude" to currentLocation!!.longitude.toInt())
+                    return currentGPS
+                }
+
+                Log.d(TAG, "provideLocation: $provider")
+                locationManager.requestLocationUpdates(provider, 1000, 0F, object:android.location.LocationListener {
+                    override fun onLocationChanged(location: Location) {
+                        currentLocation=location
+                    }
+                })
+                currentLocation = locationManager.getLastKnownLocation(provider)
+            }
+            //else return
+            currentGPS.gps = mutableMapOf(
+                "latitude" to currentLocation!!.latitude.toInt(),
+                "longitude" to currentLocation!!.longitude.toInt())
+            currentGPS
+        }else{
+            currentGPS.gps = mutableMapOf(
+                "latitude" to location!!.latitude.toInt(),
+                "longitude" to location!!.longitude.toInt())
+            return currentGPS
+        }
+    }
+
+    private fun testGettingGPS(){
+        Log.d(TAG, "testGettingGPS: provideLocation")
+    }
+}
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+/*
     private lateinit var binding: FragmentWeatherBinding
     private val vm: WeatherViewModel by activityViewModels()
     private val weeklyAdapter = WeatherWeeklyAdapter()
     private lateinit var locationService:LocationService
+    private lateinit var manager : LocationManager
 
     companion object {
         private const val TAG = "WeatherFragment"
@@ -60,19 +298,23 @@ class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.P
         return binding.root
     }
 
+    //handle permission
     private fun handlePermission(){
         locationService = LocationService(fragment = this@WeatherFragment)
-/*        val locationJob = CoroutineScope(Dispatchers.IO).async {
-            locationService = LocationService(fragment = this@WeatherFragment)
-        }
-        viewLifecycleOwner.lifecycleScope.launch{
-            locationJob.await()
-            setGPSState()
-        }*/
-
     }
+/*    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        Log.d(TAG, "onRequestPermissionsResult:send")
+        locationService.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }*/
+
+    //request location
     private fun requestLocation():Map<String,Int?>{
-        return locationService.getCoordination()
+        return mutableMapOf("latitude" to 37, "longitude" to -122)
+        //return locationService.getCoordination()
     }
     private fun setGPSState() {
         val currentGPS = CurrentGPS(requestLocation())
@@ -85,7 +327,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.P
         //locationService = LocationService(fragment = this)
         setGPSState()
         setUpRecyclerView()
-        subscribeObserver()
+        //subscribeObserver()
         //initLocationService()
 
         super.onViewCreated(view, savedInstanceState)
@@ -189,10 +431,10 @@ class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.P
         super.onStop()
     }
 
-/*
+
     @SuppressLint("MissingPermission")
     //https://stackoverflow.com/questions/2227292/how-to-get-latitude-and-longitude-of-the-mobile-device-in-android
-    private fun getCoordination():Map<String,Int?>{
+    /*private fun getCoordination():Map<String,Int?>{
         Log.d(TAG, "getLocation: getLocation() is called")
         val longitude: Int?
         val latitude:Int?
@@ -234,12 +476,11 @@ class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.P
         }
 
         return gpsData
-    }
+    }*/
 
 
 
-    @SuppressLint("MissingPermission")
-    private fun updateLocation(location:Location? = null):Location?{
+    private fun updateLocation(location: Location? = null): Location?{
         return location ?: manager!!.getLastKnownLocation(LocationManager.GPS_PROVIDER)
 
     }
@@ -252,7 +493,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.P
         when{
             Build.VERSION.SDK_INT < Build.VERSION_CODES.Q -> {
                 return (
-                        ContextCompat.checkSelfPermission(requireContext(),Manifest.permission.ACCESS_FINE_LOCATION)
+                        ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                                 == PackageManager.PERMISSION_GRANTED &&
                         ContextCompat.checkSelfPermission(requireContext(),Manifest.permission.ACCESS_FINE_LOCATION)
                                 == PackageManager.PERMISSION_GRANTED
@@ -282,6 +523,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.P
         }
     }
 
+/*
     private fun isGPSOrNetworkEnabled():Boolean{
         var gps_enabled = false
         var network_enabled = false
@@ -314,6 +556,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.P
         return !(!gps_enabled && !network_enabled)
 
     }
+*/
 
     //FrameWork that is called whenever we request permission
     //update the result to EasyPermission.
@@ -325,7 +568,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.P
         if(requestCode == REQUEST_CODE_LOCATION_PERMISSION){
             if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                 Log.d(TAG, "onRequestPermissionsResult: Success")
-                getCoordination()
+                //getCoordination()
             }
                 //checkAndRequestLocation()
             else {
@@ -388,26 +631,30 @@ class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.P
             TAG, "onPermissionsGranted: Request Code is $requestCode and \n " +
                 "Permission is granted ${TrackingUtility.hasLocationPermission(requireContext())}")
 
-        setPermState(GPSState(
+/*        setPermState(GPSState(
             isGPSGranted = true,
             currentGPS = CurrentGPS(getCoordination()),
             currentTime = 0
-        ))
+        ))*/
 
     }
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
         //when user is permanently denied permission
         if(EasyPermissions.somePermissionPermanentlyDenied(this, perms)){
+/*
             setPermState(GPSState())
+*/
             //This lead user to app setting where he/she can allow the denied permission.
             AppSettingsDialog.Builder(this).build().show()
         }else{ //not permanently denied but first deny, then request permission again.
             requestPermission()
         }
     }
+/*
     private fun setPermState(state: GPSState){
         vm.setPermState(state)
 
+*/
 /*        when(state){
             is PermissionState.Error -> {
                 Log.d(TAG, "setPermState: Error Requesting GPS")
@@ -438,10 +685,15 @@ class WeatherFragment : Fragment(R.layout.fragment_weather)/*, EasyPermissions.P
                     }
                 }
             }
-        }*/
+        }*//*
+
 
     }
+*/
 
+/*
 
-     */
 }
+
+
+ */

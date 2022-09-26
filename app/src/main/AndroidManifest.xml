@@ -17,10 +17,9 @@
     <!--Permission for weather app-->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <!--For Device Version Q -->
+    <!--For Device Version Q and higher-->
     <uses-permission android:name="adroid.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
-    <!--For Device Version 30 or higher -->
 
 
     <application

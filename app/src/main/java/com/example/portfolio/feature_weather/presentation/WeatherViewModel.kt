@@ -81,7 +81,7 @@ class WeatherViewModel @Inject constructor(
                             Log.d(TAG, "getWeather: Loading")
                         }
                         is DataState.Success -> {
-                            Log.d(TAG, "getWeather: Success with ${it.data!!.properties.timeZone}")
+                            Log.d(TAG, "getWeather: Success with ${it.data!!.properties.forecastOffice}")
                             //store weatherState
                             _weatherState.value = it
                             _weatherState.value.data!!.properties.apply{
@@ -102,7 +102,7 @@ class WeatherViewModel @Inject constructor(
         getWeatherInfo.getForecast(gridId,gridX, gridY).collectLatest{ dataState ->
             when(dataState){
                 is DataState.Error -> {
-                    Log.d(TAG, "getForecast: Error()")
+                    Log.d(TAG, "getForecast: Error() with ${dataState.message}")
                 }
                 is DataState.Loading -> {
                     Log.d(TAG, "getForecast: Loading()")
@@ -118,7 +118,7 @@ class WeatherViewModel @Inject constructor(
         getWeatherInfo.getForecastHourly(gridId,gridX, gridY).collectLatest{ dataState ->
             when(dataState){
                 is DataState.Error -> {
-                    Log.d(TAG, "getForecastHourly: Error()")
+                    Log.d(TAG, "getForecastHourly: Error() with ${dataState.message}")
                 }
                 is DataState.Loading -> {
                     Log.d(TAG, "getForecastHourly: Loading()")
