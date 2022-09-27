@@ -2,44 +2,120 @@ package com.example.portfolio.feature_weather.presentation
 
 
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.portfolio.R
+import com.example.portfolio.databinding.FragmentWeatherBinding
 import com.example.portfolio.feature_myapp.presentation.viewmodel.*
+import com.example.portfolio.utils.DataState
 import com.example.portfolio.utils.LocationService
+import kotlinx.coroutines.launch
 
 
 class WeatherFragment : Fragment(R.layout.fragment_weather){
     private lateinit var locationService:LocationService
+    private val vm:WeatherViewModel by viewModels()
+    private lateinit var binding:FragmentWeatherBinding
     
     companion object {
         private const val TAG = "WeatherFragment"
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+
+        binding = FragmentWeatherBinding.inflate(inflater,container, false)
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d(TAG, "onViewCreated: ")
-        locationHandler()
+        //subscribeVM()
         super.onViewCreated(view, savedInstanceState)
     }
 
-    private fun locationHandler(){
-        locationService = LocationService(requireActivity())
-        var currentGPS:CurrentGPS? = null
-        if(LocationService.hasLocationForegroundPermission(requireContext()))
-            currentGPS = locationService.provideLocation()
-
-        currentGPS?.let{
-            Log.d(TAG, "locationHandler: ${it.gps?.get("longitude")}")
-        }
-    }
-
     override fun onResume() {
+        Log.d(TAG, "onResume: ")
+
+        initLocationService(this)
+        getCurrentGPS(requireContext())
 
         super.onResume()
     }
 
+    //handle View()
+    private fun toggleProgressBar(){
+        when(binding.progressBar.visibility){
+            View.GONE -> binding.progressBar.visibility = View.VISIBLE
+            View.VISIBLE -> binding.progressBar.visibility = View.GONE
+        }
+
+    }
+
+    private fun subscribeVM(){
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED){
+                vm.forecastState.collect{ dataState ->
+                    when(dataState){
+                        is DataState.Error -> {
+                            Log.d(TAG, "subscribeVM: Error")
+                            //stop progress bar
+                            toggleProgressBar()
+                        }
+                        is DataState.Loading -> {
+                            Log.d(TAG, "subscribeVM: Loading")
+                            //start progress bar
+                            toggleProgressBar()
+                        }
+                        is DataState.Success -> {
+                            Log.d(TAG, "subscribeVM: Success")
+                            //stop progress bar
+                            toggleProgressBar()
+                        }
+                    }
+
+                }
+            }
+        }
+
+
+
+
+    }
+
+
+
+    // Location Permission and GPS related
+
+    //receive either fragment or activity
+    private fun initLocationService(fragment: Fragment){
+        locationService = LocationService(fragment = fragment)
+    }
+    private fun getCurrentGPS(context: Context):CurrentGPS?{
+        var currentGPS:CurrentGPS? = null
+        if(LocationService.hasLocationForegroundPermission(context)){
+            currentGPS = locationService.provideLocation()
+
+            currentGPS.let{
+                Log.d(TAG, "locationHandler: ${it.gps?.get("longitude")}")
+            }
+            return currentGPS
+        }else
+            return currentGPS
+    }
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -259,13 +335,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather), EasyPermissions.Per
 
 
 
-
-
-
-
-
-
-
+//Original with errors
 
 /*
     private lateinit var binding: FragmentWeatherBinding

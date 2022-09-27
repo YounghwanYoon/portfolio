@@ -69,13 +69,13 @@ class LocationService(private val activity: Activity? = null, private val fragme
                         )
                         Log.d(TAG, "requestPermission: $shouldshow")
                         //Q or higher require to request it separately and also device should work without the background location permission.
-                        EasyPermissions.requestPermissions(
+/*                        EasyPermissions.requestPermissions(
                             fragment,
                             "Newer phone requires background service permission" +
                                     ", otherwise app will not work properly.",
                             constants.REQUEST_CODE_LOCATION_PERMISSION,
                             Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                        )
+                        )*/
                     }
                     else ->{
                         EasyPermissions.requestPermissions(
