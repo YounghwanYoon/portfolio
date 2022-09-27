@@ -1,6 +1,5 @@
 package com.example.portfolio.feature_myapp.presentation.viewmodel
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -17,7 +16,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.Dispatcher
 import javax.inject.Inject
 
 @HiltViewModel
@@ -88,9 +86,9 @@ class WeatherViewModel @Inject constructor(
                                 launch{
                                     getForecast(gridId,gridX, gridY)
                                 }
-                                launch{
+                     /*           launch{
                                     getForecastHourly(gridId,gridX, gridY)
-                                }
+                                }*/
                             }
                         }
                     }
@@ -98,6 +96,7 @@ class WeatherViewModel @Inject constructor(
             }
         }
     }
+
     private suspend fun getForecast(gridId:String, gridX:Int, gridY:Int){
         getWeatherInfo.getForecast(gridId,gridX, gridY).collectLatest{ dataState ->
             when(dataState){
@@ -113,7 +112,6 @@ class WeatherViewModel @Inject constructor(
             }
         }
     }
-
     private suspend fun getForecastHourly(gridId:String,gridX:Int,gridY:Int){
         getWeatherInfo.getForecastHourly(gridId,gridX, gridY).collectLatest{ dataState ->
             when(dataState){
@@ -153,7 +151,7 @@ class WeatherViewModel @Inject constructor(
             is Granted -> {
                 _permState.value = newPermState
 
-                getWeather(newPermState.gpsData)
+                getWeather(newPermState.currentGPS)
             }
 
             is Error -> {
@@ -178,7 +176,7 @@ data class CurrentGPS(
 )
 
 sealed class PermissionState(){
-    data class Granted(val gpsData: CurrentGPS):PermissionState()
+    data class Granted(val currentGPS: CurrentGPS):PermissionState()
     class Error(val message:String):PermissionState()
     object Requesting:PermissionState()
     //data class Error(val gpsState: GPSState, val e:Exception):PermissionState()

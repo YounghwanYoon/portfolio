@@ -19,12 +19,13 @@ import com.example.portfolio.databinding.FragmentWeatherBinding
 import com.example.portfolio.feature_myapp.presentation.viewmodel.*
 import com.example.portfolio.utils.DataState
 import com.example.portfolio.utils.LocationService
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 
 class WeatherFragment : Fragment(R.layout.fragment_weather){
     private lateinit var locationService:LocationService
-    private val vm:WeatherViewModel by viewModels()
+    private val vm:WeatherViewModel by activityViewModels()
     private lateinit var binding:FragmentWeatherBinding
     
     companion object {
@@ -38,12 +39,16 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
     ): View? {
 
         binding = FragmentWeatherBinding.inflate(inflater,container, false)
-        return super.onCreateView(inflater, container, savedInstanceState)
+        val view = binding.root
+        return view
+        //return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d(TAG, "onViewCreated: ")
-        //subscribeVM()
+
+        subscribeVM()
+        vm.setPermState(PermissionState.Requesting)
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -51,61 +56,87 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
         Log.d(TAG, "onResume: ")
 
         initLocationService(this)
-        getCurrentGPS(requireContext())
+        getCurrentGPS()
+        setWeather(requireContext())
 
         super.onResume()
     }
 
-    //handle View()
-    private fun toggleProgressBar(){
-        when(binding.progressBar.visibility){
-            View.GONE -> binding.progressBar.visibility = View.VISIBLE
-            View.VISIBLE -> binding.progressBar.visibility = View.GONE
-        }
 
+    //handle View()
+    private fun toggleProgressBar(viewType:Int){
+        binding.progressBar.visibility = viewType
     }
 
+    //view model relate
     private fun subscribeVM(){
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED){
+                vm.weatherState.collect{ dataState ->
+                    when(dataState){
+                        is DataState.Error -> {
+                            Log.d(TAG, "subscribeVM: Weather Error")
+                        }
+                        is DataState.Loading -> {
+                            Log.d(TAG, "subscribeVM: Weather Loading ")
+                        }
+                        is DataState.Success -> {
+                            Log.d(TAG, "subscribeVM: Weather Success")
+                        }
+                    }
+
+                }
+/*
                 vm.forecastState.collect{ dataState ->
                     when(dataState){
                         is DataState.Error -> {
                             Log.d(TAG, "subscribeVM: Error")
                             //stop progress bar
-                            toggleProgressBar()
+                            toggleProgressBar(View.GONE)
                         }
                         is DataState.Loading -> {
                             Log.d(TAG, "subscribeVM: Loading")
                             //start progress bar
-                            toggleProgressBar()
+                            toggleProgressBar(View.GONE)
                         }
                         is DataState.Success -> {
                             Log.d(TAG, "subscribeVM: Success")
                             //stop progress bar
-                            toggleProgressBar()
+                            toggleProgressBar(View.GONE)
                         }
                     }
 
                 }
+*/
             }
         }
+    }
+    private fun setWeather(context:Context){
+        var permState:PermissionState = PermissionState.Requesting
+        permState = if(isPermissionGranted(context)){
+            PermissionState.Granted(getCurrentGPS())
+        }else{
+            PermissionState.Error("Permission Error")
+        }
 
-
-
+        vm.setPermState(permState)
 
     }
 
-
-
     // Location Permission and GPS related
-
     //receive either fragment or activity
     private fun initLocationService(fragment: Fragment){
         locationService = LocationService(fragment = fragment)
     }
-    private fun getCurrentGPS(context: Context):CurrentGPS?{
-        var currentGPS:CurrentGPS? = null
+    private fun isPermissionGranted(context:Context):Boolean{
+        return LocationService.hasLocationForegroundPermission(context)
+    }
+    private fun getCurrentGPS():CurrentGPS{
+        return locationService.provideLocation()
+
+/*
+         //var currentGPS:CurrentGPS? = locationService.provideLocation()
+
         if(LocationService.hasLocationForegroundPermission(context)){
             currentGPS = locationService.provideLocation()
 
@@ -114,7 +145,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
             }
             return currentGPS
         }else
-            return currentGPS
+            return currentGPS*/
     }
     override fun onRequestPermissionsResult(
         requestCode: Int,

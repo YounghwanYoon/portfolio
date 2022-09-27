@@ -21,10 +21,10 @@ interface WeatherServices {
     suspend fun getWeather(@Path("latitude")latitude:Int, @Path("longitude") longitude:Int): Response<WeatherDto>
 
     //https://api.weather.gov/gridpoints/TOP/31,80/forecast/hourly
-    @GET("/gridpoints/{office}/{gridX},{gridY}/forecast")
-    suspend fun getForecast(@Path("office") office:String, @Path("gridX")gridX:Int, @Path("gridY")gridY:Int) : Response<ForecastDto>
+    @GET("/gridpoints/{gridId}/{gridX},{gridY}/forecast")
+    suspend fun getForecast(@Path("gridId") gridId:String, @Path("gridX")gridX:Int, @Path("gridY")gridY:Int) : Response<ForecastDto>
 
-    @GET("/gridpoints/{office}/{gridX},{gridY}/forecast/hourly")
-    suspend fun getForecastHourly(@Path("office") office:String, @Path("gridX")gridX:Int, @Path("gridY")gridY:Int) : Response<ForecastHourlyDto>
+    @GET("/gridpoints/{gridId}/{gridX},{gridY}/forecast/hourly")
+    suspend fun getForecastHourly(@Path("gridId") gridId:String, @Path("gridX")gridX:Int, @Path("gridY")gridY:Int) : Response<ForecastHourlyDto>
 
 }
