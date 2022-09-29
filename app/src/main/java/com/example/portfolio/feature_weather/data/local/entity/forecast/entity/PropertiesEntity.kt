@@ -1,6 +1,5 @@
-package com.example.portfolio.feature_weather.data.local.entity.forecast
+package com.example.portfolio.feature_weather.data.local.entity.forecast.entity
 
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.example.portfolio.feature_weather.domain.model.forecast.Properties
 

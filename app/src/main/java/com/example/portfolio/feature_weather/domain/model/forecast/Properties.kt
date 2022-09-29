@@ -1,7 +1,5 @@
 package com.example.portfolio.feature_weather.domain.model.forecast
 
-import com.example.portfolio.feature_weather.data.local.entity.forecast.PropertiesEntity
-
 data class Properties(
     val elevation: Elevation,
 //    val forecastGenerator: String,

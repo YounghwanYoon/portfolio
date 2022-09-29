@@ -1,8 +1,12 @@
-package com.example.portfolio.feature_weather.data.local.entity.forecasthourly
+package com.example.portfolio.feature_weather.data.local.entity.forecasthourly.entity
 
+import androidx.room.PrimaryKey
 import com.example.portfolio.feature_weather.domain.model.forecasthourly.Period
 
 data class PeriodEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int? = null,
+
     val detailedForecast: String,
     val endTime: String,
     val icon: String,

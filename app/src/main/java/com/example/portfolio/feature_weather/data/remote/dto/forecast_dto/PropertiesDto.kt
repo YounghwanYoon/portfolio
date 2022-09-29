@@ -1,7 +1,6 @@
 package com.example.portfolio.feature_weather.data.remote.dto.forecast_dto
 
-import com.example.portfolio.feature_weather.data.local.entity.forecast.PropertiesEntity
-import com.example.portfolio.feature_weather.domain.model.forecasthourly.Properties
+import com.example.portfolio.feature_weather.data.local.entity.forecast.entity.PropertiesEntity
 import com.example.portfolio.feature_weather.data.remote.dto.forecasthourly_dto.ElevationDto
 
 data class PropertiesDto(
@@ -18,7 +17,7 @@ data class PropertiesDto(
     fun toProperties(): PropertiesEntity {
         return PropertiesEntity(
             elevation = this.elevation.toElevation(),
-            periods = this.periods.map{it.toPeriod()}
+            periods = this.periods.map{it.toPeriodEntity()}
         )
     }
 }

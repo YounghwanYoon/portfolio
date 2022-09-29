@@ -1,7 +1,7 @@
 package com.example.portfolio.feature_myapp.domain.repository.mapper
 
 import com.example.portfolio.feature_weather.domain.model.Weather
-import com.example.portfolio.feature_weather.data.local.entity.WeatherEntity
+import com.example.portfolio.feature_weather.data.local.entity.weather.WeatherEntity
 import com.example.portfolio.utils.EntityMapper
 import javax.inject.Inject
 

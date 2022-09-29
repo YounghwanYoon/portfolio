@@ -1,9 +1,7 @@
 package com.example.portfolio.feature_weather.data.local
 
 import androidx.room.*
-import com.example.portfolio.feature_weather.data.local.entity.WeatherEntity
-import com.example.portfolio.feature_weather.data.local.entity.forecast.ForecastEntity
-import com.example.portfolio.feature_weather.data.local.entity.forecasthourly.ForecastHourlyEntity
+import com.example.portfolio.feature_weather.data.local.entity.weather.WeatherEntity
 
 @Dao
 interface WeatherDao {

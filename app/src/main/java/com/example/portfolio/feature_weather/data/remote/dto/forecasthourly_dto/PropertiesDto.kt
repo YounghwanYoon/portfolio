@@ -1,6 +1,6 @@
 package com.example.portfolio.feature_weather.data.remote.dto.forecasthourly_dto
 
-import com.example.portfolio.feature_weather.data.local.entity.forecasthourly.PeriodEntity
+import com.example.portfolio.feature_weather.data.local.entity.forecasthourly.entity.PeriodEntity
 
 data class PropertiesDto(
     val elevationDto: ElevationDto,

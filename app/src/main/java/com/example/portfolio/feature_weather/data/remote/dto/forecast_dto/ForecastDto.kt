@@ -1,6 +1,6 @@
 package com.example.portfolio.feature_weather.data.remote.dto.forecast_dto
 
-import com.example.portfolio.feature_weather.data.local.entity.forecast.ForecastEntity
+import com.example.portfolio.feature_weather.data.local.entity.forecast.entity.ForecastEntity
 import com.google.gson.annotations.SerializedName
 
 

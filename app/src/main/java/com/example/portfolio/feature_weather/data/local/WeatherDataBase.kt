@@ -3,11 +3,11 @@ package com.example.portfolio.feature_weather.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.portfolio.feature_weather.data.local.entity.WeatherEntity
+import com.example.portfolio.feature_weather.data.local.entity.weather.WeatherEntity
 import com.example.portfolio.feature_weather.data.local.entity.forecast.ForecastDao
-import com.example.portfolio.feature_weather.data.local.entity.forecast.ForecastEntity
+import com.example.portfolio.feature_weather.data.local.entity.forecast.entity.ForecastEntity
 import com.example.portfolio.feature_weather.data.local.entity.forecasthourly.ForecastHourlyDao
-import com.example.portfolio.feature_weather.data.local.entity.forecasthourly.ForecastHourlyEntity
+import com.example.portfolio.feature_weather.data.local.entity.forecasthourly.entity.ForecastHourlyEntity
 import com.example.portfolio.feature_weather.data.utils.ForecastHourlyTypeConverter
 import com.example.portfolio.feature_weather.data.utils.ForecastTypeConverter
 import com.example.portfolio.feature_weather.data.utils.WeatherTypeConverter

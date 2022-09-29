@@ -27,7 +27,7 @@ class WeatherWeeklyAdapter:RecyclerView.Adapter<WeatherWeeklyAdapter.CustomViewM
             val date = period?.startTime?.substringBefore("T")
             val day = date?.let { Helpers.getDayOfWeekByDate(it) }
             val shortForecast = period?.shortForecast
-            val temperature = "${period?.temperature}${period?.temperatureUnit}"
+            val temperature = "${period?.temperature} F"//${period?.temperatureUnit}"
 
             binding!!.dateTxtview.text = date
             binding!!.dayTxtview.text = day

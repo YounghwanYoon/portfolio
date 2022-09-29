@@ -1,9 +1,5 @@
 package com.example.portfolio.feature_myapp.domain.repository.mapper
 
-import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
-import com.example.portfolio.feature_weather.data.local.entity.forecast.ForecastEntity
-import com.example.portfolio.utils.EntityMapper
-import javax.inject.Inject
 /*
 class ForecastMapperNetwork  constructor() : EntityMapper<Forecast, ForecastEntity> {
     override fun mapFrom(data: Forecast): ForecastEntity {

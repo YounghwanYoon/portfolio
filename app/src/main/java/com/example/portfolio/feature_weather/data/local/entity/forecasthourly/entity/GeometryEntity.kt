@@ -1,4 +1,4 @@
-package com.example.portfolio.feature_weather.data.remote.dto.forecasthourly_dto
+package com.example.portfolio.feature_weather.data.local.entity.forecasthourly.entity
 
 import androidx.room.PrimaryKey
 import com.example.portfolio.feature_weather.domain.model.forecasthourly.Geometry

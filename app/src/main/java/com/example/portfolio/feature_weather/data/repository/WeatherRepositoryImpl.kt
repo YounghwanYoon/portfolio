@@ -132,7 +132,7 @@ class WeatherRepositoryImpl @Inject constructor(
     }
 */
 
-    override suspend fun getWeather(gpsData:Map<String, Int?>):Flow<DataState<Weather>>{
+    override fun getWeather(gpsData:Map<String, Int?>):Flow<DataState<Weather>>{
         Log.d(TAG, "getWeather: getWeather is called from repository implement with gps${gpsData["latitude"]!!} ${gpsData["longitude"]}")
         return flow<DataState<Weather>>{
             this.emit(DataState.Loading())
@@ -150,7 +150,7 @@ class WeatherRepositoryImpl @Inject constructor(
             }
         }.flowOn(ioDispatcher)
     }
-    override suspend fun getForecast(gridId:String,gridX:Int,gridY:Int): Flow<DataState<Forecast>> {
+    override fun getForecast(gridId:String,gridX:Int,gridY:Int): Flow<DataState<Forecast>> {
         Log.d(TAG, "getForecast: getForecast is called from repository implement")
 
 
@@ -161,42 +161,41 @@ class WeatherRepositoryImpl @Inject constructor(
                 emit(DataState.Loading(entities.toForecast()))
             }*/
             var data:ForecastDto? = null
+
             try {
                 val response = weatherServices.getForecast(gridId, gridX, gridY)
                 Log.d(TAG, "getForecast: code ${response.code()}")
                 if(response.isSuccessful){
-                    val body = response.body()
-                    data = body
+                    data = response.body()
                     //data = response.body()
-                    Log.d(TAG, "getForecast: success with DTO with updateTime of ${body?.propertiesDto?.updateTime}")
+                    Log.d(TAG, "getForecast: success with DTO with updateTime of ${data?.propertiesDto?.updateTime}")
                 }
-            }catch (e:HttpException) {
-                emit(
-                    DataState.Error("Internet Error with : ${ e.message() }")
-                )
+                //store to local data ...causing so much error
+/*
+                val forecastEntity = data?.toForecastEntity()
+
+                forecastEntity?.let{
+                    Log.d(TAG, "getForecast: converting to DTO -> Entity ${it.properties.elevation}")
+                    //Insert data from server to local db
+                    forecast_dao.insertForecast(forecastEntity)
+                }*/
+
+            }catch (e:Exception) {
+                when(e){
+                    is HttpException ->{
+                        emit(DataState.Error<Forecast>("Internet Error with : ${ e.message}"))
+                    }
+                    else ->{
+                        emit(DataState.Error<Forecast>("Error from using Dagger: ${ e.message}"))
+                    }
+                }
             }
-            try{
-                //Insert data from server to local db
-
-                forecast_dao.insertForecast(data!!.toForecastEntity())
-
-                val forecast = forecast_dao.getAllForecast().toForecast()
-
-                emit(DataState.Success(forecast))
-
-                //get data from local db
-                //val forecast = forecast_dao!!.getAllForecast().toForecast()
-
-                //emit data for observer/client
-                //emit(DataState.Success(forecast))
-            }catch(e:Exception){
-                val message = "From getForecast() inside RepoImple Error occurred with DAO : ${e.message} "
-                emit(DataState.Error(message))
-            }
-
-        }.flowOn(ioDispatcher)
+//s            Log.d(TAG, "getForecast: ${forecast_dao.getAllForecast().properties.elevation}")
+            //val forecast = forecast_dao.getAllForecast().toForecast()
+            emit(DataState.Success(data?.toForecastEntity()?.toForecast()))
+        }//.flowOn(ioDispatcher)
     }
-    override suspend fun getForecastHourly(gridId:String,gridX:Int,gridY:Int): Flow<DataState<ForecastHourly>> {
+    override fun getForecastHourly(gridId:String,gridX:Int,gridY:Int): Flow<DataState<ForecastHourly>> {
         Log.d(TAG, "getForecastHourly: getForecastHourly is called from repository implement")
         return flow{
             emit(DataState.Loading())

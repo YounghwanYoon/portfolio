@@ -2,11 +2,8 @@ package com.example.portfolio.feature_weather.data.utils
 
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
-import com.example.portfolio.feature_weather.data.local.entity.forecast.PropertiesEntity
 import com.example.portfolio.feature_weather.domain.model.Properties
-import com.example.portfolio.utils.Converters
 import com.example.portfolio.utils.JsonParser
-import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 

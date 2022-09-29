@@ -1,12 +1,9 @@
-package com.example.portfolio.feature_weather.data.local.entity.forecasthourly
+package com.example.portfolio.feature_weather.data.local.entity.forecasthourly.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.portfolio.feature_weather.data.local.WeatherDataBase
-import com.example.portfolio.feature_weather.data.remote.dto.forecasthourly_dto.GeometryEntity
 import com.example.portfolio.feature_weather.domain.model.forecasthourly.ForecastHourly
-import com.google.gson.annotations.SerializedName
-import java.net.IDN
 
 @Entity(tableName = "${WeatherDataBase.DATABASE_NAME}_forecast_hourly")
 data class ForecastHourlyEntity(
