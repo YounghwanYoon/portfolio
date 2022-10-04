@@ -3,27 +3,16 @@ package com.example.portfolio.utils
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
-import android.content.DialogInterface.OnClickListener
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
-import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.example.portfolio.feature_myapp.presentation.viewmodel.CurrentGPS
-import com.example.portfolio.feature_weather.presentation.WeatherFragment
-import com.google.android.gms.location.*
-import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
-import com.google.android.gms.tasks.CancellationTokenSource
+import com.example.portfolio.feature_weather.presentation.CurrentGPS
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 
@@ -32,6 +21,7 @@ import pub.devrel.easypermissions.EasyPermissions
 
 class LocationService(private val activity: Activity? = null, private val fragment: Fragment?= null):LocationListener, EasyPermissions.PermissionCallbacks {
     private val mContext = activity ?: (fragment!!.requireContext())
+
     operator fun invoke(){
         Log.d(TAG, "invoke: ")
 
@@ -184,9 +174,13 @@ class LocationService(private val activity: Activity? = null, private val fragme
 
     @SuppressLint("MissingPermission", "ServiceCast")
     fun provideLocation (location:Location?=null): CurrentGPS {
+
+
         Log.d(TAG, "provideLocation: is permission granted(): ${hasLocationForegroundPermission(mContext)}")
         var currentLocation:Location ? = null
         val currentGPS = CurrentGPS()
+        if(!hasLocationForegroundPermission(mContext))
+            requestPermission()
 
         return if(location == null){
             val locationManager = mContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager

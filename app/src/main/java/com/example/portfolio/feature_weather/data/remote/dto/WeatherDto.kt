@@ -8,10 +8,12 @@ data class WeatherDto(
     val context: List<Any>,
     @SerializedName("geometry")
     val geometry: GeometryDto,
+    @SerializedName("id")
     val id: String,
     //need properties gridId and grid x and grid y
     @SerializedName("properties")
     val properties: PropertiesDto,
+    @SerializedName("type")
     val type: String
 ){
     fun toWeather(): Weather {

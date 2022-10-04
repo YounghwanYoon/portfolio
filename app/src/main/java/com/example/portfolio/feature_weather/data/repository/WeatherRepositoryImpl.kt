@@ -1,24 +1,27 @@
 package com.example.portfolio.feature_weather.data.repository
 
 import android.util.Log
-import com.example.portfolio.utils.DataState
-import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
 import com.example.portfolio.feature_weather.data.local.WeatherDao
 import com.example.portfolio.feature_weather.data.local.entity.forecast.ForecastDao
+import com.example.portfolio.feature_weather.data.local.entity.forecast.entity.ForecastEntity
 import com.example.portfolio.feature_weather.data.local.entity.forecasthourly.ForecastHourlyDao
+import com.example.portfolio.feature_weather.data.local.entity.forecasthourly.entity.ForecastHourlyEntity
 import com.example.portfolio.feature_weather.data.remote.dto.WeatherDto
 import com.example.portfolio.feature_weather.data.remote.dto.forecast_dto.ForecastDto
+import com.example.portfolio.feature_weather.data.remote.dto.forecasthourly_dto.ForecastHourlyDto
 import com.example.portfolio.feature_weather.domain.model.Weather
+import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
 import com.example.portfolio.feature_weather.domain.model.forecasthourly.ForecastHourly
 import com.example.portfolio.feature_weather.domain.repository.WeatherRepository
 import com.example.portfolio.feature_weather.domain.repository.WeatherServices
-import kotlinx.coroutines.*
-import kotlinx.coroutines.CoroutineScope.*
-import kotlinx.coroutines.flow.*
+import com.example.portfolio.utils.DataState
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import retrofit2.HttpException
-import java.io.IOException
 import javax.inject.Inject
-import kotlinx.coroutines.launch
 
 class WeatherRepositoryImpl @Inject constructor(
     private val weatherServices: WeatherServices,
@@ -132,28 +135,30 @@ class WeatherRepositoryImpl @Inject constructor(
     }
 */
 
-    override fun getWeather(gpsData:Map<String, Int?>):Flow<DataState<Weather>>{
+    override suspend fun getWeather(gpsData:Map<String, Int?>):Flow<DataState<Weather>>{
         Log.d(TAG, "getWeather: getWeather is called from repository implement with gps${gpsData["latitude"]!!} ${gpsData["longitude"]}")
         return flow<DataState<Weather>>{
             this.emit(DataState.Loading())
+            var body: WeatherDto? = null
             try{
                 val response = weatherServices.getWeather(gpsData["latitude"]!!, gpsData["longitude"]!!)
                 Log.d(TAG, "getWeather: response code ${response.code()}")
-                if(response.isSuccessful){
-                    val body = response.body()
-                    val weather = body!!.toWeather()
-                    emit(DataState.Success(weather))
-                }
+                body = response.body()
+               if(response.isSuccessful && body != null){
+                    val weather = body.toWeather()
+                   emit(DataState.Success(weather))
+
+               }
             }catch (e:Exception){
                 Log.d(TAG, "getWeather: something went off")
                 emit(DataState.Error(e.message!!))
             }
+
         }.flowOn(ioDispatcher)
     }
+
     override fun getForecast(gridId:String,gridX:Int,gridY:Int): Flow<DataState<Forecast>> {
         Log.d(TAG, "getForecast: getForecast is called from repository implement")
-
-
         return flow<DataState<Forecast>>{
             emit(DataState.Loading())
 /*            val entities = forecast_dao!!.getAllForecast()
@@ -161,6 +166,13 @@ class WeatherRepositoryImpl @Inject constructor(
                 emit(DataState.Loading(entities.toForecast()))
             }*/
             var data:ForecastDto? = null
+
+            //if forecast_dao is not null, then return Loading state with previously stored data.
+            val forecast : ForecastEntity? = forecast_dao.getAllForecast()
+            forecast?.let{
+                Log.d(TAG, "getForecast: hey room is not emptied")
+                emit(DataState.Loading(it.toForecast()))
+            }
 
             try {
                 val response = weatherServices.getForecast(gridId, gridX, gridY)
@@ -171,22 +183,19 @@ class WeatherRepositoryImpl @Inject constructor(
                     Log.d(TAG, "getForecast: success with DTO with updateTime of ${data?.propertiesDto?.updateTime}")
                 }
                 //store to local data ...causing so much error
-/*
-                val forecastEntity = data?.toForecastEntity()
-
-                forecastEntity?.let{
-                    Log.d(TAG, "getForecast: converting to DTO -> Entity ${it.properties.elevation}")
-                    //Insert data from server to local db
-                    forecast_dao.insertForecast(forecastEntity)
-                }*/
-
+                //it kept saying data is null when trying to storing it to room.
+                //then it said not null when returning directly to main thread...hm.
+                //possible suspending /delaying thread
+                data?.let{
+                    forecast_dao.insertForecast(it.toForecastEntity())
+                }
             }catch (e:Exception) {
                 when(e){
                     is HttpException ->{
-                        emit(DataState.Error<Forecast>("Internet Error with : ${ e.message}"))
+                        emit(DataState.Error("Internet Error with : ${ e.message}"))
                     }
                     else ->{
-                        emit(DataState.Error<Forecast>("Error from using Dagger: ${ e.message}"))
+                        emit(DataState.Error("Error from using Dagger: ${ e.message}"))
                     }
                 }
             }
@@ -198,36 +207,57 @@ class WeatherRepositoryImpl @Inject constructor(
     override fun getForecastHourly(gridId:String,gridX:Int,gridY:Int): Flow<DataState<ForecastHourly>> {
         Log.d(TAG, "getForecastHourly: getForecastHourly is called from repository implement")
         return flow{
+            var data:ForecastHourlyDto? = null
             emit(DataState.Loading())
-/*            val entities = forecastHourly_dao!!.getAllForecastHourly()
-            if(entities != null)
-            entities?.let{
-                emit(DataState.Loading(entities.toForecastHourly()))
-            }*/
-            try{
-                val response = weatherServices.getForecastHourly(gridId,gridX,gridY)
-                val data = response.body()
-                if(data == null)
-                    emit(DataState.Error("Error from getForecastHourly inside RepoImpl and Code = ${response.code()} "))
 
+
+            //If forecasthourly_dao is not null, return Loading state with stored data.
+/*
+            val forecastHEntity = forecastHourly_dao.getAllForecastHourly()
+            forecastHEntity?.let{
+                if(it.type!= null)
+                    emit(DataState.Loading(it.toForecastHourly()))
+            }
+*/
+
+
+            try{
+                val response =
+                    weatherServices.getForecastHourly(gridId,gridX,gridY)
+                if(response.isSuccessful){
+                    data = response.body()
+                }else{
+                    emit(DataState.Error("Error: Null data is returned by the server with code: ${response.code()} "))
+                }
+                data?.let{
+                    insertForecastHourly(it)
+                }
+/*
                 //Insert data from server to local db
                 data?.let{
-                    forecastHourly_dao!!.insertForecastHourly(data.toForecastHourlyEntity())
+                    insertForecastHourly(it)
+                    //get data from local db
+                    val forecastHourly = forecastHourly_dao.getAllForecastHourly()?.toForecastHourly()
+                    if(forecastHourly != null)
+                    //emit data for observer/client
+                        emit(DataState.Success(forecastHourly))
                 }
-                //get data from local db
-                val forecastHourly = forecastHourly_dao!!.getAllForecastHourly().toForecastHourly()
-
-                //emit data for observer/client
-                emit(DataState.Success(forecastHourly))
+                */
             }catch(e:Exception){
                 val message = "From getForecastHourly() inside RepoImp Error occurred with : ${e.message} "
                 emit(DataState.Error(message))
             }
-        }.flowOn(ioDispatcher)
+            emit(DataState.Success(data?.toForecastHourlyEntity()?.toForecastHourly()))
+
+        }//.flowOn(ioDispatcher)
     }
 
-    companion object{
-        private val TAG:String = this.javaClass.name
+    private suspend fun insertForecastHourly(data:ForecastHourlyDto){
+        forecastHourly_dao.insertForecastHourly(data.toForecastHourlyEntity())
+    }
+
+    companion object {
+        private const val TAG = "WeatherRepositoryImpl"
     }
 
 }

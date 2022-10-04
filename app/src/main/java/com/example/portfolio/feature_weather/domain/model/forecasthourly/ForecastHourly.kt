@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 data class ForecastHourly(
     //val geometry: Geometry,
     val properties: Properties,
-    val type: String
+    val type: String ?= null
 )

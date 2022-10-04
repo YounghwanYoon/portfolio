@@ -13,7 +13,7 @@ data class ForecastHourlyEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int? = null,
     val properties: PropertiesEntity,
-    val type: String
+    val type: String? = null
 ){
     fun toForecastHourly() = ForecastHourly(
         //context= context,

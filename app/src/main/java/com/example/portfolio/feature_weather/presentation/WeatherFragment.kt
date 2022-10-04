@@ -10,24 +10,25 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.portfolio.R
 import com.example.portfolio.databinding.FragmentWeatherBinding
-import com.example.portfolio.feature_myapp.presentation.viewmodel.*
-import com.example.portfolio.utils.DataState
+import com.example.portfolio.feature_weather.presentation.adapter.WeatherHourlyAdapter
+import com.example.portfolio.feature_weather.presentation.adapter.WeatherWeeklyAdapter
 import com.example.portfolio.utils.LocationService
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 
 class WeatherFragment : Fragment(R.layout.fragment_weather){
     private lateinit var locationService:LocationService
-    private val vm:WeatherViewModel by activityViewModels()
+    private val vm: WeatherViewModel by activityViewModels()
     private lateinit var binding:FragmentWeatherBinding
-    
+    private lateinit var weeklyAdapter: WeatherWeeklyAdapter
+    private lateinit var hourlyAdapter: WeatherHourlyAdapter
+
     companion object {
         private const val TAG = "WeatherFragment"
     }
@@ -47,33 +48,96 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d(TAG, "onViewCreated: ")
 
-        subscribeVM()
         vm.setPermState(PermissionState.Requesting)
+        setUpRecyclerView()
+        subscribeVM()
         super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onResume() {
         Log.d(TAG, "onResume: ")
 
-        initLocationService(this)
-        getCurrentGPS()
+        locationHelper()
         setWeather(requireContext())
 
         super.onResume()
     }
 
+    private fun locationHelper(){
+        initLocationService(this)
+        getCurrentGPS()
+    }
+
+    private fun toggleProgressBar(viewType:Int){
+        toggleProgressBarTop(viewType)
+        toggleProgressBarBtm(viewType)
+    }
 
     //handle View()
-    private fun toggleProgressBar(viewType:Int){
-        binding.progressBar.visibility = viewType
+    private fun toggleProgressBarTop(viewType:Int){
+        binding.progressBarTop.visibility = viewType
+        if(viewType == View.GONE)
+            binding.loadingScreenConst.visibility = viewType
+    }
+    private fun toggleProgressBarBtm(viewType:Int){
+        binding.progressBarBtm.visibility = viewType
+
+        if(viewType == View.GONE)
+            binding.loadingScreenConst.visibility = viewType
+    }
+
+    private fun setUpRecyclerView(){
+        weeklyAdapter = WeatherWeeklyAdapter()
+        hourlyAdapter = WeatherHourlyAdapter()
+
+        binding.forecastWeeklyRecyclerview.apply{
+            this.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            this.adapter = weeklyAdapter
+        }
+
+        binding.forecastHourlyRecyclerview.apply{
+            this.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            this.adapter = hourlyAdapter
+        }
     }
 
     //view model relate
     private fun subscribeVM(){
+        //must be separate lifecycleScope or data will not be updated.
+        //but why?
         viewLifecycleOwner.lifecycleScope.launch {
+
+                vm.forecastState.collect{ data ->
+                    if(data != null){
+                        Log.d(TAG, "subscribeVM: updating forecast to adapter")
+                        toggleProgressBar(View.GONE)
+
+                        weeklyAdapter.updateWeeklyForecast(data)
+                    }
+                }
+
+
+
+           /* viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED){
+                vm.forecastState.collect{ data ->
+                    if(data != null){
+                        Log.d(TAG, "subscribeVM: updating forecast to adapter")
+                        toggleProgressBar(View.GONE)
+
+                        weeklyAdapter.updateWeeklyForecast(data)
+                    }
+                }
+            }
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED){
-                vm.weatherState.collect{ dataState ->
-                    when(dataState){
+                vm.forecastHourlyState.collect{ data ->
+                    if(data!= null){
+                        Log.d(TAG, "subscribeVM: updating forecast hourly data to adapter")
+
+                        toggleProgressBar(View.GONE)
+                        hourlyAdapter.updateHourlyForecast(data)
+                    }
+
+                    *//*when(dataState){
                         is DataState.Error -> {
                             Log.d(TAG, "subscribeVM: Weather Error")
                         }
@@ -83,36 +147,71 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
                         is DataState.Success -> {
                             Log.d(TAG, "subscribeVM: Weather Success")
                         }
+                    }*//*
+                }
+            }*/
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+                vm.forecastHourlyState.collect{ data ->
+                    if(data!= null){
+                        Log.d(TAG, "subscribeVM: updating forecast hourly data to adapter")
+
+                        toggleProgressBar(View.GONE)
+                        hourlyAdapter.updateHourlyForecast(data)
                     }
 
-                }
-/*
-                vm.forecastState.collect{ dataState ->
-                    when(dataState){
+                    /*when(dataState){
                         is DataState.Error -> {
-                            Log.d(TAG, "subscribeVM: Error")
-                            //stop progress bar
-                            toggleProgressBar(View.GONE)
+                            Log.d(TAG, "subscribeVM: Weather Error")
                         }
                         is DataState.Loading -> {
-                            Log.d(TAG, "subscribeVM: Loading")
-                            //start progress bar
-                            toggleProgressBar(View.GONE)
+                            Log.d(TAG, "subscribeVM: Weather Loading ")
                         }
                         is DataState.Success -> {
-                            Log.d(TAG, "subscribeVM: Success")
-                            //stop progress bar
-                            toggleProgressBar(View.GONE)
+                            Log.d(TAG, "subscribeVM: Weather Success")
                         }
+                    }*/
+                }
+
+
+
+           /* viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED){
+                vm.forecastState.collect{ data ->
+                    if(data != null){
+                        Log.d(TAG, "subscribeVM: updating forecast to adapter")
+                        toggleProgressBar(View.GONE)
+
+                        weeklyAdapter.updateWeeklyForecast(data)
+                    }
+                }
+            }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED){
+                vm.forecastHourlyState.collect{ data ->
+                    if(data!= null){
+                        Log.d(TAG, "subscribeVM: updating forecast hourly data to adapter")
+
+                        toggleProgressBar(View.GONE)
+                        hourlyAdapter.updateHourlyForecast(data)
                     }
 
+                    *//*when(dataState){
+                        is DataState.Error -> {
+                            Log.d(TAG, "subscribeVM: Weather Error")
+                        }
+                        is DataState.Loading -> {
+                            Log.d(TAG, "subscribeVM: Weather Loading ")
+                        }
+                        is DataState.Success -> {
+                            Log.d(TAG, "subscribeVM: Weather Success")
+                        }
+                    }*//*
                 }
-*/
-            }
+            }*/
         }
+
     }
     private fun setWeather(context:Context){
-        var permState:PermissionState = PermissionState.Requesting
+        var permState: PermissionState = PermissionState.Requesting
         permState = if(isPermissionGranted(context)){
             PermissionState.Granted(getCurrentGPS())
         }else{
@@ -128,10 +227,11 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
     private fun initLocationService(fragment: Fragment){
         locationService = LocationService(fragment = fragment)
     }
+
     private fun isPermissionGranted(context:Context):Boolean{
         return LocationService.hasLocationForegroundPermission(context)
     }
-    private fun getCurrentGPS():CurrentGPS{
+    private fun getCurrentGPS(): CurrentGPS {
         return locationService.provideLocation()
 
 /*
@@ -156,6 +256,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
         locationService.onRequestPermissionsResult(requestCode, permissions, grantResults)
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
+
 }
 
 /*

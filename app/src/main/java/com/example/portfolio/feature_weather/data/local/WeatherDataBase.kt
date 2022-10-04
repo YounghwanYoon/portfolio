@@ -1,5 +1,6 @@
 package com.example.portfolio.feature_weather.data.local
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -12,7 +13,13 @@ import com.example.portfolio.feature_weather.data.utils.ForecastHourlyTypeConver
 import com.example.portfolio.feature_weather.data.utils.ForecastTypeConverter
 import com.example.portfolio.feature_weather.data.utils.WeatherTypeConverter
 
-@Database(entities = [WeatherEntity::class, ForecastEntity::class, ForecastHourlyEntity::class], version = 1)
+@Database(
+    entities = [WeatherEntity::class, ForecastEntity::class, ForecastHourlyEntity::class],
+    version = 1,
+/*    autoMigrations = [
+        AutoMigration (from=1, to =2)
+    ]*/
+)
 @TypeConverters(WeatherTypeConverter::class, ForecastTypeConverter::class, ForecastHourlyTypeConverter::class)
 abstract class WeatherDataBase:RoomDatabase() {
     companion object{

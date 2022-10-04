@@ -8,7 +8,7 @@ import com.example.portfolio.feature_weather.data.local.entity.forecast.entity.F
 interface ForecastDao {
 
     @Query ("SELECT * FROM ${WeatherDataBase.DATABASE_NAME}_forecast")
-    suspend fun getAllForecast(): ForecastEntity
+    suspend fun getAllForecast(): ForecastEntity?
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

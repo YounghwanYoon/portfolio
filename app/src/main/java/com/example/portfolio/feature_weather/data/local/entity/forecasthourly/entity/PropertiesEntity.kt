@@ -24,6 +24,6 @@ data class PropertiesEntity(
          units = units,
          updateTime =updateTime,
          updated = updated,
-        validTimes = validTimes
+         validTimes = validTimes
     )
 }
