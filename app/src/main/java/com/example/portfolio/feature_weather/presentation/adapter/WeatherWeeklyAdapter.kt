@@ -15,7 +15,7 @@ import com.example.portfolio.utils.Helpers
 class WeatherWeeklyAdapter:RecyclerView.Adapter<WeatherWeeklyAdapter.CustomViewModelHolder>() {
     private val TAG = "WeatherWeeklyAdapter"
 
-    private var binding:WeatherWeeklyItemsBinding ?  = null
+    private var binding: WeatherWeeklyItemsBinding?  = null
     private var data:Forecast? = null
     private var dataHourly:ForecastHourly? = null
 

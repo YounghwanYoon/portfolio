@@ -14,6 +14,6 @@ data class Properties(
     val gridY: Int,
 //    val observationStations: String,
 //    val radarStation: String,
-//    //val relativeLocation: RelativeLocation,
+    val relativeLocation: RelativeLocation,
     val timeZone: String
 )

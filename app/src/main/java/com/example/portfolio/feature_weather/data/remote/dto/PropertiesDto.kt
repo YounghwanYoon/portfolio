@@ -1,6 +1,7 @@
 package com.example.portfolio.feature_weather.data.remote.dto
 
 import com.example.portfolio.feature_weather.domain.model.Properties
+import com.example.portfolio.feature_weather.domain.model.RelativeLocation
 
 data class PropertiesDto(
     val county: String,
@@ -16,7 +17,7 @@ data class PropertiesDto(
     val gridY: Int,
     val observationStations: String,
     val radarStation: String,
-    //val relativeLocation: RelativeLocation,
+    val relativeLocation: RelativeLocation,
     val timeZone: String
 ){
 
@@ -28,7 +29,8 @@ data class PropertiesDto(
             forecastOffice = forecastOffice,
             gridId = gridId,
             gridX = gridX,
-            gridY = gridY
+            gridY = gridY,
+            relativeLocation = relativeLocation
         )
     }
 }

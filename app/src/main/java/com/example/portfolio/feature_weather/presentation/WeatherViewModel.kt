@@ -46,19 +46,23 @@ class WeatherViewModel @Inject constructor(
     private fun getWeather(currentGPS: CurrentGPS = CurrentGPS(gps= mutableMapOf("latitude" to 37, "longitude" to -122))){
         viewModelScope.launch {
             withContext(dispatcherIO){
-                getWeatherInfo(currentGPS.gps!!).collect{ it ->
-                    when(it){
+                getWeatherInfo(currentGPS.gps!!).collect{ dataState ->
+                    when(dataState){
                         is DataState.Error -> {
-                            _weatherState.value = it
-                            Log.d(TAG, "getWeather: Error with ${it.message}")
+                            _weatherState.value = dataState
+                            Log.d(TAG, "getWeather: Error with ${dataState.message}")
                         }
                         is DataState.Loading -> {
-                            _weatherState.value = it
+                            _weatherState.value = dataState
                             Log.d(TAG, "getWeather: Loading")
                         }
                         is DataState.Success -> {
-                            Log.d(TAG, "getWeather: Success with ${it.data!!.properties.forecastOffice}")
-                            _weatherState.value = it
+                            Log.d(TAG, "getWeather: Success with ${dataState.data!!.properties.forecastOffice}")
+                            //_weatherState.value = dataState
+                            _weatherState.update {
+                                dataState
+                            }
+
 
                             //request forecast and forecasthoulry data from server.
                             _weatherState.value.data!!.properties.apply{
@@ -92,7 +96,7 @@ class WeatherViewModel @Inject constructor(
 
 
     private suspend fun getForecast(gridId:String, gridX:Int, gridY:Int){
-        getWeatherInfo.getForecast(gridId,gridX, gridY).collectLatest{ dataState ->
+        getWeatherInfo.getForecast(gridId,gridX, gridY).collect{ dataState ->
             when(dataState){
                 is DataState.Error -> {
                     Log.d(TAG, "getForecast: Error() with ${dataState.message}")
@@ -102,11 +106,13 @@ class WeatherViewModel @Inject constructor(
                 }
                 is DataState.Success -> {
                     withContext(Dispatchers.Main){
-                        Log.d(TAG, "getForecast: SUCCESS from VM ${dataState.data!!.properties.updateTime}")
+                        Log.d(TAG, "getForecast: SUCCESS from VM ${dataState.data?.properties?.updateTime}")
                         _forecastState.update {
-                            it?.copy(
-                                properties = dataState.data.properties,
-                            ) ?: dataState.data
+                            dataState.data?.let { it1 ->
+                                it?.copy(
+                                    properties = it1.properties,
+                                )
+                            } ?: dataState.data
                         }
                     }
                     Log.d(TAG, "getForecast: Success from VM with ${_forecastState.value?.properties?.updateTime}")

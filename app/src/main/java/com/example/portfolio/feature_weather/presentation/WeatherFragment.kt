@@ -2,6 +2,7 @@ package com.example.portfolio.feature_weather.presentation
 
 
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -16,8 +17,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.portfolio.R
 import com.example.portfolio.databinding.FragmentWeatherBinding
+import com.example.portfolio.feature_weather.domain.model.forecasthourly.Period
 import com.example.portfolio.feature_weather.presentation.adapter.WeatherHourlyAdapter
 import com.example.portfolio.feature_weather.presentation.adapter.WeatherWeeklyAdapter
+import com.example.portfolio.feature_weather.presentation.helper.WeatherHelper
+import com.example.portfolio.utils.DataState
 import com.example.portfolio.utils.LocationService
 import kotlinx.coroutines.launch
 
@@ -101,16 +105,52 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
         }
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun setUpView(period:Period){
+        binding.apply{
+            period.shortForecast?.let{
+                currentHourImage.setImageResource( WeatherHelper.selectImage(it))
+            }
+            currentHourTempTxt.text = "${period.temperature} \u2109"
+            currentDayOfWeekTxt.text = WeatherHelper.getDayOfWeek()
+        }
+    }
+
+    private fun setCurrentLocationView(cityState:String){
+        binding.apply{
+            currentLocationTxt.text = cityState
+        }
+    }
+
     //view model relate
     private fun subscribeVM(){
         //must be separate lifecycleScope or data will not be updated.
         //but why?
+        viewLifecycleOwner.lifecycleScope.launch{
+            vm.weatherState.collect{ dataState->
+                when(dataState){
+                    is DataState.Error -> {
+                        Log.d(TAG, "subscribeVM: Error calling weatherState")
+                    }
+                    is DataState.Loading -> {
+                        Log.d(TAG, "subscribeVM: weatherState is loading")
+                    }
+                    is DataState.Success -> {
+                        Log.d(TAG, "subscribeVM: Success")
+                        dataState.data?.properties?.relativeLocation?.properties?.let{ location ->
+                            setCurrentLocationView("${location.city}, ${location.state}")
+                        }
+                    }
+                }
+            }
+        }
         viewLifecycleOwner.lifecycleScope.launch {
 
                 vm.forecastState.collect{ data ->
                     if(data != null){
                         Log.d(TAG, "subscribeVM: updating forecast to adapter")
                         toggleProgressBar(View.GONE)
+
 
                         weeklyAdapter.updateWeeklyForecast(data)
                     }
@@ -155,9 +195,13 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
                 vm.forecastHourlyState.collect{ data ->
                     if(data!= null){
                         Log.d(TAG, "subscribeVM: updating forecast hourly data to adapter")
+                        data.properties?.let{
+                            setUpView(WeatherHelper.findTodayData(it.periods))
+                        }
 
                         toggleProgressBar(View.GONE)
                         hourlyAdapter.updateHourlyForecast(data)
+
                     }
 
                     /*when(dataState){

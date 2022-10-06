@@ -8,10 +8,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.portfolio.R
 import com.example.portfolio.databinding.WeatherDetailItemsBinding
-import com.example.portfolio.databinding.WeatherWeeklyItemsBinding
-import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
+import com.example.portfolio.feature_weather.domain.model.Weather
 import com.example.portfolio.feature_weather.domain.model.forecasthourly.ForecastHourly
-import com.example.portfolio.utils.Helpers
+import com.example.portfolio.feature_weather.domain.model.forecasthourly.Period
+import com.example.portfolio.feature_weather.presentation.helper.WeatherHelper
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -20,45 +20,64 @@ class WeatherHourlyAdapter:RecyclerView.Adapter<WeatherHourlyAdapter.CustomViewM
 
     private var binding:WeatherDetailItemsBinding ?  = null
     //private var data:Forecast? = null
-    private var dataHourly:ForecastHourly? = null
-
-    private val currentTime = LocalDateTime.now().format(
-        DateTimeFormatter.ofPattern("HH::mm")
-    )
-
+    private var mDataHourly:ForecastHourly? = null
     private var layoutInflater:LayoutInflater? = null
+    private val mCurrentYYMMDD:Int = WeatherHelper.getCurrentYYMMDD().toInt()
+    private val mCurrentTime:String = WeatherHelper.getCurrentTime()
+
+    private fun limitPeriods(periods: List<Period>): List<Period> {
+        periods.forEach{
+            Log.d(TAG, "limitPeriods: ${it.startTime}")
+        }
+        
+        val startingIndex = WeatherHelper.findStartingIndex(periods, mCurrentYYMMDD, 0, periods.size - 1)
+
+        return periods.slice(startingIndex..startingIndex + 23)
+
+    }
 
     inner class CustomViewModelHolder(val view: View):RecyclerView.ViewHolder(view){
-        fun onBind(position:Int){
+
+        fun onBind(position: Int, limitPeriods: List<Period>?){
             Log.d(TAG, "onBind: size of Data ")
 
-            val period = dataHourly?.properties?.periods?.get(position)
-            val startTime = period?.startTime?.substringBefore("T")
+            //val period = mDataHourly?.properties?.periods?.get(position)
+            val period = limitPeriods?.get(position)
+            //"2022-10-05T02:00:00-07:00"
+/*            val startTime = period?.startTime
+                ?.substringBefore(":00-")
+                ?.substringAfter("T")
+*/
+            val startTime= WeatherHelper.removeFormatPeriodHourly(period)
             val shortForecast = period?.shortForecast
             val temperature = "${period?.temperature} \u2109"
             
             //binding!!.dayTxtview.text = day
             binding?.apply{
-                forecastTempTxt.text = temperature
+                //forecastTempTxt.text = temperature
+
                 forecastHourTxt.text = startTime
-            }
-            with(shortForecast){
-                when{
-                    this?.contains("Clear") == true || this?.contains("Sunny") == true -> {
-                        binding!!.forecastHourlyImg.setImageResource(R.drawable.ic_weather_sunny_svg)
-                    }
-                    this?.contains("Rain") == true || this?.contains("Showers") == true -> {
-                        binding!!.forecastHourlyImg.setImageResource(R.drawable.ic_weather_rain)
-                    }
-                    this?.contains("Snow") == true || this?.contains("Icy") == true -> {
-                        binding!!.forecastHourlyImg.setImageResource(R.drawable.ic_weather_snow)
-                    }
-                    this?.contains("Cloudy") == true -> {
-                        binding!!.forecastHourlyImg.setImageResource(R.drawable.ic_weather_cloudy)
-                    }
-                    else -> binding!!.forecastHourlyImg.setImageResource(R.drawable.ic_weather_partially_sunny_cloudy)
+                shortForecast?.let{
+                    forecastHourImg.setImageResource(WeatherHelper.selectImage(it))
                 }
             }
+          /*  with(shortForecast){
+                when{
+                    this?.contains("Clear") == true || this?.contains("Sunny") == true -> {
+                        binding!!.forecastHourImg.setImageResource(R.drawable.ic_weather_sunny_svg)
+                    }
+                    this?.contains("Rain") == true || this?.contains("Showers") == true -> {
+                        binding!!.forecastHourImg.setImageResource(R.drawable.ic_weather_rain)
+                    }
+                    this?.contains("Snow") == true || this?.contains("Icy") == true -> {
+                        binding!!.forecastHourImg.setImageResource(R.drawable.ic_weather_snow)
+                    }
+                    this?.contains("Cloudy") == true -> {
+                        binding!!.forecastHourImg.setImageResource(R.drawable.ic_weather_cloudy)
+                    }
+                    else -> binding!!.forecastHourImg.setImageResource(R.drawable.ic_weather_partially_sunny_cloudy)
+                }
+            }*/
         }
     }
 /*
@@ -70,9 +89,10 @@ class WeatherHourlyAdapter:RecyclerView.Adapter<WeatherHourlyAdapter.CustomViewM
     }
 */
 
+
     @SuppressLint("NotifyDataSetChanged")
     fun updateHourlyForecast(newData:ForecastHourly){
-        dataHourly = newData
+        mDataHourly = newData
         Log.d(TAG, "updateData: total number of new data is ${newData.properties.periods.size}")
         notifyDataSetChanged()
     }
@@ -86,7 +106,7 @@ class WeatherHourlyAdapter:RecyclerView.Adapter<WeatherHourlyAdapter.CustomViewM
     }
 
     override fun onBindViewHolder(holder: CustomViewModelHolder, position: Int) {
-        holder.onBind(position)
+        holder.onBind(position, mDataHourly?.properties?.periods?.let { limitPeriods(it) })
     }
 
     override fun getItemCount(): Int {
