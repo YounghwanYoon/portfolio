@@ -10,11 +10,15 @@ import com.example.portfolio.feature_weather.domain.use_case.GetWeatherInfo
 import com.example.portfolio.feature_weather.presentation.PermissionState.*
 import com.example.portfolio.feature_weather.domain.model.Weather
 import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
+import com.example.portfolio.feature_weather.domain.model.forecast.Period
 import com.example.portfolio.feature_weather.domain.model.forecasthourly.ForecastHourly
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
+import kotlin.coroutines.suspendCoroutine
 
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
@@ -28,24 +32,39 @@ class WeatherViewModel @Inject constructor(
         private const val TAG = "Weather_VM"
     }
 
-/*    private val _dataState: MutableStateFlow<DataState<Forecast>> = MutableStateFlow(DataState.Loading)
-    val dataState: StateFlow<DataState<Forecast>> = _dataState.asStateFlow()
-    */
     private val _weatherState: MutableStateFlow<DataState<Weather>> = MutableStateFlow(DataState.Loading())
     val weatherState: StateFlow<DataState<Weather>> = _weatherState
 
-    private val _forecastState:MutableStateFlow<Forecast?> = MutableStateFlow<Forecast?>(null)
-    val forecastState:StateFlow<Forecast?> = _forecastState
+/*    private val _forecastState:MutableStateFlow<Forecast?> = MutableStateFlow<Forecast?>(null)
+    val forecastState:StateFlow<Forecast?> = _forecastState*/
+   /* val _forecastListState:MutableStateFlow<List<Period>?> = MutableStateFlow<List<Period>?>(emptyList())
+    val forecastListState:StateFlow<List<Period>?> = _forecastListState
+*/
+    private val _forecastListState = MutableSharedFlow<List<Period>>(
+        replay = 1,
+        onBufferOverflow =BufferOverflow.DROP_OLDEST
+    )
+    val forecastListState = _forecastListState.distinctUntilChanged()
 
-    private val _forecastHourlyState:MutableStateFlow<ForecastHourly?> = MutableStateFlow<ForecastHourly?>(null)
-    val forecastHourlyState:StateFlow<ForecastHourly?> = _forecastHourlyState
+
+/*
+    private val _forecastState:MutableStateFlow<DataState<Forecast>> = MutableStateFlow<DataState<Forecast>>(DataState.Loading())
+    val forecastState = _forecastState as StateFlow<DataState<Forecast>>
+*/
+/*    private val _forecastHourlyState:MutableStateFlow<ForecastHourly?> = MutableStateFlow<ForecastHourly?>(null)
+    val forecastHourlyState:StateFlow<ForecastHourly?> = _forecastHourlyState  */
+
+    private val _forecastHourlyState = MutableSharedFlow<ForecastHourly?>(
+        replay = 1
+    )
+    val forecastHourlyState:Flow<ForecastHourly?> = _forecastHourlyState.distinctUntilChanged()
 
     private val _gpsState: MutableStateFlow<PermissionState> = MutableStateFlow(Requesting)
     val gpsState:StateFlow<PermissionState> = _gpsState.asStateFlow()
 
     private fun getWeather(currentGPS: CurrentGPS = CurrentGPS(gps= mutableMapOf("latitude" to 37, "longitude" to -122))){
         viewModelScope.launch {
-            withContext(dispatcherIO){
+            //withContext(dispatcherIO){
                 getWeatherInfo(currentGPS.gps!!).collect{ dataState ->
                     when(dataState){
                         is DataState.Error -> {
@@ -67,85 +86,115 @@ class WeatherViewModel @Inject constructor(
                             //request forecast and forecasthoulry data from server.
                             _weatherState.value.data!!.properties.apply{
 
-                                val forecast = async{
-                                    getForecast(gridId,gridX, gridY) }
-                                val forecastHourly = async{
-                                    getForecastHourly(gridId,gridX, gridY)
-                                }
+                                //viewModelScope.launch {
 
-                                awaitAll(forecast,forecastHourly)
+                                    val forecast = async{
+                                        getForecast(gridId,gridX, gridY) }
+                                    val forecastHourly = async{
+                                        getForecastHourly(gridId,gridX, gridY)
+                                    }
+
+                                    awaitAll(forecast,forecastHourly)
+
+                                    
+
+                                //}
+
+
                             }
 
-                            //store weatherState
-
-                            /*  _weatherState.value.data!!.properties.apply{
-                                launch{
-                                    getForecast(gridId,gridX, gridY)
-                                }
-                                launch{
-                                    getForecastHourly(gridId,gridX, gridY)
-                                }
-                            }*/
-
                         }
                     }
                 }
-            }
+            //}
         }
     }
 
+    private var forecastJob: Job? = null
 
     private suspend fun getForecast(gridId:String, gridX:Int, gridY:Int){
-        getWeatherInfo.getForecast(gridId,gridX, gridY).collect{ dataState ->
-            when(dataState){
-                is DataState.Error -> {
-                    Log.d(TAG, "getForecast: Error() with ${dataState.message}")
-                }
-                is DataState.Loading -> {
-                    Log.d(TAG, "getForecast: Loading()")
-                }
-                is DataState.Success -> {
-                    withContext(Dispatchers.Main){
-                        Log.d(TAG, "getForecast: SUCCESS from VM ${dataState.data?.properties?.updateTime}")
-                        _forecastState.update {
-                            dataState.data?.let { it1 ->
-                                it?.copy(
-                                    properties = it1.properties,
-                                )
-                            } ?: dataState.data
+        forecastJob?.cancel()
+        forecastJob = viewModelScope.launch{
+            delay(1000)
+            getWeatherInfo.getForecast(gridId,gridX, gridY)
+                .distinctUntilChanged()
+                .onEach{ dataState ->
+                    when(dataState){
+                        is DataState.Error -> {
+                            Log.d(TAG, "getForecast: Error() with ${dataState.message}")
+                        }
+                        is DataState.Loading -> {
+                            Log.d(TAG, "getForecast: Loading()")
+                        }
+                        is DataState.Success -> {
+
+                            _forecastListState.emit(dataState.data!!.properties.periods!!)
+
+
+                            //_forecastListState.value = dataState.data?.properties?.periods ?: emptyList()
+
+                            //_forecastState.value = dataState.data?.copy()
+
+                            forecastListState.onEach {
+                                Log.d(TAG, "getForecast: ${it.size}")
+
+                            }
+
                         }
                     }
-                    Log.d(TAG, "getForecast: Success from VM with ${_forecastState.value?.properties?.updateTime}")
-                }
             }
+                .launchIn(this)
         }
     }
+
+
+    private var forecasthourlyJob: Job? = null
     private suspend fun getForecastHourly(gridId:String,gridX:Int,gridY:Int){
-        getWeatherInfo.getForecastHourly(gridId,gridX, gridY).collect{ dataState ->
-            when(dataState){
-                is DataState.Error -> {
-                    Log.d(TAG, "getForecastHourly: Error() with ${dataState.message}")
-                }
-                is DataState.Loading -> {
-                    Log.d(TAG, "getForecastHourly: Loading()")
-                }
-                is DataState.Success -> {
-                    Log.d(TAG, "getForecastHourly: SUCCESS ")
-                    _forecastHourlyState.update{
-                        it?.copy(
-                            properties = dataState.data!!.properties,
-                            type = dataState.data.type
-                        )
-                            ?: dataState.data
-                    }
+        forecasthourlyJob?.cancel()
+        forecasthourlyJob = viewModelScope.launch{
+            delay(1000)
+            getWeatherInfo.getForecastHourly(gridId,gridX, gridY)
+                .distinctUntilChanged()
+                .onEach{ dataState ->
+                    when(dataState){
+                        is DataState.Error -> {
+                            Log.d(TAG, "getForecastHourly: Error() with ${dataState.message}")
+                        }
+                        is DataState.Loading -> {
+                            Log.d(TAG, "getForecastHourly: Loading()")
+                        }
 
-                }
+
+                        /*is DataState.Success -> {
+                            Log.d(TAG, "getForecastHourly: Success from VM with ${_forecastHourlyState.value?.properties?.updateTime}")
+
+
+                            withContext(Dispatchers.Main){
+                                _forecastHourlyState.value = dataState.data
+                            }
+
+                            //withContext(Dispatchers.Main){
+                             *//*   _forecastHourlyState.update{
+                                    it?.copy(
+                                        properties = dataState.data!!.properties,
+                                        type = dataState.data.type
+                                    ) ?: dataState.data
+                                }*//*
+                                Log.d(TAG, "getForecastHourly: Success from VM with ${forecastHourlyState.value?.properties?.updateTime}")
+                            //}
+                        }*/
+                        is DataState.Success -> {
+
+                            _forecastHourlyState.emit(dataState.data)
+
+
+
+                        }
+                    }
             }
+                .launchIn(this)
         }
     }
-
-
-
 
     private val _permState:MutableStateFlow<PermissionState> = MutableStateFlow<PermissionState>(
         PermissionState.Requesting
@@ -169,7 +218,10 @@ class WeatherViewModel @Inject constructor(
                 _permState.value = newPermState
             }
             is Granted -> {
-                _permState.value = newPermState
+                //_permState.value = newPermState
+                _permState.update {
+                    newPermState
+                }
 
                 getWeather(newPermState.currentGPS)
             }

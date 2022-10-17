@@ -175,7 +175,6 @@ class LocationService(private val activity: Activity? = null, private val fragme
     @SuppressLint("MissingPermission", "ServiceCast")
     fun provideLocation (location:Location?=null): CurrentGPS {
 
-
         Log.d(TAG, "provideLocation: is permission granted(): ${hasLocationForegroundPermission(mContext)}")
         var currentLocation:Location ? = null
         val currentGPS = CurrentGPS()
@@ -190,17 +189,21 @@ class LocationService(private val activity: Activity? = null, private val fragme
                 //if currentLocation is not null then return
                 if(currentLocation?.latitude != null){
                     currentGPS.gps = mutableMapOf(
-                        "latitude" to currentLocation!!.latitude.toInt(),
-                        "longitude" to currentLocation!!.longitude.toInt())
+                        "latitude" to currentLocation.latitude.toInt(),
+                        "longitude" to currentLocation.longitude.toInt())
                     return currentGPS
                 }
 
-                Log.d(TAG, "provideLocation: $provider")
-                locationManager.requestLocationUpdates(provider, 1000, 0F, object:android.location.LocationListener {
+                Log.d(TAG, "provideLocation: provider - $provider")
+/*                locationManager.requestLocationUpdates(provider, 1000, 0F, object:android.location.LocationListener {
                     override fun onLocationChanged(location: Location) {
                         currentLocation=location
                     }
-                })
+                })*/
+
+                locationManager.requestLocationUpdates(provider, 1000, 0F
+                ) { mLocation:Location -> currentLocation = mLocation }
+
                 currentLocation = locationManager.getLastKnownLocation(provider)
             }
             //else return
@@ -210,8 +213,8 @@ class LocationService(private val activity: Activity? = null, private val fragme
             currentGPS
         }else{
             currentGPS.gps = mutableMapOf(
-                "latitude" to location!!.latitude.toInt(),
-                "longitude" to location!!.longitude.toInt())
+                "latitude" to location.latitude.toInt(),
+                "longitude" to location.longitude.toInt())
             return currentGPS
         }
     }

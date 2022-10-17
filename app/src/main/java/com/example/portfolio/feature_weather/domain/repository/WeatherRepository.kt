@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface WeatherRepository {
 
-    suspend fun getWeather(gpsData:Map<String, Int?>): Flow<DataState<Weather>>
+    fun getWeather(gpsData:Map<String, Int?>): Flow<DataState<Weather>>
     fun getForecast(gridId:String,gridX:Int,gridY:Int):Flow<DataState<Forecast>>
     fun getForecastHourly(gridId:String,gridX:Int,gridY:Int):Flow<DataState<ForecastHourly>>
 

@@ -18,18 +18,20 @@ class GetWeatherInfo(
             return flow{}
         return repository.getForecast(gps)
     }*/
-    suspend operator fun invoke(gps:Map<String, Int?>): Flow<DataState<Weather>>{
+    operator fun invoke(gps:Map<String, Int?>): Flow<DataState<Weather>>{
         Log.d(TAG, "invoke: GetForecastInfo is called")
         if(gps.isEmpty())
             return flow{}
         return repository.getWeather(gps)
     }
 
-    suspend fun getForecast(gridId:String,gridX:Int,gridY:Int):Flow<DataState<Forecast>>{
+    fun getForecast(gridId:String,gridX:Int,gridY:Int):Flow<DataState<Forecast>>{
+        //repository.getForecast(gridId,gridX,gridY).collect
+
         return repository.getForecast(gridId,gridX,gridY)
     }
 
-    suspend fun getForecastHourly(gridId:String,gridX:Int,gridY:Int):Flow<DataState<ForecastHourly>>{
+    fun getForecastHourly(gridId:String,gridX:Int,gridY:Int):Flow<DataState<ForecastHourly>>{
         return repository.getForecastHourly(gridId,gridX,gridY)
     }
 

@@ -1,15 +1,20 @@
 package com.example.portfolio.feature_weather.presentation.helper
 
+import android.annotation.SuppressLint
 import android.util.Log
-import com.example.portfolio.R
-import com.example.portfolio.feature_weather.data.remote.dto.forecasthourly_dto.PeriodDto
 import com.example.portfolio.feature_weather.domain.model.forecasthourly.Period
+import com.example.portfolio.feature_weather.presentation.adapter.CustomData
+import com.google.android.material.timepicker.TimeFormat
+import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 object WeatherHelper {
     private const val TAG = "WeatherHelper"
+
 
     //chart reference
     //https://www.baeldung.com/java-datetimeformatter
@@ -26,41 +31,97 @@ object WeatherHelper {
     fun getCurrentYYMMDD():String{
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuuMMddHH"))
     }
-    fun getYYDDHH():String{
+    fun getYYMMDD():String{
         //"2022-10-05T02:00:00-07:00"
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-ddTHH"))
     }
 
-    fun getDayOfWeek():String{
+    @SuppressLint("SimpleDateFormat")
+    fun changeTo12HourFormat(data:String):String{
+        var result:String? = null
+        try{
+            val sdf = SimpleDateFormat("H:mm")
+            val dateObj = sdf.parse(data)
+            result = SimpleDateFormat("hh:mm aa").format(dateObj)
+        }catch (e:ParseException){
+            e.printStackTrace()
+        }
+
+        return result ?: ""
+
+    }
+
+
+    fun geDayOfWeekOfToday():String{
         val today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd")).toString()
 
         return LocalDate.parse(today).dayOfWeek.toString()
     }
-    fun removeFormatPeriodHourly(period:Period?):String?{
-        return period?.startTime
-            ?.substringBefore(":00-")
-            ?.substringAfter("T")
+
+
+
+    fun geDayOfWeekOfToday(date:String):String{
+        return LocalDate.parse(date).dayOfWeek.toString()
+    }
+
+    fun removeFormatPeriodHourly(startTime:String):String{
+        return startTime
+            .substringBefore(":00-")
+            .substringAfter("T")
     }
 
     fun findStartingIndex(list:List<Period>, target:Int, start:Int, end:Int):Int{
-        val mid = (end - start) / 2
+        val mid = (start + end) / 2
         val midValue = list[mid].startTime
             ?.filter { it -> it.isDigit() }
             ?.subSequence(0,10)
             .toString().toInt()
+
         Log.d(TAG, "findStartingIndex: midValue $midValue, mCurrentYYMMDD: $target")
 
         if(midValue == target)
             return mid
-/*        if(end - start <2 && midValue != target){
-            return -1
-        }*/
 
         if(midValue > target){
             return  findStartingIndex(list, target,start, mid)
-        }else //midValue 202210080, mCurrentYYMMDD: 2022100505
-            return findStartingIndex(list, target,mid, end)
+        }else //mid value      2022100702,
+            // mCurrentYYMMDD: 2022100704
+            return findStartingIndex(list, target,mid+1, end)
     }
+    fun sliceForecastHourlyList(givenList: List<Period>, startingIndex:Int, totalHoursToDisplay:Int): List<Period> {
+        return givenList.slice(startingIndex until (startingIndex + totalHoursToDisplay))
+    }
+
+    fun filterForecast(list: List<com.example.portfolio.feature_weather.domain.model.forecast.Period>,
+                       totalDaysToDisplay: Int ): List<CustomData> {
+        Log.d(TAG, "filterForecast: ${list.size}")
+        val newList = List<CustomData>(totalDaysToDisplay){ CustomData() }
+
+        var index = 0
+        var i =0
+
+        while(i < list.size){
+            list[i].apply{
+                if(!this.name.contains("Overnight") && index < totalDaysToDisplay){
+                    if(this.isDaytime){
+                        newList[index].dayTemp = this.temperature
+                        newList[index].dayShortForecast = this.shortForecast
+                        newList[index].date = this.startTime!!.substringBefore("T")//this.startTime!!.substringBefore(":00-").substringAfter("T"),
+                        newList[index].dayOfWeek = WeatherHelper.geDayOfWeekOfToday(this.startTime.substringBefore("T"))
+                    }
+                    if(!this.isDaytime && newList[index].dayTemp != null){
+                        newList[index].nightTemp = this.temperature
+                        newList[index].nightShortForecast = this.shortForecast
+                        index++
+                    }
+                }
+            }
+            i++
+        }
+
+        return newList
+    }
+
 
     fun findTodayData(list:List<Period>):Period{
         val target = getCurrentYYMMDD().toInt()

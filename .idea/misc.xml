@@ -15,6 +15,7 @@
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/drawable/ic_weather_cloudy_rain.xml" value="0.136" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/drawable/main_top.xml" value="0.4" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/drawable/round_shape.xml" value="0.1825" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/drawable/tilted_divider.xml" value="0.106" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/activity_main.xml" value="0.2" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/each_carousel_view.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/each_view.xml" value="0.24010416666666667" />
@@ -30,11 +31,11 @@
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_main_bottom.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_my_app_list.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_resume.xml" value="0.1" />
-        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_weather.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/fragment_weather.xml" value="0.33858267716535434" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/grid_view_items.xml" value="0.264" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/myapp_individual.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/weather_detail_items.xml" value="0.2564814814814815" />
-        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/weather_weekly_items.xml" value="0.27447916666666666" />
+        <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/layout/weather_weekly_items.xml" value="0.25277777777777777" />
         <entry key="..\:/Users/Ray Yoon - PG Lapop/AndroidStudioProjects/Portfolio/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1515" />
       </map>
     </option>

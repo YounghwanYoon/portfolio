@@ -8,7 +8,7 @@ data class Period(
     val name: String? = null,
     val number: Int? = null,
     val shortForecast: String? = null,
-    val startTime: String? = null,
+    var startTime: String? = null,
     val temperature: Int? = null,
     val temperatureTrend: Any? = null,
     val temperatureUnit: String? = null,

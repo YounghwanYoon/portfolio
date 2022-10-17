@@ -9,64 +9,55 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.portfolio.R
 import com.example.portfolio.databinding.WeatherWeeklyItemsBinding
 import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
-import com.example.portfolio.feature_weather.domain.model.forecasthourly.ForecastHourly
-import com.example.portfolio.utils.Helpers
+import com.example.portfolio.feature_weather.domain.model.forecast.Period
+import com.example.portfolio.feature_weather.presentation.helper.WeatherHelper
 
 class WeatherWeeklyAdapter:RecyclerView.Adapter<WeatherWeeklyAdapter.CustomViewModelHolder>() {
-    private val TAG = "WeatherWeeklyAdapter"
+
+    companion object {
+        private const val TAG = "WeatherWeeklyAdapter"
+    }
 
     private var binding: WeatherWeeklyItemsBinding?  = null
     private var data:Forecast? = null
-    private var dataHourly:ForecastHourly? = null
+    private var totalDaysToDisplay = 7
 
-    private var layoutInflater:LayoutInflater? = null
+    private var customData:List<CustomData> = List<CustomData>(7 ){
+        CustomData()
+    }
 
     inner class CustomViewModelHolder(val view: View):RecyclerView.ViewHolder(view){
-        fun onBind(position:Int){
-            Log.d(TAG, "onBind: size of Data ")
+        fun onBind(data:CustomData){
+            Log.d(TAG, "onBind: ${data.date}")
 
-            val period = data?.properties?.periods?.get(position)
-            val date = period?.startTime?.substringBefore("T")
-            val day = date?.let { Helpers.getDayOfWeekByDate(it) }
-            val shortForecast = period?.shortForecast
-            val temperature = "${period?.temperature} F"//${period?.temperatureUnit}"
+            binding!!.apply{
+                this.dateTxt.text = data.date
+                this.dayofweekTxt.text = data.dayOfWeek
+                this.tempDayTxt.text = data.dayTemp.toString()
+                data.dayShortForecast?.let{
+                    this.weatherDayImg.setImageResource(
+                        WeatherHelper.selectImage(it)
+                    )
+                }
 
-            binding!!.dateTxtview.text = date
-            binding!!.dayTxtview.text = day
-            binding!!.tempTxtview.text = temperature
-            with(shortForecast){
-                when{
-                    this?.contains("Clear") == true || this?.contains("Sunny") == true -> {
-                        binding!!.weatherImgview.setImageResource(R.drawable.ic_weather_sunny_svg)
-                    }
-                    this?.contains("Rain") == true || this?.contains("Showers") == true -> {
-                        binding!!.weatherImgview.setImageResource(R.drawable.ic_weather_rain)
-                    }
-                    this?.contains("Snow") == true || this?.contains("Icy") == true -> {
-                        binding!!.weatherImgview.setImageResource(R.drawable.ic_weather_snow)
-                    }
-                    this?.contains("Cloudy") == true -> {
-                        binding!!.weatherImgview.setImageResource(R.drawable.ic_weather_cloudy)
-                    }
-                    else -> binding!!.weatherImgview.setImageResource(R.drawable.ic_weather_partially_sunny_cloudy)
+                this.tempNightTxt.text = data.nightTemp.toString()
+                data.nightShortForecast?.let{
+                    this.weatherNightImg.setImageResource(
+                        WeatherHelper.selectImage(it)
+                    )
                 }
             }
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateWeeklyForecast(newData: Forecast){
-        data = newData
-        Log.d(TAG, "updateData: total number of new data is ${newData.properties.periods?.size}")
-        Log.d(TAG, "updateData: name of data ${newData.properties.periods?.get(0)?.name}")
-        notifyDataSetChanged()
-    }
+    fun updateWeeklyForecast(newData: List<CustomData>){
 
-    @SuppressLint("NotifyDataSetChanged")
-    fun updateHourlyForecast(newData:ForecastHourly){
-        dataHourly = newData
-        Log.d(TAG, "updateData: total number of new data is ${newData.properties.periods.size}")
-        Log.d(TAG, "updateData: name of data ${newData.properties.periods[0].name}")
+        customData = newData
+        newData.forEach{
+            it.isDataAvailable = true
+        }
+
         notifyDataSetChanged()
     }
 
@@ -79,11 +70,26 @@ class WeatherWeeklyAdapter:RecyclerView.Adapter<WeatherWeeklyAdapter.CustomViewM
     }
 
     override fun onBindViewHolder(holder: CustomViewModelHolder, position: Int) {
-        holder.onBind(position)
+        if(customData[position].isDataAvailable){
+            customData.let{
+                holder.onBind(it[position])
+            }
+        }
+
     }
 
+
     override fun getItemCount(): Int {
-        return 7 //because a week is 7 days
+        return customData.size-1 //because a week is 7 days
     }
 
 }
+data class CustomData(
+    var isDataAvailable: Boolean= false,
+    var date:String ? = null,
+    var dayOfWeek:String ? = null,
+    var dayTemp:Int? = null,
+    var dayShortForecast:String ?=null,
+    var nightTemp:Int ? = null,
+    var nightShortForecast:String ?= null,
+)
