@@ -15,23 +15,52 @@ import androidx.fragment.app.Fragment
 import com.example.portfolio.feature_weather.presentation.CurrentGPS
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
+import com.example.portfolio.feature_weather.presentation.`interface`.CustomLocationListener
 
 //https://stackoverflow.com/questions/32491960/android-check-permission-for-locationmanager
 
+/*
+    When first calling, even though permission is granted, they decided not to call getWeather data
+
+ */
 
 class LocationService(private val activity: Activity? = null, private val fragment: Fragment?= null):LocationListener, EasyPermissions.PermissionCallbacks {
     private val mContext = activity ?: (fragment!!.requireContext())
+    private var mLocationService:LocationService?= null
+    private var mListener:CustomLocationListener ?= null
 
-    operator fun invoke(){
+    companion object {
+        private const val TAG = "LocationService"
+        fun hasLocationForegroundPermission(context:Context) =
+            (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED)
+    }
+
+    operator fun invoke():LocationService{
         Log.d(TAG, "invoke: ")
 
+        mLocationService = LocationService(activity, fragment)
+        requestPermission()
+
+        return mLocationService as LocationService
     }
-    init{
+
+   init{
         requestPermission()
     }
+    fun addListener(listener: CustomLocationListener):LocationService{
+        mListener = listener
+
+        return mLocationService!!
+    }
+
+
     private fun requestPermission(){
         Log.d(TAG, "requestPermission: ")
-        when{
+        if(!hasLocationForegroundPermission(mContext))
+            when{
             fragment != null ->{
                 Log.d(TAG, "requestPermission: fragment")
                 when{
@@ -127,6 +156,7 @@ class LocationService(private val activity: Activity? = null, private val fragme
                 }
             }
         }
+
     }
 
     override fun onRequestPermissionsResult(
@@ -142,10 +172,10 @@ class LocationService(private val activity: Activity? = null, private val fragme
     }
 
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
-        Log.d(TAG, "onPermissionsGranted: ")
+        Log.d(TAG, "onPermissionsGranted: from LocationService.kt ")
     }
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
-        Log.d(TAG, "onPermissionsDenied: ")
+        Log.d(TAG, "onPermissionsDenied: from LocationService.kt ")
         when{
             fragment != null ->{
                 if(EasyPermissions.somePermissionPermanentlyDenied(fragment, perms)){
@@ -173,7 +203,7 @@ class LocationService(private val activity: Activity? = null, private val fragme
     }
 
     @SuppressLint("MissingPermission", "ServiceCast")
-    fun provideLocation (location:Location?=null): CurrentGPS {
+    fun provideLocation (location:Location?=null, locationListener:CustomLocationListener? = null): CurrentGPS {
 
         Log.d(TAG, "provideLocation: is permission granted(): ${hasLocationForegroundPermission(mContext)}")
         var currentLocation:Location ? = null
@@ -219,12 +249,7 @@ class LocationService(private val activity: Activity? = null, private val fragme
         }
     }
 
-    companion object {
-        private const val TAG = "LocationService"
-        fun hasLocationForegroundPermission(context:Context) =
-            ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
-    }
 
 }
 

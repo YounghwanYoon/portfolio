@@ -2,6 +2,7 @@ package com.example.portfolio
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.navigation.NavController
@@ -13,14 +14,46 @@ class MainActivity : AppCompatActivity() {
     private var navController: NavController? = null
     private var navHostFragment:NavHostFragment? = null
 
+    companion object {
+        private const val TAG = "MainActivity"
+    }
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate: ")
         setContentView(R.layout.activity_main)
         //supportFragmentManager.beginTransaction().add(R.id.newFaceContainer, MainFragment()).commit()
     }
+
+    override fun onStart() {
+        Log.d(TAG, "onStart: ")
+        super.onStart()
+    }
+
     override fun onResume() {
+        Log.d(TAG, "onResume: ")
         setupNavigation()
         super.onResume()
+    }
+
+    override fun onPause() {
+        Log.d(TAG, "onPause: ")
+        super.onPause()
+    }
+
+    override fun onStop() {
+        Log.d(TAG, "onStop: ")
+        super.onStop()
+    }
+
+    override fun onRestart() {
+        Log.d(TAG, "onRestart: ")
+        super.onRestart()
+    }
+
+    override fun onDestroy() {
+        Log.d(TAG, "onDestroy: ")
+        super.onDestroy()
     }
 
     private fun setupNavigation(){

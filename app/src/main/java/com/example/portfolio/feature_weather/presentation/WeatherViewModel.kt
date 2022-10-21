@@ -147,7 +147,6 @@ class WeatherViewModel @Inject constructor(
         }
     }
 
-
     private var forecasthourlyJob: Job? = null
     private suspend fun getForecastHourly(gridId:String,gridX:Int,gridY:Int){
         forecasthourlyJob?.cancel()
@@ -215,9 +214,11 @@ class WeatherViewModel @Inject constructor(
 
         when(newPermState){
             is Requesting -> {
+                Log.d(TAG, "setPermState: Requesting")
                 _permState.value = newPermState
             }
             is Granted -> {
+                Log.d(TAG, "setPermState: Granted calling getWeather()")
                 //_permState.value = newPermState
                 _permState.update {
                     newPermState
@@ -227,6 +228,7 @@ class WeatherViewModel @Inject constructor(
             }
 
             is Error -> {
+                Log.d(TAG, "setPermState: Error with ${newPermState.message}")
                 _permState.value = newPermState
             }
 

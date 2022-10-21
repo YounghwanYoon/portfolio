@@ -4,6 +4,7 @@ package com.example.portfolio.feature_weather.presentation
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,11 +23,13 @@ import com.example.portfolio.feature_weather.presentation.adapter.WeatherWeeklyA
 import com.example.portfolio.feature_weather.presentation.helper.WeatherHelper
 import com.example.portfolio.utils.DataState
 import com.example.portfolio.utils.LocationService
+import com.example.portfolio.utils.constants.REQUEST_CODE_LOCATION_PERMISSION
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.withContext
+import pub.devrel.easypermissions.EasyPermissions
 
 
 class WeatherFragment : Fragment(R.layout.fragment_weather){
@@ -46,31 +49,55 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
+        Log.d(TAG, "onCreateView: ")
         binding = FragmentWeatherBinding.inflate(inflater,container, false)
         val view = binding.root
         return view
         //return super.onCreateView(inflater, container, savedInstanceState)
     }
 
+    override fun onStart() {
+        Log.d(TAG, "onStart: ")
+        super.onStart()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d(TAG, "onViewCreated: ")
-        locationHelper()
-        vm.setPermState(PermissionState.Requesting)
-        setWeather(requireContext())
+        //locationHelper()
+        //vm.setPermState(PermissionState.Requesting)
+        //setWeather(requireContext())
         //initRecyclerview()
         //setUpForecastRecyclerView()
         //setUpHourlyRecycleView()
-        subscribeVM()
+        //subscribeVM()
         super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onResume() {
         Log.d(TAG, "onResume: ")
-
-
-
+        locationHelper()
+        subscribeVM()
         super.onResume()
+    }
+
+    override fun onPause() {
+        Log.d(TAG, "onPause: ")
+        super.onPause()
+    }
+
+    override fun onStop() {
+        Log.d(TAG, "onStop: ")
+        super.onStop()
+    }
+
+    override fun onDestroyView() {
+        Log.d(TAG, "onDestroyView: ")
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        Log.d(TAG, "onDestroy: ")
+        super.onDestroy()
     }
 
     private fun toggleProgressBarTop(viewType:Int){
@@ -272,22 +299,24 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
 
 
     }
-    private fun setWeather(context:Context){
-        var permState: PermissionState = PermissionState.Requesting
-        permState = if(isPermissionGranted(context)){
-            PermissionState.Granted(getCurrentGPS())
-        }else{
-            PermissionState.Error("Permission Error")
+    private fun setPermState(permState:Boolean){
+        Log.d(TAG, "setPermState: permState $permState")
+        vm.apply{
+            setPermState(PermissionState.Requesting)
+            when(permState){
+                true -> setPermState(PermissionState.Granted(getCurrentGPS()))
+                false -> setPermState(PermissionState.Error("Permission Error"))
+            }
         }
-
-        vm.setPermState(permState)
     }
 
     // Location Permission and GPS related
     //receive either fragment or activity
     private fun locationHelper(){
         initLocationService(this)
-        getCurrentGPS()
+
+        if(isPermissionGranted(requireContext()))
+            setPermState(true)
     }
     private fun initLocationService(fragment: Fragment){
         locationService = LocationService(fragment = fragment)
@@ -296,8 +325,9 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
         return LocationService.hasLocationForegroundPermission(context)
     }
     private fun getCurrentGPS(): CurrentGPS {
-        return locationService.provideLocation()
 
+        return locationService//LocationService(fragment=thisFragment)
+            .provideLocation()
     }
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -306,7 +336,19 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
     ) {
         Log.d(TAG, "onRequestPermissionsResult: ")
         locationService.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        val isGranted = LocationService.hasLocationForegroundPermission(requireContext())
+        if(!isGranted){
+            Log.d(TAG, "onRequestPermissionsResult: is Granted false - $isGranted ")
+            setPermState(false)
+        }
+        else{
+            Log.d(TAG, "onRequestPermissionsResult: is Granted $isGranted ")
+            //this.onStart()
+        }
+
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
+
 
 }
