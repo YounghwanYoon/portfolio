@@ -7,6 +7,7 @@
     android:orientation="vertical"
     android:id="@+id/weather_fragment_linear"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:weightSum="10"
     android:background="@drawable/fall_image"
     tools:context = ".feature_weather.presentation.WeatherFragment"
@@ -141,7 +142,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="3"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="@color/see_through"
+                card_view:cardElevation="0dp"
+                app:cardPreventCornerOverlap="false"
+                app:cardBackgroundColor="@color/see_through"
+                app:cardUseCompatPadding="false"
+                >
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:layout_width="match_parent"
@@ -179,6 +186,7 @@
             android:id="@+id/forecast_weekly_recyclerview"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
+            android:paddingTop="1dp"
             />
     </androidx.cardview.widget.CardView>
 

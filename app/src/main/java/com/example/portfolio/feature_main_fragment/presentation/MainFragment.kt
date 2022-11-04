@@ -1,5 +1,6 @@
-package com.example.portfolio.feature_myapp.presentation.view
+package com.example.portfolio.feature_main_fragment.presentation
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -7,18 +8,23 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
+import androidx.navigation.NavHost
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.daimajia.androidanimations.library.Techniques
+import com.daimajia.androidanimations.library.YoYo
 import com.example.portfolio.R
 import com.example.portfolio.databinding.*
+import com.example.portfolio.feature_main_fragment.presentation.adapter.MainRecyclerView
+import com.example.portfolio.feature_main_fragment.presentation.helper.RecyclerViewClickListner
 import com.example.portfolio.feature_myapp.domain.model.Title_Image
 import com.example.portfolio.feature_myapp.presentation.view.adapter.MainGridAdapter
 import com.example.portfolio.feature_secondactivity.presentation.SecondActivity
 
 
-class MainFragment : Fragment(R.layout.fragment_main){
+class MainFragment : Fragment(R.layout.fragment_main), RecyclerViewClickListner {
     private lateinit var binding: FragmentMainBinding
     private lateinit var adapter: MainGridAdapter
     //private lateinit var gridAdapter:MainPageGridAdapter
@@ -31,6 +37,9 @@ class MainFragment : Fragment(R.layout.fragment_main){
         navController = findNavController()
         //navController = findNavController(this)
     }
+    init{
+        setUpImageData()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate: ")
@@ -40,7 +49,9 @@ class MainFragment : Fragment(R.layout.fragment_main){
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         Log.d(TAG, "onCreateView: ")
         binding = FragmentMainBinding.inflate(inflater, container, false)
-        setGridAdapter()
+        //setGridAdapter()
+        setRecyclerAdapter(titleImageData)
+        addAnimationToMyMainIcon()
         //setAdapter()
         // Inflate the layout for this fragment
         return binding.root
@@ -54,6 +65,7 @@ class MainFragment : Fragment(R.layout.fragment_main){
     override fun onResume() {
         Log.d(TAG, "onResume: ")
         super.onResume()
+
     }
 
     override fun onPause() {
@@ -76,7 +88,7 @@ class MainFragment : Fragment(R.layout.fragment_main){
         super.onDestroy()
     }
 
-    private fun setData(){
+    private fun setUpImageData(){
         titleImageData = arrayListOf()
         titleImageData.add(Title_Image( "Weather Api", R.drawable.ic_face_48dp, 1L))
         titleImageData.add(Title_Image( "Shopping Api", R.drawable.ic_face_48dp,2L))
@@ -85,8 +97,8 @@ class MainFragment : Fragment(R.layout.fragment_main){
         titleImageData.add(Title_Image( "DemoApp5", R.drawable.ic_face_48dp,5L))
         titleImageData.add(Title_Image( "Resume", R.drawable.ic_face_48dp,6L))
     }
-    private fun setGridAdapter(){
-        setData()
+/*    private fun setGridAdapter(){
+        setUpImageData()
 
         binding.apply{
           adapter = MainGridAdapter(this.root.context, titleImageData)
@@ -96,7 +108,51 @@ class MainFragment : Fragment(R.layout.fragment_main){
               setUpNavigation(position)
           }
         }
+    }*/
+
+
+    override fun onItemClickListener(position: Int) {
+        Log.d(TAG, "onItemClickListener: position is $position")
+        setUpNavigation(position)
     }
+
+    private fun setRecyclerAdapter(list:ArrayList<Title_Image>){
+        binding.apply{
+            val adapter = MainRecyclerView(list, this@MainFragment)
+            this.mainRecyclerview.apply{
+                layoutManager = LinearLayoutManager(this@MainFragment.requireContext(),LinearLayoutManager.HORIZONTAL,false)
+                mainRecyclerview.adapter = adapter
+                
+            }
+        }
+
+    }
+
+    @SuppressLint("ObsoleteSdkInt")
+    private fun addAnimationToMyMainIcon(){
+        YoYo.with(Techniques.BounceInDown)
+            .duration(2000)
+            .repeat(0)
+            .playOn(binding.myIconImgView)
+
+/*        // arcTo() and PathInterpolator only available on API 21+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val path = Path().apply {
+                //arcTo(0f, 0f, 1000f, 1000f, 270f, -180f, true)
+                arcTo(0f, 0f, 0f, 0f, 0f, 0f, true)
+            }
+            val pathInterpolator = PathInterpolator(path)
+            val animation = ObjectAnimator
+                .ofFloat(binding.myIconHolderCardview, "translationX", 100f).apply{
+                    interpolator = pathInterpolator
+                    duration = 1000
+                    start()
+                }
+        }*/
+
+
+    }
+
 
     private fun setUpNavigation(position:Int){
         val action: NavDirections
@@ -105,11 +161,19 @@ class MainFragment : Fragment(R.layout.fragment_main){
                 action= MainFragmentDirections.actionMainFragmentToWeatherFragment()
                 navController.navigate(action)
             }
+            1->{
+                action = MainFragmentDirections.actionMainFragmentToShoppingFragment()
+                navController.navigate(action)
+            }
 
             4 ->{
                 val intent:Intent = Intent(requireContext(), SecondActivity::class.java)
                 startActivity(intent)
 //                finish()
+            }
+            5 ->{
+                action = MainFragmentDirections.actionMainFragmentToResumeFragment()
+                navController.navigate(action)
             }
 
         }
@@ -130,4 +194,6 @@ class MainFragment : Fragment(R.layout.fragment_main){
     companion object {
         private const val TAG = "MainFragment"
     }
+
+
 }

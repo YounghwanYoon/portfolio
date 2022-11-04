@@ -2,9 +2,9 @@ package com.example.portfolio.feature_weather.presentation
 
 
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.portfolio.R
 import com.example.portfolio.databinding.FragmentWeatherBinding
@@ -23,13 +24,12 @@ import com.example.portfolio.feature_weather.presentation.adapter.WeatherWeeklyA
 import com.example.portfolio.feature_weather.presentation.helper.WeatherHelper
 import com.example.portfolio.utils.DataState
 import com.example.portfolio.utils.LocationService
-import com.example.portfolio.utils.constants.REQUEST_CODE_LOCATION_PERMISSION
+import com.example.portfolio.utils.PermissionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.withContext
-import pub.devrel.easypermissions.EasyPermissions
 
 
 class WeatherFragment : Fragment(R.layout.fragment_weather){
@@ -58,6 +58,8 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
 
     override fun onStart() {
         Log.d(TAG, "onStart: ")
+        locationHelper()
+        subscribeVM()
         super.onStart()
     }
 
@@ -75,8 +77,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
 
     override fun onResume() {
         Log.d(TAG, "onResume: ")
-        locationHelper()
-        subscribeVM()
+
         super.onResume()
     }
 
@@ -115,7 +116,8 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
 
         binding.forecastWeeklyRecyclerview.apply{
             weeklyAdapter = WeatherWeeklyAdapter()
-
+            //remove divider between recyclerview item
+            this.addItemDecoration(DividerItemDecoration(context,LinearLayoutManager.HORIZONTAL))
             this.setHasFixedSize(true)
             this.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             this.adapter = weeklyAdapter
@@ -125,17 +127,20 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
         binding.forecastHourlyRecyclerview.apply{
             this.setHasFixedSize(true)
             hourlyAdapter = WeatherHourlyAdapter()
-
             this.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             this.adapter = hourlyAdapter
+
+            //remove divider between recyclerview item
+            this.addItemDecoration(DividerItemDecoration(context,LinearLayoutManager.HORIZONTAL))
         }
     }
 
     @SuppressLint("SetTextI18n")
     private fun setUpView(period:Period){
         binding.apply{
+            weatherFragmentLinear.setBackgroundResource(WeatherHelper.selectedSeasonalImage())
             period.shortForecast?.let{
-                currentHourImage.setImageResource( WeatherHelper.selectImage(it))
+                currentHourImage.setImageResource( WeatherHelper.selectWeatherImage(it))
             }
             currentHourTempTxt.text = ("${period.temperature} \u2109")
             currentDayOfWeekTxt.text = WeatherHelper.geDayOfWeekOfToday()
@@ -310,6 +315,10 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
         }
     }
 
+    private fun isInternetAvailable(context:Context):Boolean{
+        return PermissionHandler.isPermissionAvailable(Manifest.permission.INTERNET,context)
+    }
+
     // Location Permission and GPS related
     //receive either fragment or activity
     private fun locationHelper(){
@@ -325,10 +334,15 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
         return LocationService.hasLocationForegroundPermission(context)
     }
     private fun getCurrentGPS(): CurrentGPS {
+        //val fusedLocationProviderClient: FusedLocationProviderClient = this.L
 
-        return locationService//LocationService(fragment=thisFragment)
-            .provideLocation()
+        return locationService.getCurrentGPS() ?: throw Exception("GPS got a problem")
     }
+
+    private fun returnToMainPage(){
+
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,

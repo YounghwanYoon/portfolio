@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.portfolio.R
 import com.example.portfolio.databinding.WeatherDetailItemsBinding
-import com.example.portfolio.feature_weather.domain.model.forecasthourly.ForecastHourly
 import com.example.portfolio.feature_weather.domain.model.forecasthourly.Period
 import com.example.portfolio.feature_weather.presentation.helper.WeatherHelper
 import java.text.SimpleDateFormat
@@ -42,7 +41,7 @@ class WeatherHourlyAdapter constructor():RecyclerView.Adapter<WeatherHourlyAdapt
             binding?.apply{
                 forecastHourTxt.text = WeatherHelper.changeTo12HourFormat((startTime))
                 shortForecast.let{
-                    forecastHourImg.setImageResource(WeatherHelper.selectImage(it))
+                    forecastHourImg.setImageResource(WeatherHelper.selectWeatherImage(it))
                 }
                 forecastHourlyTemp.text = temperature
             }

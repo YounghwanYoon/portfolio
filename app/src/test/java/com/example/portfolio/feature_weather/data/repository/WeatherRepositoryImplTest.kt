@@ -59,7 +59,7 @@ class WeatherRepositoryImplTest:BaseMockServerTest(){
         mockService = mock(WeatherServices::class.java)
         dispatcher =  StandardTestDispatcher(testScheduler)
 
-        repository = WeatherRepositoryImpl(mockService,mockWeatherDao, mockForecastDao,dispatcher)
+        //repository = WeatherRepositoryImpl(mockService,mockWeatherDao, mockForecastDao)
 
     }
 
@@ -77,7 +77,7 @@ class WeatherRepositoryImplTest:BaseMockServerTest(){
     fun testGetWeather() = runTest{
         retrofit = getRetrofit("https://api.weather.gov/")
         val service = retrofit.create(WeatherServices::class.java)
-        repository = WeatherRepositoryImpl(service,mockWeatherDao,mockForecastDao, dispatcher)
+        //repository = WeatherRepositoryImpl(service,mockWeatherDao,mockForecastDao, dispatcher)
 /*
         //weatherServices.getWeather(gpsData["latitude"]!!, gpsData["longitude"]!!)
         val response = service.getWeather(fakeGPS["latitude"]!!, fakeGPS["longitude"]!!)

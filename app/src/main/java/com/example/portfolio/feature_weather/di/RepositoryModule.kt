@@ -7,6 +7,7 @@ import com.example.portfolio.feature_weather.data.local.entity.forecasthourly.Fo
 import com.example.portfolio.feature_weather.domain.repository.WeatherRepository
 import com.example.portfolio.feature_weather.domain.repository.WeatherServices
 import com.example.portfolio.feature_weather.domain.use_case.GetWeatherInfo
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,8 +34,7 @@ object RepositoryModule {
         return Dispatchers.IO
     }
 
-
-    @Singleton
+/*    @Singleton
     @Provides
     fun provideWeatherRepository(
         weatherApiServices: WeatherServices,
@@ -50,7 +50,27 @@ object RepositoryModule {
             forecastHourly_dao,
             dispatcherIO
         )
+    }*/
+
+    @InstallIn(SingletonComponent::class)
+    @Module
+    abstract class WeatherRepositoryModule{
+        @Binds
+        abstract fun bindWeatherRepository(weatherRepository:WeatherRepositoryImpl):WeatherRepository
+
+        /*companion object{
+
+
+            *//* @Singleton
+             @Provides
+             fun provideGetInfoUseCase(
+                 repository: WeatherRepository
+             ): GetWeatherInfo{
+                 return GetWeatherInfo(repository)
+             }*//*
+
+
+        }*/
     }
-
-
 }
+

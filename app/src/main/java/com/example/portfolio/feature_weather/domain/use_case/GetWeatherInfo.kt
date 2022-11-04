@@ -6,22 +6,28 @@ import com.example.portfolio.utils.DataState
 import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
 import com.example.portfolio.feature_weather.domain.model.forecasthourly.ForecastHourly
 import com.example.portfolio.feature_weather.domain.repository.WeatherRepository
+import com.example.portfolio.utils.NetworkError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 class GetWeatherInfo(
     private val repository: WeatherRepository
 ) {
-/*    suspend operator fun invoke(gps:Map<String, Int?>): Flow<DataState<Forecast>>{
-        Log.d(TAG, "invoke: GetForecastInfo is called")
-        if(gps.isEmpty())
-            return flow{}
-        return repository.getForecast(gps)
-    }*/
+
+    companion object {
+        private const val TAG = "GetForecastInfo"
+    }
+    var mGPS:Map<String,Int?>? = null
+
     operator fun invoke(gps:Map<String, Int?>): Flow<DataState<Weather>>{
         Log.d(TAG, "invoke: GetForecastInfo is called")
         if(gps.isEmpty())
             return flow{}
+        mGPS = gps
+        return getWeather(gps)
+    }
+
+    private fun getWeather(gps: Map<String, Int?>):Flow<DataState<Weather>>{
         return repository.getWeather(gps)
     }
 
@@ -35,7 +41,4 @@ class GetWeatherInfo(
         return repository.getForecastHourly(gridId,gridX,gridY)
     }
 
-    companion object {
-        private const val TAG = "GetForecastInfo"
-    }
 }

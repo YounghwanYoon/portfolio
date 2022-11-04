@@ -13,12 +13,12 @@ import com.example.portfolio.feature_weather.domain.model.forecasthourly.Forecas
 import com.example.portfolio.feature_weather.domain.repository.WeatherRepository
 import com.example.portfolio.feature_weather.domain.repository.WeatherServices
 import com.example.portfolio.utils.DataState
+import com.example.portfolio.utils.NetworkError
+import com.example.portfolio.utils.ServerSideError
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.*
 import retrofit2.HttpException
 import javax.inject.Inject
 
@@ -35,20 +35,35 @@ class WeatherRepositoryImpl @Inject constructor(
         return flow<DataState<Weather>>{
             this.emit(DataState.Loading())
             var body: WeatherDto? = null
+            val response = weatherServices.getWeather(gpsData["latitude"]!!, gpsData["longitude"]!!)
+            if(response.code() == 500){
+                Log.d(TAG, "getWeather: Error code 500 alert!")
+                throw ServerSideError("ServerSide Error with code 500")
+            }
             try{
-                val response = weatherServices.getWeather(gpsData["latitude"]!!, gpsData["longitude"]!!)
                 Log.d(TAG, "getWeather: response code ${response.code()}")
                 body = response.body()
-               if(response.isSuccessful && body != null){
+                if(response.isSuccessful && body != null){
                     val weather = body.toWeather()
                    emit(DataState.Success(weather))
-               }
+                }
             }catch (e:Exception){
                 Log.d(TAG, "getWeather: something went off")
-                emit(DataState.Error(e.message!!))
+                emit(returnErrorByType(response.code(), e))
             }
-        }.flowOn(ioDispatcher)
+        }
+        .retry(2) { exception ->
+            Log.d(TAG, "getWeather: retrying from weatherRespository")
+            (exception is ServerSideError).also {
+                if(it) delay(1000)
+            }
+        }
+        .catch{ exception ->
+            emit(DataState.Error(exception.message ?:"Unknown Error from repository-getWeather()"))
+        }
+        .flowOn(ioDispatcher)
     }
+
 
     override fun getForecast(gridId:String,gridX:Int,gridY:Int): Flow<DataState<Forecast>> {
         Log.d(TAG, "getForecast: getForecast is called from repository implement")
@@ -66,10 +81,13 @@ class WeatherRepositoryImpl @Inject constructor(
 
  */
 
+            val response = weatherServices.getForecast(gridId, gridX, gridY)
+            if(response.code() == 500){
+                Log.d(TAG, "getWeather: Error code 500 alert!")
+                throw ServerSideError("ServerSide Error with code 500")
+            }
             try {
-                val response = weatherServices.getForecast(gridId, gridX, gridY)
                 Log.d(TAG, "getForecast: code ${response.code()}")
-
                 if(response.isSuccessful){
                     data = response.body()
                     delay(1000)
@@ -86,19 +104,22 @@ class WeatherRepositoryImpl @Inject constructor(
                     forecast_dao.insertForecast(it.toForecastEntity())
                 }
             }catch (e:Exception) {
-                when(e){
-                    is HttpException ->{
-                        emit(DataState.Error("Internet Error with : ${ e.message}"))
-                    }
-                    else ->{
-                        emit(DataState.Error("Error from using Dagger: ${ e.message}"))
-                    }
-                }
+                Log.d(TAG, "getForecast: Something went wrong")
+                emit(returnErrorByType(response.code(), e))
             }
 //s            Log.d(TAG, "getForecast: ${forecast_dao.getAllForecast().properties.elevation}")
             //val forecast = forecast_dao.getAllForecast().toForecast()
             //emit(DataState.Success(data?.toForecastEntity()?.toForecast()))
-        }.flowOn(ioDispatcher)
+        }
+            .retry(2) { exception ->
+                Log.d(TAG, "getForecast: serverside error and retrying from repository")
+                (exception is ServerSideError).also{if(it) delay(1000)}
+            }
+            .catch { exception ->
+                Log.d(TAG, "getForecast: inside catch block ${exception.cause}")
+                emit(DataState.Error(exception.message ?: "Unknown Error from repository-getForecast()"))
+            }
+            .flowOn(ioDispatcher)
     }
     override fun getForecastHourly(gridId:String,gridX:Int,gridY:Int): Flow<DataState<ForecastHourly>> {
         Log.d(TAG, "getForecastHourly: getForecastHourly is called from repository implement")
@@ -114,29 +135,39 @@ class WeatherRepositoryImpl @Inject constructor(
                 Log.d(TAG, "getForecastHourly: hey FHEntity is not emptied")
                 emit(DataState.Loading(it.toForecastHourly()))
             }
-
+            val response =
+                weatherServices.getForecastHourly(gridId, gridX, gridY)
+            if(response.code() == 500){
+                Log.d(TAG, "getWeather: Error code 500 alert!")
+                throw ServerSideError("ServerSide Error with code 500")
+            }
             try {
-                val response =
-                    weatherServices.getForecastHourly(gridId, gridX, gridY)
+//                val response =
+//                    weatherServices.getForecastHourly(gridId, gridX, gridY)
                 if (response.isSuccessful) {
                     data = response.body()
-                } else {
-                    emit(DataState.Error("Error: Null data is returned by the server with code: ${response.code()} "))
                 }
                 data?.let {
                     forecastHourly_dao.insertForecastHourly(it.toForecastHourlyEntity())
                 }
 
             } catch (e: Exception) {
-                val message =
-                    "From getForecastHourly() inside RepoImp Error occurred with : ${e.message} "
-                emit(DataState.Error(message))
+                Log.d(TAG, "getForecastHourly: Something went wrong")
+                emit(returnErrorByType(response.code(), e))
             }
             delay(1000)
 
             emit(DataState.Success(data?.toForecastHourlyEntity()?.toForecastHourly()))
 
-        }.flowOn(ioDispatcher)
+        }
+            .retry(2){ exception ->
+                (exception is ServerSideError).also{
+                    Log.d(TAG, "getForecastHourly: serverside error and need to do it again")
+                    if(it) delay(1000)
+                }
+            }
+            .catch { exception -> Log.d(TAG, "getForecastHourly: inside catch block ${exception.cause}") }
+            .flowOn(ioDispatcher)
     }
     private suspend fun insertForecast(data:ForecastDto){
         forecast_dao.insertForecast(data.toForecastEntity())
@@ -144,6 +175,25 @@ class WeatherRepositoryImpl @Inject constructor(
 
     private suspend fun insertForecastHourly(data:ForecastHourlyDto){
         forecastHourly_dao.insertForecastHourly(data.toForecastHourlyEntity())
+    }
+
+
+    private fun <T> returnErrorByType(errorCode:Int, e:Exception):DataState.Error<T>{
+        var message:String =""
+        return when(errorCode){
+            500 -> {
+                message = "Server Side Error - ${e.message}"
+                DataState.Error(message, errorCode = 500, errorType = NetworkError.ServerSideError)
+            }
+            502 ->{
+                message = "InternetConnection Error - ${e.message}"
+                DataState.Error(message, errorCode = 502, errorType = NetworkError.InternetConnectionError)
+            }
+            else ->{
+                message = "PageNotFound Error - ${e.message}"
+                DataState.Error(message, errorCode = 400, errorType = NetworkError.PageNotFoundError)
+            }
+        }
     }
 
     companion object {

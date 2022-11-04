@@ -1,4 +1,4 @@
-package com.example.portfolio.feature_myapp.presentation.view
+package com.example.portfolio.feature_resume.presentation
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -9,7 +9,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.example.portfolio.databinding.FragmentResumeBinding
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle
-import kotlinx.android.synthetic.main.fragment_resume.view.*
+//import kotlinx.android.synthetic.main.fragment_resume.view.*
 
 
 class ResumeFragment : Fragment(), View.OnClickListener {
@@ -34,15 +34,18 @@ class ResumeFragment : Fragment(), View.OnClickListener {
     }
     private fun setupPDFViewer(view:View){
         val pdfFileName = "kotlin.pdf"
-        view.pdf_view.fromAsset(pdfFileName)
-            .defaultPage(0)
-            .enableSwipe(true)
-            .swipeHorizontal(false)
-            //.onPageChange(this)
-            .enableAnnotationRendering(true)
-            //.onLoad(this)
-            .scrollHandle(DefaultScrollHandle(context))
-            .load()
+        _viewBinding?.let{
+                it.pdfView
+                .fromAsset(pdfFileName)
+                .defaultPage(0)
+                .enableSwipe(true)
+                .swipeHorizontal(false)
+                //.onPageChange(this)
+                .enableAnnotationRendering(true)
+                //.onLoad(this)
+                .scrollHandle(DefaultScrollHandle(context))
+                .load()
+        }
     }
 
 /* //tried webview but realized it wont work with android

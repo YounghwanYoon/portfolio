@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.demoapp.repository.MainRepository
+import com.example.portfolio.feature_myapp.domain.repository.MainRepository
 import com.example.demoapp.repository.local.myapp.MyAppLocal
 import com.example.portfolio.utils.DataState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +26,7 @@ class MyAppViewModel @Inject constructor(
 
 
     fun setStateEvent(mainStateEvent: MainStateEvent){
-        viewModelScope.launch{
+        /*viewModelScope.launch{
             when(mainStateEvent){
                 is MainStateEvent.GetMyAppEvents -> {
                     Log.d(TAG, "setStateEvent: MainStateEvent.GetMyAppEvents ")
@@ -40,7 +40,7 @@ class MyAppViewModel @Inject constructor(
                 }
             }
 
-        }
+        }*/
 
     }
 

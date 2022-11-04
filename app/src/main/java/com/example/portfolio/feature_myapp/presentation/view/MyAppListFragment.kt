@@ -72,8 +72,8 @@ class MyAppListFragment : Fragment(), View.OnClickListener {
 
         when(view){
             _viewbinding?.toNextBtn ->{
-                val action:NavDirections = MyAppListFragmentDirections.actionMyAppListFragmentToResumeFragment()
-                navController.navigate(action)
+                /*val action:NavDirections = MyAppListFragmentDirections.actionMyAppListFragmentToResumeFragment()
+                navController.navigate(action)*/
 
             }
         }

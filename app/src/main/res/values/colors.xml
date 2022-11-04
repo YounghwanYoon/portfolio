@@ -12,6 +12,7 @@
     <color name="yellow">#FBED70</color>
     <color name="grey">#858484</color>
     <color name="grey_dark">#E2403D3D</color>
+    <color name="see_through">#00403D3D</color>
     <color name="transparent">#00000000</color>
     <color name="green">#4CAA50</color>
     <color name="custom_gradient_green" tools:ignore="ReferenceType">@drawable/header_gradient_drawable</color>

@@ -14,9 +14,6 @@
             android:id="@+id/action_homeFragment_to_myAppListFragment"
             app:destination="@id/myAppListFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_resumeFragment"
-            app:destination="@id/resumeFragment" />
-        <action
             android:id="@+id/action_homeFragment_to_demoApps"
             app:destination="@id/demoApps" />
         <action
@@ -29,20 +26,17 @@
         android:label="@string/myAppListFrag"
         tools:layout="@layout/fragment_my_app_list" >
         <action
-            android:id="@+id/action_myAppListFragment_to_resumeFragment"
-            app:destination="@id/resumeFragment" />
-        <action
             android:id="@+id/action_myAppListFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
     <fragment
         android:id="@+id/resumeFragment"
-        android:name="com.example.portfolio.feature_myapp.presentation.view.ResumeFragment"
+        android:name="com.example.portfolio.feature_resume.presentation.ResumeFragment"
         android:label="@string/resumeFrag"
         tools:layout="@layout/fragment_resume" >
         <action
-            android:id="@+id/action_resumeFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
+            android:id="@+id/action_resumeFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
     </fragment>
     <fragment
         android:id="@+id/demoApps"
@@ -56,12 +50,18 @@
         tools:layout="@layout/fragment_carousel_display"/>
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.example.portfolio.feature_myapp.presentation.view.MainFragment"
+        android:name="com.example.portfolio.feature_main_fragment.presentation.MainFragment"
         android:label="fragment_main"
         tools:layout="@layout/fragment_main" >
         <action
             android:id="@+id/action_mainFragment_to_weatherFragment"
             app:destination="@id/weatherFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_resumeFragment"
+            app:destination="@id/resumeFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_shoppingFragment"
+            app:destination="@id/shoppingFragment" />
     </fragment>
     <fragment
         android:id="@+id/weatherFragment"
@@ -70,6 +70,14 @@
         tools:layout="@layout/fragment_weather" >
         <action
             android:id="@+id/action_weatherFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/shoppingFragment"
+        android:name="com.example.portfolio.feature_shopping.presentation.ShoppingFragment"
+        android:label="ShoppingFragment" >
+        <action
+            android:id="@+id/action_shoppingFragment_to_mainFragment"
             app:destination="@id/mainFragment" />
     </fragment>
 </navigation>

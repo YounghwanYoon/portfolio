@@ -11,11 +11,9 @@ import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import com.example.portfolio.R
 import com.example.portfolio.feature_myapp.presentation.viewmodel.HomeFragment_VM
-import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.android.synthetic.main.fragment_home.view.*
 
 
-class HomeFragment : Fragment(),View.OnClickListener {
+class HomeFragment : Fragment()/*View.OnClickListener */{
     private lateinit var navController:NavController
     private val vm:HomeFragment_VM by viewModels()
 
@@ -39,18 +37,20 @@ class HomeFragment : Fragment(),View.OnClickListener {
         // Inflate the layout for this fragment
 
         val view = inflater.inflate(R.layout.fragment_home, container, false)
+/*
 
         setOnClickListeners(view)
+*/
 
         return view
     }
-
+/*
     private fun setOnClickListeners(view:View){
         view.demo_apps_btn.setOnClickListener(this)
         view.to_next_btn.setOnClickListener(this)
         view.to_resume_btn.setOnClickListener(this)
         view.to_demo_btn.setOnClickListener(this)
-    }
+    }*/
 
     private fun clearBackStack(){
         /*
@@ -71,7 +71,7 @@ class HomeFragment : Fragment(),View.OnClickListener {
         //clearBackStack()
 
     }
-
+/*
     override fun onClick(view: View?) {
         val action:NavDirections
         when(view){
@@ -82,13 +82,13 @@ class HomeFragment : Fragment(),View.OnClickListener {
                 action = HomeFragmentDirections.actionHomeFragmentToResumeFragment()
                 navController.navigate(action)
             }
-            /*
+            *//*
             hometitle_edittext -> {
                 val tempText = hometitle_edittext.text
                 vm.saveState(HomeFragment_VM.SAVED_EDIT_TEXT, tempText)
             }
 
-             */
+             *//*
             to_next_btn -> {
                 action = HomeFragmentDirections.actionHomeFragmentToMyAppListFragment()
                 navController.navigate(action)
@@ -105,5 +105,5 @@ class HomeFragment : Fragment(),View.OnClickListener {
             }
 
         }
-    }
+    }*/
 }

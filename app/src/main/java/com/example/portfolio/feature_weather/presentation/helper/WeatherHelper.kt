@@ -28,6 +28,12 @@ object WeatherHelper {
         )
         return currentDate+divider+hour+"00"
     }
+
+    fun getCurrentMonth():String{
+        return LocalDateTime.now().format(
+            DateTimeFormatter.ofPattern("MM")
+        )
+    }
     fun getCurrentYYMMDD():String{
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuuMMddHH"))
     }
@@ -129,17 +135,17 @@ object WeatherHelper {
         return list[targetIndex]
     }
 
-    fun selectImage(imageInfo:String):Int{
+    fun selectWeatherImage(imageInfo:String):Int{
         with(imageInfo){
             return when{
                 this.contains("Clear") || this.contains("Sunny") -> {
                     com.example.portfolio.R.drawable.ic_weather_sunny_svg
                 }
                 this.contains("Rain") || this.contains("Showers") -> {
-                    com.example.portfolio.R.drawable.ic_weather_rain
+                    com.example.portfolio.R.drawable.ic_weather_cloudy_rain
                 }
                 this.contains("Snow") || this.contains("Icy") -> {
-                    com.example.portfolio.R.drawable.ic_weather_snow
+                    com.example.portfolio.R.drawable.ic_weather_cloudy_snow
                 }
                 this.contains("Cloudy") -> {
                     com.example.portfolio.R.drawable.ic_weather_cloudy
@@ -147,7 +153,34 @@ object WeatherHelper {
                 else -> com.example.portfolio.R.drawable.ic_weather_partially_sunny_cloudy
             }
         }
+    }
+    fun selectedSeasonalImage(month:String?=null):Int{
+        val thisMonth = month ?: getCurrentMonth()
+        Log.d(TAG, "selectedSeasonalImage: getCurrentMonth() - ${getCurrentMonth()}")
+        Log.i(TAG, "selectedSeasonalImage: this month $thisMonth")
+        with(thisMonth){
+            return when{
+                this == "03" || this =="04" || this =="05" -> {
+                    com.example.portfolio.R.drawable.spring_image
+                }
+                this == "06" || this =="07" || this =="08" -> {
+                    com.example.portfolio.R.drawable.summer_image
 
+                }
+                this == "09" || this =="10" || this =="11" -> {
+                    com.example.portfolio.R.drawable.fall_image
+
+                }
+                this == "12" || this =="01" || this =="02" -> {
+                    com.example.portfolio.R.drawable.winter_image
+
+                }
+                else -> {
+                    com.example.portfolio.R.drawable.summer_image
+                }
+            }
+
+        }
     }
 
 }

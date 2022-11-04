@@ -1,4 +1,4 @@
-package com.example.demoapp.repository
+package com.example.portfolio.feature_myapp.domain.repository
 
 import android.util.Log
 import com.example.demoapp.model.MyApp
@@ -8,6 +8,7 @@ import com.example.demoapp.repository.local.myapp.MyAppLocal
 import com.example.demoapp.repository.webservices.myapp.LocalMapper
 import com.example.demoapp.repository.webservices.myapp.NetworkMapper
 import com.example.portfolio.utils.DataState
+import com.example.portfolio.utils.NetworkError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -75,7 +76,7 @@ class MainRepository @Inject constructor(
                 emit(DataState.Success(cachedData))
             }catch(e:Exception){
                 //when there is error,
-                emit(DataState.Error(e.message!!, null))
+                emit(DataState.Error(e.message!!, null, errorType = NetworkError.PageNotFoundError))
             }
         }.flowOn(Dispatchers.IO)
     }

@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.portfolio.R
 import com.example.portfolio.databinding.WeatherWeeklyItemsBinding
 import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
-import com.example.portfolio.feature_weather.domain.model.forecast.Period
 import com.example.portfolio.feature_weather.presentation.helper.WeatherHelper
 
 class WeatherWeeklyAdapter:RecyclerView.Adapter<WeatherWeeklyAdapter.CustomViewModelHolder>() {
@@ -36,14 +35,14 @@ class WeatherWeeklyAdapter:RecyclerView.Adapter<WeatherWeeklyAdapter.CustomViewM
                 this.tempDayTxt.text = data.dayTemp.toString()
                 data.dayShortForecast?.let{
                     this.weatherDayImg.setImageResource(
-                        WeatherHelper.selectImage(it)
+                        WeatherHelper.selectWeatherImage(it)
                     )
                 }
 
                 this.tempNightTxt.text = data.nightTemp.toString()
                 data.nightShortForecast?.let{
                     this.weatherNightImg.setImageResource(
-                        WeatherHelper.selectImage(it)
+                        WeatherHelper.selectWeatherImage(it)
                     )
                 }
             }
