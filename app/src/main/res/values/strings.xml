@@ -14,4 +14,27 @@
     <string name="weather_image">weather_image</string>
     <string name="forecast_image">forecast_image</string>
     <string name="hourly_forecast_weather_image">hourly forecast weather image</string>
+    <string name="roasting_coffee_bean">Roasting Coffee Bean...</string>
+    <string name="splash_view_with_coffee_image">Splash View with Coffee Image</string>
+    <string name="title_activity_shopping_splash">ShoppingSplashActivity</string>
+    <string name="compose_random_strings">
+        MuahahahahahhahahahahahhaMuahahahahahhahahahahahhaMuahahahahahhahahahahahha
+        My name is Ray and I am here for Android Developer Poisition and I am currently learning
+        jetpack compose muahahahahahahahhaah
+    </string>
+    <string name="compose_layout_searchbar">Search bar</string>
+    <string name="compose_layout_searchbar_placeholder">Search</string>
+    <string name="compose_layout_alignbody_text">Inversions</string>
+
+    <string name="show_less">Show Less</string>
+    <string name="show_more">Show More</string>
+    <string name="title_activity_jetpack_compose">JetpackComposeActivity</string>
+
+    <!-- Shopping Related -->
+    <!-- Splash Screen -->
+    <string name="shopping_splash_content_description">Welcome Screen an Image</string>
+    <string name="shopping_splash_loading_text">Roasting Coffee Bean</string>
+
+
+
 </resources>

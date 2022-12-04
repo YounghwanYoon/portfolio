@@ -16,4 +16,9 @@
     <color name="transparent">#00000000</color>
     <color name="green">#4CAA50</color>
     <color name="custom_gradient_green" tools:ignore="ReferenceType">@drawable/header_gradient_drawable</color>
+    <color name="green_white">#E3FBC7</color>
+    <color name="pearl_white">#EEF8EF</color>
+    <color name="brown_50">#FFFFF6E5</color>
+    <color name="brown_300">#FFC7880E</color>
+    <color name="brown_700">#FF46271C</color>
 </resources>
