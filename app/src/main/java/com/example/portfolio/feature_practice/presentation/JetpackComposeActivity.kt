@@ -85,7 +85,7 @@ fun `JetpackCompose_Layout` (modifier:Modifier = Modifier){
         //SearchBar(Modifier.padding(8.dp))
         //AlignYourBodyElement()
         //FavoriteCollectionCard(modifier = Modifier.padding(8.dp))
-        //HomeSection(title = "Align Your Body", content = { AlignYourBodyRow() })
+        //HomeSection(title = "Align Your com.example.portfolio.feature_shopping.presentation.main.Body", content = { AlignYourBodyRow() })
 //        HomeScreen()
         MyApp()
     }
@@ -111,7 +111,7 @@ fun PreviewAlignElement(){
         //FavoriteCollectionCard(modifier = Modifier.padding(8.dp))
         //AlignYourBodyRow()
         //CollectionGrid(Modifier.padding(8.dp))
-*//*        HomeSection(title = "Align Your Body"){
+*//*        HomeSection(title = "Align Your com.example.portfolio.feature_shopping.presentation.main.Body"){
             HomeScreen()
         }*//*
 
@@ -153,7 +153,7 @@ fun HomeScreen(modifier: Modifier=Modifier){
         Spacer(Modifier.height(16.dp))
         SearchBar(Modifier.padding(horizontal = 16.dp))
 
-        HomeSection(title= "Align Your Body", content = { AlignYourBodyRow()})
+        HomeSection(title= "Align Your com.example.portfolio.feature_shopping.presentation.main.Body", content = { AlignYourBodyRow()})
         HomeSection(title="Favorite Collections"){
             CollectionGrid()
         }

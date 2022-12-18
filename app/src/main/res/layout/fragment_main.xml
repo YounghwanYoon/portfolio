@@ -80,7 +80,7 @@
         app:layout_constraintTop_toBottomOf="@id/my_icon_holder_cardview"
         app:layout_constraintVertical_bias="0.667" />
     <!--
-    <GridView
+    <com.example.portfolio.feature_shopping.presentation.main.GridView
         android:id="@+id/main_gridview"
         android:layout_width="match_parent"
         android:layout_height="0dp"

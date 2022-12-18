@@ -1,10 +1,8 @@
-package com.example.portfolio.feature_shopping.presentation
+package com.example.portfolio.feature_shopping.presentation.main
 
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.view.Window
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.*
@@ -17,8 +15,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.DrawerValue
 import androidx.compose.material3.*
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
@@ -26,38 +26,62 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-
+import androidx.constraintlayout.compose.Dimension
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.rememberImagePainter
 import com.example.portfolio.R
 import com.example.portfolio.R.*
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
+import com.example.portfolio.feature_shopping.domain.model.ShoppingUIEvent
+import com.example.portfolio.feature_shopping.domain.model.SpecialItem
+import com.example.portfolio.feature_shopping.presentation.ShoppingListStateViewModel
 import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
+import com.example.portfolio.feature_shopping.presentation.utils.Screen
 import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
+import com.example.portfolio.feature_shopping.presentation.utils.setNavGraph
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.collections.ArrayList
 
-class ShoppingDemo : ComponentActivity() {
+@AndroidEntryPoint
+class ShoppingMain : ComponentActivity() {
+
+    //val shoppingListStateVM by viewModels<ShoppingListStateViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             ShoppingTheme {
-                //ShoppingApp()
+                val navController = rememberNavController()
+                setNavGraph(navController)
+
+            }
+        }
+/*        ComposeView(this).apply {
+            setContent {
+                com.example.portfolio.feature_shopping.presentation.main.ShoppingApp()
+                ShoppingTheme {
+                //com.example.portfolio.feature_shopping.presentation.main.ShoppingApp()
                 val configuration = LocalConfiguration.current
                 val screenHeight:Dp
                 val screenWidth:Dp
@@ -71,59 +95,56 @@ class ShoppingDemo : ComponentActivity() {
                     screenWidth  = configuration.screenWidthDp.dp
                 }
 
-                DetailScreen(screenHeight = screenHeight, screenWidth = screenWidth, window = window)
+               // DetailScreen(screenHeight = screenHeight, screenWidth = screenWidth, window = window)
+                ShoppingCartScreen()
             }
-        }
-/*        ComposeView(this).apply {
-            setContent {
-                ShoppingApp()
             }
         }*/
     }
 }
 
+@Composable
+fun ShoppingApp(modifier: Modifier = Modifier, navController: NavController) {
 
+    val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Closed))
 
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topBar = { Header() },
+        content = { padding ->
+            BodyContent(
+                Modifier.padding(),
+                specialItems = listOf(),
+                regularItems = listOf(),
+                screenHeight = 360.dp,
+                screenWidth = 480.dp
+            )
+        },
+        bottomBar = { Footer(modifier = Modifier, navController = navController) },
+        snackbarHost = {}
+    )
+}
 
 //@Preview(showBackground = true, widthDp= 360, heightDp = 640)
-@Composable
-fun PreviewShoppingApp(){
-    ShoppingTheme {
-        ShoppingScreen(Modifier.background(
-            color = androidx.compose.material3.MaterialTheme.colorScheme.background
-        ))
-    }
-}
-
-
-
-@Composable
-fun ShoppingApp(){
-
-    ShoppingScreen(Modifier.background(
-        color = androidx.compose.material3.MaterialTheme.colorScheme.background
-    ))
-
-}
 
 @SuppressLint("ObsoleteSdkInt")
 @Composable
-fun ShoppingScreen(modifier:Modifier =Modifier) {
+fun ShoppingMainScreen(navController: NavController) {
 
     val configuration = LocalConfiguration.current
-    val screenHeight:Dp
-    val screenWidth:Dp
+    val screenHeight: Dp
+    val screenWidth: Dp
 
-    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB_MR2 ){
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB_MR2) {
         screenHeight = 400.dp
-        screenWidth  = 360.dp
-    }else {
+        screenWidth = 360.dp
+    } else {
         screenHeight = configuration.screenHeightDp.dp
-        screenWidth  = configuration.screenWidthDp.dp
+        screenWidth = configuration.screenWidthDp.dp
     }
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .width(screenWidth)
             .height(screenHeight)
     ) {
@@ -132,7 +153,7 @@ fun ShoppingScreen(modifier:Modifier =Modifier) {
         //Spacer(modifier = Modifier.height(1.dp))
         Body(Modifier.weight(7f), screenHeight, screenWidth)
         MyDivider()
-        Footer(Modifier.weight(1.0f))
+        Footer(Modifier.weight(1.0f), navController = navController)
     }
 
 
@@ -142,16 +163,16 @@ fun ShoppingScreen(modifier:Modifier =Modifier) {
 /*//@Preview
 @Composable
 fun PreviewHeader() {
-    //Header(Modifier)
+    //com.example.portfolio.feature_shopping.presentation.main.Header(Modifier)
 }*/
 
 //***HEADER***
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun Header(modifier: Modifier) {
+fun Header(modifier: Modifier = Modifier) {
     val textState = remember { mutableStateOf(TextFieldValue("Search")) }
-    Row(modifier = modifier){
-        Box(){
+    Row(modifier = modifier) {
+        Box() {
             Column(
                 modifier = Modifier,
 //        horizontalAlignment = Alignment.CenterHorizontally,
@@ -160,8 +181,8 @@ fun Header(modifier: Modifier) {
 
                 Row(
                     modifier = Modifier
-                        //.fillMaxWidth()
-                        //.background(Color.White)
+                    //.fillMaxWidth()
+                    //.background(Color.White)
 //                    ,//padding(top = 4.dp, bottom = 4.dp),
 //                    horizontalArrangement = Arrangement.Center
 
@@ -170,37 +191,36 @@ fun Header(modifier: Modifier) {
                         modifier = Modifier
                             .fillMaxWidth()
 
-                    ){
+                    ) {
                         val (buttonCart, logoTitle, search) = createRefs()
 
                         Text(
                             modifier = Modifier
                                 .padding(8.dp)
-                                .constrainAs(logoTitle){
+                                .constrainAs(logoTitle) {
                                     absoluteLeft.linkTo(parent.start)
                                     absoluteRight.linkTo(parent.end)
                                     top.linkTo(parent.top)
                                     bottom.linkTo(search.top)
-                                }
-                            ,
+                                },
 
                             text = "Find Beans",
                             style = TextStyle(
-                                color = androidx.compose.material3.MaterialTheme.colorScheme.onTertiary,
+                                color = MaterialTheme.colorScheme.onTertiary,
                                 fontSize = 24.sp
                             )
                         )
                         Spacer(modifier = Modifier.height(4.dp))
 
                         androidx.compose.material3.IconButton(
-                            modifier = Modifier.constrainAs(buttonCart){
+                            modifier = Modifier.constrainAs(buttonCart) {
                                 top.linkTo(logoTitle.top)
                                 bottom.linkTo(logoTitle.bottom)
                                 //absoluteLeft.linkTo(logoTitle.absoluteRight, margin = 8.dp)
                                 absoluteRight.linkTo(parent.end, margin = 8.dp)
                             },
                             onClick = {}
-                        ){
+                        ) {
                             androidx.compose.material3.Icon(
                                 modifier = Modifier,
                                 painter = painterResource(drawable.coffee_icon_mugcup),
@@ -209,14 +229,14 @@ fun Header(modifier: Modifier) {
                         }
 
                         SearchView(
-                            modifier= Modifier
+                            modifier = Modifier
                                 .padding(top = 0.dp)
-                                .constrainAs(search){
+                                .constrainAs(search) {
                                     top.linkTo(logoTitle.bottom, margin = 4.dp)
                                     bottom.linkTo(parent.bottom, margin = 0.dp)
                                     absoluteLeft.linkTo(parent.absoluteLeft)
                                     absoluteRight.linkTo(parent.absoluteRight)
-                                 },
+                                },
                             textState
                         )
                     }
@@ -234,6 +254,7 @@ fun Header(modifier: Modifier) {
             */
 
                 }
+
 /*
                 Row(
                     modifier = Modifier
@@ -242,10 +263,8 @@ fun Header(modifier: Modifier) {
                         .padding(start = 24.dp, end = 24.dp),
                     horizontalArrangement = Arrangement.Center,
                 ) {
-                    SearchView(textState)
+                    com.example.portfolio.feature_shopping.presentation.main.SearchView(textState)
                 }*/
-
-
 /*
                 val padding = 20.dp
                 val density = LocalDensity.current
@@ -270,11 +289,10 @@ fun Header(modifier: Modifier) {
                         }
                 ) {
                     Spacer(modifier.height(20.dp))
-                    MyDivider()
+                    com.example.portfolio.feature_shopping.presentation.main.MyDivider()
                 }
 
 */
-
 
             }
         }
@@ -285,35 +303,41 @@ fun Header(modifier: Modifier) {
 }
 
 @Composable
-fun MyDivider(modifier:Modifier = Modifier, height: Dp = 2.dp, shadowElevation:Dp = 8.dp){
+fun MyDivider(modifier: Modifier = Modifier, height: Dp = 2.dp, shadowElevation: Dp = 8.dp) {
     Surface(
         shadowElevation = shadowElevation
-    ){
+    ) {
         Box(
             modifier = modifier
                 .fillMaxWidth()
                 .height(height)
-                .background(color= com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_700)
+                .background(color = com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_700)
         )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchView(modifier: Modifier, state: MutableState<TextFieldValue> = mutableStateOf<TextFieldValue>(TextFieldValue("Search"))) {
+fun SearchView(
+    modifier: Modifier,
+    state: MutableState<TextFieldValue> = mutableStateOf<TextFieldValue>(TextFieldValue("Search"))
+) {
     val options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5")
     var exp by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("") }
 
-    androidx.compose.material3.ExposedDropdownMenuBox(modifier = modifier.background(color = Color.White), expanded = exp, onExpandedChange = { exp = !exp }) {
+    androidx.compose.material3.ExposedDropdownMenuBox(
+        modifier = modifier.background(color = Color.White),
+        expanded = exp,
+        onExpandedChange = { exp = !exp }) {
         TextField(
             modifier = Modifier.background(
-                    color = Color.White,//MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(24.dp)
-                ),
+                color = Color.White,//MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(24.dp)
+            ),
             value = selectedOption,
             onValueChange = { selectedOption = it },
-            label = { androidx.compose.material3.Text("Search") },
+            label = { Text("Search") },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = exp)
             },
@@ -329,12 +353,13 @@ fun SearchView(modifier: Modifier, state: MutableState<TextFieldValue> = mutable
                             selectedOption = option
                             exp = false
                         },
-                        text = {androidx.compose.material3.Text(text=option)}
+                        text = { Text(text = option) }
                     )
                 }
             }
         }
     }
+
 
     /*TextField(
         value = state.value,
@@ -434,27 +459,54 @@ fun ItemListItem(ItemText: String, onItemClick: (String) -> Unit) {
             .fillMaxWidth()
             .padding(PaddingValues(8.dp, 16.dp))
     ) {
-        androidx.compose.material3.Text(text = ItemText, fontSize = 18.sp, color = Color.White)
+        Text(text = ItemText, fontSize = 18.sp, color = Color.White)
     }
 }
-
 
 
 //@Preview(widthDp = 360, heightDp = 640)
 @Composable
-fun BodyPreview(){
-    ShoppingTheme{
+fun BodyPreview() {
+    ShoppingTheme {
         Body()
     }
 }
 
-
-//---Body ----
 @Composable
-fun Body(modifier: Modifier = Modifier, screenHeight:Dp = 640.dp, screenWidth:Dp = 360.dp) {
-    //SpecialSection(modifier)
-    BodyContent(modifier, screenHeight = screenHeight, screenWidth = screenWidth)
-    //GridView(modifier)
+fun onLaunched(vm: ItemListViewModel): Boolean {
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(key1 = Unit) {
+        lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
+            launch {
+                vm.onUIEvent(ShoppingUIEvent.AppLaunched)
+            }
+        }
+    }
+    return true
+}
+
+//---com.example.portfolio.feature_shopping.presentation.main.Body ----
+@Composable
+fun Body(
+    modifier: Modifier = Modifier,
+    screenHeight: Dp = 640.dp,
+    screenWidth: Dp = 360.dp,
+    vm: ItemListViewModel = hiltViewModel()//viewModel() //
+) {
+    onLaunched(vm)
+
+    val specialItems: List<SpecialItem> by vm.specialItemsState.collectAsState()
+    val regularItems: List<SellingItem> by vm.regularItemsState.collectAsState()
+
+    //com.example.portfolio.feature_shopping.presentation.main.SpecialSection(modifier)
+    BodyContent(
+        modifier,
+        screenHeight = screenHeight,
+        screenWidth = screenWidth,
+        specialItems = specialItems,
+        regularItems = regularItems
+    )
+    //com.example.portfolio.feature_shopping.presentation.main.GridView(modifier)
 }
 
 
@@ -467,29 +519,11 @@ fun Body(modifier: Modifier = Modifier, screenHeight:Dp = 640.dp, screenWidth:Dp
 @Composable
 fun BodyContent(
     modifier: Modifier = Modifier,
-    specialList:List<SellingItem> = listOf(
-        SellingItem(0, painterResource(R.drawable.coffee_animation), description = "one", type = SellingItem.DisplayType.SPECIAL),
-        SellingItem(1, painterResource(R.drawable.coffee_animation), description = "two"),
-        SellingItem(2, painterResource(R.drawable.coffee_animation), description = "three"),
-        SellingItem(3, painterResource(R.drawable.coffee_animation), description = "four"),
-    ),
-    list:List<SellingItem> =listOf(
-            SellingItem(0, painterResource(R.drawable.coffee_animation), description = "one", type = SellingItem.DisplayType.SPECIAL),
-            SellingItem(1, painterResource(R.drawable.coffee_animation), description = "two"),
-            SellingItem(2, painterResource(R.drawable.coffee_animation), description = "three"),
-            SellingItem(3, painterResource(R.drawable.coffee_animation), description = "four"),
-            SellingItem(4, painterResource(R.drawable.coffee_animation), description = "five"),
-            SellingItem(5, painterResource(R.drawable.coffee_animation), description = "six"),
-            SellingItem(6, painterResource(R.drawable.coffee_animation), description = "seven"),
-            SellingItem(7, painterResource(R.drawable.coffee_animation), description = "8"),
-            SellingItem(8, painterResource(R.drawable.coffee_animation), description = "9"),
-            SellingItem(9, painterResource(R.drawable.coffee_animation), description = "10"),
-            SellingItem(10, painterResource(R.drawable.coffee_animation), description = "11"),
-            SellingItem(11, painterResource(R.drawable.coffee_animation), description = "12"),
-        ),
-    screenHeight:Dp,
-    screenWidth: Dp
-){
+    specialItems: List<SpecialItem>,
+    regularItems: List<SellingItem>,
+    screenHeight: Dp = 360.dp,
+    screenWidth: Dp = 640.dp,
+) {
 
     LazyVerticalGrid(
         modifier = modifier,
@@ -506,15 +540,15 @@ fun BodyContent(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
 
-    ){
+        ) {
         //Span mean it how many spot will it take.
         //since it is fixed with 2 counts == 2 spans.
 
         // First Section with title and LazyRow
         // It takes two span to override
-        item (
-            span = {GridItemSpan(2)}
-        ){
+        item(
+            span = { GridItemSpan(2) }
+        ) {
             /*LazyRow {
                 items(list2){ item ->
                     Card(
@@ -545,29 +579,29 @@ fun BodyContent(
             }*/
             SpecialSection(
                 modifier = Modifier
-                .width(360.dp)
-                .height(400.dp),
-                list = specialList
+                    .width(360.dp)
+                    .height(400.dp),
+                specialItems = specialItems
             )
         }
 
         //Section Item
         //Start with title
         item(
-            span ={GridItemSpan(2)}
-        ){
+            span = { GridItemSpan(2) }
+        ) {
             Text(
                 text = "Regular Items",
                 style = MaterialTheme.typography.bodySmall,
-                modifier= Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp)
             )
         }
 
         // Third Section with grid items
         // Grid To Display
         itemsIndexed(
-            items= list,
-            key = {index, item ->
+            items = regularItems,
+            key = { index, item ->
                 item.id
             }
             /*.filter{
@@ -576,51 +610,23 @@ fun BodyContent(
 
         ) { index, item ->
             EachItemTwo(
-                modifier= Modifier
+                modifier = Modifier
                     .width(
                         //Rotated
-                        if(screenWidth > screenHeight) screenWidth.times(0.27f) else screenWidth.times(0.48f)
+                        if (screenWidth > screenHeight) screenWidth.times(0.27f) else screenWidth.times(
+                            0.48f
+                        )
                     )
                     //.fillMaxWidth(0.45f)
                     .height(
-                        if(screenWidth > screenHeight) screenHeight.times(0.48f) else screenHeight.times(0.27f)
+                        if (screenWidth > screenHeight) screenHeight.times(0.48f) else screenHeight.times(
+                            0.27f
+                        )
 
                     ),
-                painter = item.image,
+                painter = painterResource(item.image),
                 text = item.description
             )
-            /*this@LazyVerticalGrid.item (
-                //span = {GridItemSpan(2)}
-            ){
-                EachItemTwo(
-                    modifier= Modifier.fillMaxWidth(0.45f),
-                    painter = item.image,
-                    text = item.description
-                )
-*//*                Card(
-                    backgroundColor = Color.Red,
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .fillMaxWidth(),
-                    elevation = 8.dp,
-                ) {
-                    Image(
-                        modifier = Modifier
-                            .padding(8.dp)       ,
-                        contentScale = ContentScale.FillBounds,
-                        painter = list[index].image,
-                        contentDescription = "null"
-                    )
-                    Text(
-                        text = list[index].description,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 30.sp,
-                        color = Color(0xFFFFFFFF),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }*//*
-            }*/
         }
     }
 
@@ -629,27 +635,76 @@ fun BodyContent(
 @Composable
 fun GridView(
     modifier: Modifier = Modifier,
-    list:List<SellingItem> = listOf(
-        SellingItem(0, painterResource(R.drawable.coffee_animation), description = "one", type = SellingItem.DisplayType.SPECIAL),
-        SellingItem(1, painterResource(R.drawable.coffee_animation), description = "two"),
-        SellingItem(2, painterResource(R.drawable.coffee_animation), description = "three"),
-        SellingItem(3, painterResource(R.drawable.coffee_animation), description = "four"),
-        SellingItem(4, painterResource(R.drawable.coffee_animation), description = "five"),
-        SellingItem(5, painterResource(R.drawable.coffee_animation), description = "six"),
-        SellingItem(6, painterResource(R.drawable.coffee_animation), description = "seven"),
+    list: List<SellingItem> = listOf(
+        SellingItem(
+            0,
+            (R.drawable.coffee_animation),
+            description = "1",
+            title = "One",
+            price = 1.99,
+            quantity = 10,
+        ),
+        SellingItem(
+            1,
+            (R.drawable.coffee_animation),
+            description = "2",
+            title = "Two",
+            price = 2.99,
+            quantity = 10,
+        ),
+        SellingItem(
+            2,
+            (R.drawable.coffee_animation),
+            description = "3",
+            title = "Three",
+            price = 3.99,
+            quantity = 10,
+        ),
+        SellingItem(
+            3,
+            (R.drawable.coffee_animation),
+            description = "4",
+            title = "Four",
+            price = 4.99,
+            quantity = 10,
+        ),
+        SellingItem(
+            4,
+            (R.drawable.coffee_animation),
+            description = "5",
+            title = "Five",
+            price = 5.99,
+            quantity = 10,
+        ),
+        SellingItem(
+            5,
+            (R.drawable.coffee_animation),
+            description = "6",
+            title = "Six",
+            price = 6.99,
+            quantity = 10,
+        ),
+        SellingItem(
+            6,
+            (R.drawable.coffee_animation),
+            description = "7",
+            title = "Seven",
+            price = 7.99,
+            quantity = 10,
+        ),
     )
-){
+) {
     val mlist = list
 
     LazyVerticalGrid(
         modifier = modifier,
         columns = GridCells.Fixed(2),//.Adaptive(minSize = 128.dp),
         content = {
-            items(mlist.size){ item ->
+            items(mlist.size) { item ->
                 EachItem(
                     modifier = Modifier.wrapContentWidth(),
-                    painter = list[item].image,
-                    text= list[item].description
+                    painter = painterResource(list[item].image),
+                    text = list[item].description
                 )
                 /* when{
                      item.type == SellingItem.DisplayType.SINGLE -> {
@@ -658,7 +713,7 @@ fun GridView(
                              .height(128.dp)
                          ){
                              Text("Single Item Display")
-                             EachItem(
+                             com.example.portfolio.feature_shopping.presentation.main.EachItem(
                                  modifier = Modifier.fillMaxWidth(),
                                  painter = item.image,
                                  //contentDescription = item.description,
@@ -667,7 +722,7 @@ fun GridView(
                          }
                      }
                      item.type == SellingItem.DisplayType.MULTIPLE -> {
-                         EachItem(
+                         com.example.portfolio.feature_shopping.presentation.main.EachItem(
                              modifier = Modifier.wrapContentWidth(),
                              painter = item.image,
                              text= item.description
@@ -681,28 +736,49 @@ fun GridView(
 }
 
 
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun SpecialSection(
-    modifier:Modifier = Modifier.size(200.dp),
-    list:List<SellingItem> = listOf(
-        SellingItem(0, painterResource(R.drawable.coffee_steam_), description = "one", type = SellingItem.DisplayType.SPECIAL),
-        SellingItem(1, painterResource(R.drawable.coffee_steam_), description = "two", type = SellingItem.DisplayType.SPECIAL),
-        SellingItem(3, painterResource(R.drawable.coffee_steam_), description = "tree", type = SellingItem.DisplayType.SPECIAL),
+    modifier: Modifier = Modifier.size(200.dp),
+    specialItems: List<SpecialItem> = listOf(
+        SpecialItem(
+            id = 0,
+            image = R.drawable.coffee_animation,
+            description = "1",
+            title = "first",
+            start_date = "",
+            end_date = ""
+        ),
+        SpecialItem(
+            id = 1,
+            image = R.drawable.coffee_animation,
+            description = "2",
+            title = "second",
+            start_date = "",
+            end_date = ""
+        ),
+        SpecialItem(
+            id = 2,
+            image = R.drawable.coffee_animation,
+            description = "3",
+            title = "third",
+            start_date = "",
+            end_date = ""
+        )
     ),
-){
-    var listState = rememberLazyGridState()
+) {
 
     ConstraintLayout(
         modifier = modifier
     ) {
-        val (titleString, content, spacer)  = createRefs()
+        val (titleString, content, spacer) = createRefs()
         Box(
             modifier = Modifier
-                .padding(start = 8.dp, bottom = 8.dp)
-                .constrainAs(titleString){
+                //.padding(start =0.dp, bottom = 8.dp)
+                .constrainAs(titleString) {
                     top.linkTo(parent.top, margin = 8.dp)
                 },
-        ){
+        ) {
             Text(
                 text = "Special Section",
                 style = MaterialTheme.typography.bodySmall
@@ -711,90 +787,55 @@ fun SpecialSection(
         Box(
             modifier = Modifier
                 //.background(color=Color.Blue)
-                .padding(top= 8.dp, bottom = 8.dp)
-                .constrainAs(content){
+                //.padding(top= 8.dp, bottom = 8.dp)
+                .constrainAs(content) {
                     top.linkTo(titleString.bottom, margin = 8.dp)
                     bottom.linkTo(parent.bottom, margin = 8.dp)
-                    absoluteLeft.linkTo(parent.absoluteLeft,margin =8.dp)
+                    absoluteLeft.linkTo(parent.absoluteLeft, margin = 8.dp)
                     absoluteRight.linkTo(parent.absoluteRight, margin = 8.dp)
                 }
         ) {
             LazyRow(
                 modifier = Modifier
-                    //.fillMaxHeight()
-                    //.height(100.dp),
+                //.fillMaxHeight()
+                //.height(100.dp),
             ) {
                 items(
-                    items = list,
+                    items = specialItems,
                     key = { each ->
                         each.id
                     }
-                ){ item ->
+                ) { item ->
                     EachItem(
                         modifier = Modifier
-                        .fillParentMaxWidth(1f)
-                        .fillParentMaxHeight(0.8f),
-                        painter = item.image,
+                            .fillParentMaxWidth(1f)
+                            .fillParentMaxHeight(0.8f),
+                        painter =
+                        //Image data from Server
+                        if (item.imageUrl != "") rememberImagePainter(item.imageUrl)
+                        //Image for local use for design
+                        else painterResource(item.image),
                         contentDescription = item.description,
                         text = item.description
                     )
                 }
             }
         }
-/*
-        Box(
-            modifier = Modifier
-            .constrainAs(spacer){
-                bottom.linkTo(parent.bottom, margin = 8.dp)
-               // absoluteRight.linkTo(parent.absoluteRight, margin = 24.dp)
-              //  absoluteLeft.linkTo(parent.absoluteLeft , margin = 24.dp)
-            }
-            .padding(horizontal = 24.dp)
-        ){
-            MyDivider(height = 2.dp)
-            //Text("I am here")
-        }
-*/
-
-
-
     }
-  /*      LazyVerticalGrid(
-            state = listState,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp),
-            columns = GridCells.Fixed(2)
-        ){
-            items(list){ item ->
-                EachItem(
-                    text = item,
-                    modifier = Modifier.size(100.dp)
-                )
-                Spacer(modifier= Modifier.height(4.dp))
-            }
-        }*/
-
 }
-
-
-//@Preview
-@Composable
-fun PreviewEachItem() {
-    SpecialSection()
-}
-
 
 @Composable
 fun EachItem(
     modifier: Modifier = Modifier.size(128.dp),
-    painter:Painter = painterResource(R.drawable.coffee_animation),
-    contentDescription:String = "null",
-    text:String = "Title of Item",
-    screenHeight:Dp = 400.dp,
+    painter: Painter = painterResource(R.drawable.coffee_animation),
+    contentDescription: String = "null",
+    text: String = "Title of Item",
+    screenHeight: Dp = 400.dp,
     screenWidth: Dp = 360.dp
 ) {
     val radius = 10.dp
 
-    androidx.compose.material.Card(
+    Card(
         modifier = modifier,
         shape = RoundedCornerShape(radius),
         elevation = 8.dp
@@ -811,7 +852,8 @@ fun EachItem(
                     .weight(8f),
                 contentScale = ContentScale.FillBounds,
                 painter = painter,
-                contentDescription = contentDescription)
+                contentDescription = contentDescription
+            )
             Text(
                 text = text,
                 modifier = Modifier
@@ -829,46 +871,47 @@ fun EachItem(
 @Composable
 fun EachItemTwo(
     modifier: Modifier = Modifier.size(128.dp),
-    painter:Painter = painterResource(R.drawable.coffee_animation),
-    contentDescription:String = "null",
-    text:String = "Title of Item",
-    screenHeight:Dp = 400.dp,
+    painter: Painter = painterResource(R.drawable.coffee_animation),
+    contentDescription: String = "null",
+    text: String = "Title of Item",
+    screenHeight: Dp = 400.dp,
     screenWidth: Dp = 360.dp
 ) {
     val radius = 10.dp
 
-    androidx.compose.material.Card(
+    Card(
         modifier = modifier,
         shape = RoundedCornerShape(radius),
         elevation = 8.dp
     ) {
-        Box{
-            ConstraintLayout (
+        Box {
+            ConstraintLayout(
             ) {
                 val (imageLayout, textLayout) = createRefs()
 
                 Image(
                     modifier = Modifier
                         .padding(8.dp)
-                        .constrainAs(imageLayout){
+                        .constrainAs(imageLayout) {
                             top.linkTo(parent.top)
                         },
-                            //.fillMaxWidth()
-                            //.fillMaxSize()
+                    //.fillMaxWidth()
+                    //.fillMaxSize()
 
                     contentScale = ContentScale.FillBounds,
                     painter = painter,
-                    contentDescription = contentDescription)
+                    contentDescription = contentDescription
+                )
                 Text(
                     text = text,
                     modifier = Modifier
                         .padding(start = 8.dp, end = 8.dp)
                         .fillMaxWidth()
                         .background(ShoppingColors.LightColors.primary)
-                        .constrainAs(textLayout){
+                        .constrainAs(textLayout) {
                             bottom.linkTo(parent.bottom, margin = 8.dp)
-                        //https://stackoverflow.com/questions/64171607/how-to-use-bias-in-constraint-layout-compose
-                        // linkTo(bias = 0f)
+                            //https://stackoverflow.com/questions/64171607/how-to-use-bias-in-constraint-layout-compose
+                            // linkTo(bias = 0f)
                         },
                 )
             }
@@ -879,14 +922,28 @@ fun EachItemTwo(
 
 }
 
-//***Footer***
+//***com.example.portfolio.feature_shopping.presentation.main.Footer***
 @Composable
-fun Footer(modifier: Modifier) {
+fun Footer(
+    modifier: Modifier,
+    counter: Int = 1,
+    vm: ShoppingListStateViewModel = hiltViewModel(),//viewModel()//,
+    navController: NavController
+) {
     Row(
         modifier = modifier
             .defaultMinSize(minHeight = 50.dp)
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.small),
+            //.fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.primary,
+                shape = MaterialTheme.shapes.small
+            )
+            .border(
+                width = 2.dp,
+                color = MaterialTheme.colorScheme.onTertiary,
+                shape = RoundedCornerShape(2.dp)
+            )
+            .clip(shape = RoundedCornerShape(2.dp)),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -908,130 +965,102 @@ fun Footer(modifier: Modifier) {
         }*/
 
         fastImageButton(
-            modifier = modifier.weight(3f),
-            onClick = {},
-            painter = painterResource(R.drawable.coffee_menu_btn)
+            modifier = Modifier.weight(3f),
+            onClick = {
+                navController
+                println("First Image Clicked TO THE PROFILE")
+            },
+            painter = painterResource(drawable.coffee_menu_btn)
         )
 
         fastImageButton(
-            modifier = modifier.weight(3f),
-            onClick = {},
-            painter = painterResource(R.drawable.coffee_home_btn)
+            modifier = Modifier.weight(3f),
+            onClick = {
+                navController.navigate(Screen.Main.rout) {
+                    popUpTo(Screen.Main.rout)
+                }
+                println("First Image Clicked TO THE HOME")
+
+            },
+            painter = painterResource(drawable.coffee_home_btn)
         )
 
         fastImageButton(
-            modifier = modifier.weight(3f),
-            onClick = {},
-            painter = painterResource(R.drawable.coffee_cart_btn)
-        )
+            modifier = Modifier.weight(3f).defaultMinSize(50.dp),
+            onClick = {
+                navController.navigate(Screen.Cart.rout) {
+                    popUpTo(Screen.Cart.rout)
+                }
+                println("First Image Clicked TO THE CART!!")
+
+            },
+            painter = painterResource(drawable.coffee_cart_btn),
+        ) {
+            if (vm.counter.value >= 1) {
+                Text(
+                    text = " ${vm.counter.value.toString()} ",
+                    modifier = Modifier.background(
+                        color = MaterialTheme.colorScheme.secondary,
+                        shape = CircleShape
+                    ),
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
+            }
+        }
     }
 }
 
 @Composable
-fun fastImageButton(modifier:Modifier = Modifier, onClick: () -> Unit = {}, painter: Painter){
+fun fastImageButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+    painter: Painter,
+    content: @Composable () -> Unit = {}
+) {
     Box(
         modifier = modifier
             .clickable { },
         contentAlignment = Alignment.Center,
 
         ) {
-        IconButton(
-            onClick = {onClick}
-        ){
-            androidx.compose.material3.Icon(
-                painter = painter,
-                contentDescription = "Coffee Menu Button"
-            )
-        }
-    }
-}
+        ConstraintLayout(modifier = Modifier.padding(top = 18.dp)) {
 
-private fun onClickCard() {
-    Log.d("ShoppingFragment", "onClickCard: Hello")
-}
+            val (IconBtn, Counter) = createRefs()
+
+            Box(modifier = Modifier
+                .constrainAs(Counter) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(IconBtn.top)
+                    absoluteRight.linkTo(parent.absoluteRight)
+                    //absoluteLeft.linkTo(IconBtn.absoluteRight)
 
 
-@Composable
-fun CustomizedText() {
-
-    Text(
-        buildAnnotatedString {
-            append("welcome to ")
-            withStyle(
-                style = SpanStyle(
-                    fontWeight = FontWeight.W900,
-                    color = Color(0xFF4552B8)
-                )
-            ) {
-                append("Jetpack Compose Playground")
-            }
-        }
-    )
-    Text(
-        buildAnnotatedString {
-            append("Now you are in the ")
-            withStyle(style = SpanStyle(fontWeight = FontWeight.W900)) {
-                append("Card")
-            }
-            append(" section")
-        }
-    )
-
-}
-
-@Composable
-fun CardDemo(onClick: () -> Unit) {
-    val context = LocalContext.current
-    Row(
-        modifier = Modifier
-            .width(IntrinsicSize.Max)
-            .defaultMinSize(minHeight = 208.dp)
-            .fillMaxWidth()
-            .padding(0.dp)
-    ) {
-
-        Card(
-            modifier = Modifier
-                //.width(IntrinsicSize.Max)
-                //.size(width = 150.dp, height=200.dp)
-                .defaultMinSize(minWidth = 150.dp, minHeight = 230.dp)
-                .padding(1.dp)
-                .background(Color.White, RoundedCornerShape(8.dp))
-                .clickable { onClick },
-            elevation = 10.dp,
-            backgroundColor = ShoppingColors.GreenWhite,
-            contentColor = Color.DarkGray,
-
+                    //linkTo( IconBtn.absoluteLeft, parent.absoluteRight, startMargin = 8.dp, bias = 1f)
+                    width = Dimension.fillToConstraints
+                }
+                //.background(color = MaterialTheme.colorScheme.secondary, shape = CircleShape),
 
             ) {
-            Column(
-                modifier = Modifier
-                    .padding(15.dp)
-                    .background(Color.White)
-                    .border(1.dp, androidx.compose.material3.MaterialTheme.colorScheme.primary),
+                content()
+            }
 
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-
-                ) {
-                Image(
-                    painter = painterResource(drawable.ic_face_48dp),
-                    modifier = Modifier
-                        .weight(8F)
-                        .background(color = ShoppingColors.DarkGrey),
-                    contentDescription = "Item Picture"
-                )
-
-                Text(
-                    modifier = Modifier
-                        .weight(2F),
-                    text = "Hello Bro"
+            IconButton(
+                modifier = Modifier.constrainAs(IconBtn) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.top)
+                    absoluteLeft.linkTo(parent.absoluteLeft)
+                    absoluteRight.linkTo(parent.absoluteRight)
+                },
+                onClick = { onClick() }
+            ) {
+                androidx.compose.material3.Icon(
+                    painter = painter,
+                    contentDescription = "Coffee Menu Button"
                 )
             }
+
+
         }
+
     }
-
 }
-
-
-

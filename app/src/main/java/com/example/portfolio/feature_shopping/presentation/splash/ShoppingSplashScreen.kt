@@ -1,9 +1,7 @@
-package com.example.portfolio.feature_shopping.presentation
+package com.example.portfolio.feature_shopping.presentation.splash
 
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+import android.view.animation.OvershootInterpolator
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,13 +14,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.portfolio.R
 import androidx.compose.material.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.portfolio.feature_practice.presentation.ui.theme.JetpackComposeTheme
 import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_700
+import com.example.portfolio.feature_shopping.presentation.utils.Screen
+import kotlinx.coroutines.delay
 
 @Preview (
     showBackground = true,
@@ -32,11 +35,30 @@ import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_700
 @Composable
 fun PreviewSplashScreen(){
     JetpackComposeTheme {
-        CustomSplashScreen()
+        Shopping_SplashScreen()
     }
 }
 @Composable
-fun CustomSplashScreen(){
+fun Shopping_SplashScreen(navController: NavController){
+
+    val scale = remember{
+        Animatable(0f)
+    }
+
+    LaunchedEffect(key1 = true){
+        scale.animateTo(
+            targetValue = 0.5f,
+            animationSpec = tween(
+                durationMillis = 1000,
+                easing = {
+                    OvershootInterpolator(4f).getInterpolation(it)
+                }
+            )
+        )
+
+        delay(2000L)
+        navController.navigate(Screen.Main.rout)
+    }
     SplashContents(
         modifier = Modifier.background(color = Brown_700)
     )

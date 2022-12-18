@@ -1,5 +1,6 @@
-package com.example.portfolio.feature_shopping.presentation
+package com.example.portfolio.feature_shopping.presentation.splash
 
+import com.example.portfolio.feature_shopping.presentation.main.ShoppingMain
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
@@ -57,7 +58,7 @@ class ShoppingSplashActivity : ComponentActivity() {
 
 
             delay(3000)
-            val intent = Intent(this@ShoppingSplashActivity, ShoppingDemo::class.java)
+            val intent = Intent(this@ShoppingSplashActivity, ShoppingMain::class.java)
             startActivity(intent)
             finish()
         }
@@ -85,7 +86,7 @@ class ShoppingSplashActivity : ComponentActivity() {
 
 //Splash Screen
 @Composable
-fun CustomSplashScreen(
+fun Shopping_SplashScreen(
     color: Color = ShoppingColors.LightColors.primaryVariant,
 ) {
 

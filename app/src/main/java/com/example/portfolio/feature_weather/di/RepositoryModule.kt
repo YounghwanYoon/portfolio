@@ -61,7 +61,8 @@ object RepositoryModule {
         /*companion object{
 
 
-            *//* @Singleton
+            *//*
+             @Singleton
              @Provides
              fun provideGetInfoUseCase(
                  repository: WeatherRepository

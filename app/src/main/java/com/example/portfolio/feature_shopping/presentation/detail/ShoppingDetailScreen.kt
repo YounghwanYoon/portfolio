@@ -1,5 +1,6 @@
-package com.example.portfolio.feature_shopping.presentation
+package com.example.portfolio.feature_shopping.presentation.detail
 
+import com.example.portfolio.feature_shopping.presentation.main.Footer
 import android.view.Window
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -16,25 +17,32 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
+import com.example.portfolio.feature_shopping.presentation.ShoppingListStateViewModel
 
 
 @Composable
-fun DetailScreen (
+fun ShoppingDetailScreen (
     modifier: Modifier = Modifier,
-    screenHeight:Dp,
-    screenWidth: Dp,
-    window: Window
+    screenHeight:Dp = 640.dp ,
+    screenWidth: Dp = 360.dp,
+    window: Window ? = null,
+    navController:NavController
 ){
 /*
     WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -47,12 +55,13 @@ fun DetailScreen (
     Column(
         modifier= modifier.background(color = MaterialTheme.colorScheme.background)
     ){
-        //Header() // Skip in this section
+        //com.example.portfolio.feature_shopping.presentation.main.Header() // Skip in this section
         Detail_Body(
             modifier = Modifier.weight(9f),
             screenHeight = screenHeight,
-            screenWidth = screenWidth)
-        Footer(Modifier.weight(1f))
+            screenWidth = screenWidth
+        )
+        Footer(Modifier.weight(1f), navController = navController)
     }
 
 }
@@ -71,7 +80,7 @@ fun Detail_Body(
             .fillMaxHeight()
             .background(color = MaterialTheme.colorScheme.background)
             .padding(0.dp),
-            content = {
+            bodyContent = {
                 Column(modifier.fillMaxSize()){
                     Detail_ImageAndTitle(modifier.weight(5f).padding(top = 0.dp, bottom= 0.dp))
                     Detail_ProductInfo(
@@ -82,7 +91,7 @@ fun Detail_Body(
                     )
                 }
             },
-            bottomContent = {Detail_PriceFloatBtn(Modifier)}
+            bodyBotContent = { Detail_PriceFloatBtn(Modifier) }
         )
 
 /*    Box(
@@ -120,7 +129,7 @@ fun Detail_Body(
                         .weight(5f)
                         .padding(start=16.dp)
                 )
-                MyDivider()
+                com.example.portfolio.feature_shopping.presentation.main.MyDivider()
                 Row(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 ){
@@ -134,45 +143,77 @@ fun Detail_Body(
 /**
  * Simply
  */
+
+@Preview(widthDp = 360, heightDp = 640)
 @Composable
 fun ImageFrame(
     modifier:Modifier = Modifier.background(color = MaterialTheme.colorScheme.background),
     painter:Painter = painterResource(R.drawable.coffee_mug_cup_frame),
-    content: @Composable () -> Unit,
-    bottomContent: @Composable () -> Unit = {},
+    bodyContent: @Composable () -> Unit = {Text("TestLazyColumn Section")},
+    bodyBotContent: @Composable () -> Unit = {Text("Bottom Calculation Section")},
 ){
-    Column(modifier = modifier.background(color = MaterialTheme.colorScheme.background)){
-        Surface(
-            //modifier.background(color = MaterialTheme.colorScheme.background),
-            color= MaterialTheme.colorScheme.background
+    Surface(
+        modifier = modifier,
+        //modifier.background(color = MaterialTheme.colorScheme.background),
+        //color= MaterialTheme.colorScheme.background
+    ){
+        Card (
+            //modifier = Modifier.fillMaxSize(),//.background(color = MaterialTheme.colorScheme.background),
+            elevation = 8.dp,
         ){
-            Card (
-                modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background),
-                elevation = 6.dp,
+            Image(
+                modifier= Modifier
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .fillMaxHeight()
+                    .fillMaxWidth(),
+                painter = painter,
+                contentDescription = "Mug Cup ImageFrame",
+
+            )
+            Box(
+                modifier = Modifier
+                .padding(end = 8.dp)
+                .fillMaxWidth(1.0f)
+                .fillMaxHeight(0.70f)
+                .clip(shape = RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
             ){
-                Image(
-                    //modifier= Modifier.background(color = MaterialTheme.colorScheme.primary),
-                    painter = painter,
-                    contentDescription = "Mug Cup ImageFrame",
-                )
                 Column(
                     modifier = Modifier
-                        .padding(top = 28.dp, bottom= 8.dp, start = 8.dp, end = 18.dp),
+                        .fillMaxWidth(0.90f)
+                        .fillMaxHeight(0.85f)
+                        .clip(shape = RoundedCornerShape(8.dp))
+                    //.padding(top = 2.dp, bottom= 8.dp, start = 8.dp, end = 18.dp),
                 ){
-                    Box(modifier = Modifier.weight(8.9f)){
-                        content()
+                    Box(
+                        modifier = Modifier
+                            .weight(9.3f)
+                            .fillMaxHeight()
+                            .fillMaxWidth()
+
+                    ){
+                        bodyContent()
                     }
 
-                    MyDivider(height = 0.dp)
+                    //com.example.portfolio.feature_shopping.presentation.main.MyDivider(height = 0.dp)
 
-                    Box(modifier = Modifier.weight(1.1f).padding(top = 0.dp, bottom = 0.dp)){
-                        bottomContent()
+                    Row(modifier = Modifier
+                        .weight(0.70f)
+                        .fillMaxWidth()
+                        .padding(top = 12.dp, bottom = 0.dp)
+                    ){
+                        bodyBotContent()
+                    }/*
+                    Box(modifier = Modifier.weight(0.85f).padding(top = 18.dp, bottom = 0.dp)){
+                        bodyBotContent()
                     }
+                    */
                 }
             }
         }
-
     }
+
+
 }
 
 @Composable
@@ -222,7 +263,7 @@ fun Detail_ImageAndTitle(
 }
 
 @Composable
-fun Detail_ProductInfo(modifier:Modifier = Modifier.verticalScroll(rememberScrollState()), data:SelectedData = SelectedData(1)){
+fun Detail_ProductInfo(modifier:Modifier = Modifier.verticalScroll(rememberScrollState()), data: SelectedData = SelectedData(1)){
 
     Column(
         modifier = modifier,
@@ -246,13 +287,25 @@ fun Detail_ProductInfo(modifier:Modifier = Modifier.verticalScroll(rememberScrol
 }
 
 @Composable
-fun Detail_PriceFloatBtn(modifier:Modifier = Modifier, price:String = "$6.99"){
-    Row(
+fun Detail_PriceFloatBtn(
+    modifier:Modifier = Modifier,
+    price:String = "$6.99",
+    vm: ShoppingListStateViewModel = hiltViewModel()
+){
+     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ){
-        Box(modifier = Modifier.weight(8f).padding(start=16.dp)){Text(text=price)}
-        Box(modifier = Modifier.weight(2f)){ Shopping_FloatBtn()}
+        Box(modifier = Modifier.weight(8f).padding(start=16.dp)){Text(text=price, fontSize = 32.sp)}
+        Box(modifier = Modifier.weight(2f)
+        ){
+            Shopping_FloatBtn(
+                onClick = {
+                    vm.addCounter()
+                    println("Current Counter is ${vm.counter.value}")
+                }
+            )
+        }
     }
 }
 
@@ -271,7 +324,7 @@ fun Shopping_FloatBtn(modifier:Modifier = Modifier, onClick:() -> Unit = {}){
 data class SelectedData(
     val id:Int = 0,
     val country:String = "North America",
-    val type:BeanType = BeanType.Dark,
+    val type: BeanType = BeanType.Dark,
     val information:String =
             "Once upon a time, there was a coffee bean grow from Northern America." +
             "It was so flavorful and gave so much energy to people whoever had a chance to sip of it" +
