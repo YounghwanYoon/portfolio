@@ -8,7 +8,6 @@ data class SellingItem(
     var description:String = "null ",
     var price:Double,
     var quantity:Int = 99
-
 ){
 
 }

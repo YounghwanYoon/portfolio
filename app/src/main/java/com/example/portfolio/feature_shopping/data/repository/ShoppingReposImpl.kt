@@ -1,6 +1,7 @@
 package com.example.portfolio.feature_shopping.data.repository
 
 import android.util.Log
+import com.example.portfolio.feature_shopping.data.local.CartDao
 import com.example.portfolio.feature_shopping.data.remote.PixabayAPI
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
@@ -20,7 +21,8 @@ class ShoppingReposImpl @Inject constructor(
     private val pixabayApi:PixabayAPI,
     @Named("PixabayKey")
     private val pixabayKey:String = "",
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val cartDao: CartDao,
 ):ShoppingRepository {
     private val TAG = "ShoppingReposImpl"
 
