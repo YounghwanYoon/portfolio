@@ -58,6 +58,7 @@ fun Shopping_SplashScreen(navController: NavController){
 
         delay(2000L)
         navController.navigate(Screen.Main.rout)
+
     }
     SplashContents(
         modifier = Modifier.background(color = Brown_700)

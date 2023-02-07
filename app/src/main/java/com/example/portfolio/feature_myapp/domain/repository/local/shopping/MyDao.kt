@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
-interface ShoppingDao {
+interface MyDao {
 
     //Coroutine Live Data
-    @Query("SELECT * FROM shopping_items")
+    @Query("SELECT * FROM shopping_items_local")
     suspend fun getShoppingItems(): List<ShoppingItem_Local>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -17,10 +17,10 @@ interface ShoppingDao {
     suspend fun deleteShoppingItem(shoppingItem: ShoppingItem_Local)
 
     //LiveData
-    @Query("SELECT * FROM shopping_items")
+    @Query("SELECT * FROM shopping_items_local")
     fun observeAllShoppingItems(): LiveData<List<ShoppingItem_Local>>
 
-    @Query("SELECT SUM(price * amount) FROM shopping_items")
+    @Query("SELECT SUM(price * amount) FROM shopping_items_local")
     fun observeTotalPrice():LiveData<Float>
 
 }

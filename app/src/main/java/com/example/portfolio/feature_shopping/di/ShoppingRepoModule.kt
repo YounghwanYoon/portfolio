@@ -2,7 +2,7 @@ package com.example.portfolio.feature_shopping.di
 
 import com.example.portfolio.feature_shopping.data.remote.PixabayAPI
 import com.example.portfolio.feature_shopping.data.repository.ShoppingReposImpl
-import com.example.portfolio.feature_shopping.domain.repository.ShoppingRepository
+import com.example.portfolio.feature_shopping.domain.repository.webservices.ShoppingRepository
 import com.example.portfolio.feature_shopping.domain.use_case.*
 import dagger.Binds
 import dagger.Module
@@ -42,7 +42,7 @@ object ShoppingRepoModule{
     @InstallIn(SingletonComponent::class)
     abstract class ShoppingRepoBinders{
         @Binds
-        abstract fun  bindShoppingRepository(repository: ShoppingReposImpl):ShoppingRepository
+        abstract fun  bindShoppingRepository(repository: ShoppingReposImpl): ShoppingRepository
     }
 
     @Singleton

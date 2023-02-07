@@ -3,10 +3,10 @@ package com.example.portfolio.feature_shopping.data.local.entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "selling_items")
+@Entity (tableName = "selling_items")
 data class SellingItemEntity(
     @PrimaryKey(autoGenerate = false)
-    var itemId:Long,
+    var itemId:Int,
     var cartId:Long?,
 
     //for compose test use only

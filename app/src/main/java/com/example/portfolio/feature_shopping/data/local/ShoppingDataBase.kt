@@ -8,33 +8,30 @@ import com.example.portfolio.feature_shopping.data.local.entities.CartEntity
 import com.example.portfolio.feature_shopping.data.local.entities.SellingItemEntity
 import com.example.portfolio.feature_shopping.data.local.entities.SpecialItemEntity
 import com.example.portfolio.feature_shopping.data.local.entities.UserEntity
-import com.example.portfolio.feature_shopping.domain.model.SellingItem
-import com.example.portfolio.feature_shopping.domain.model.SpecialItem
 
 @Database(
-    entities = [
-        UserEntity::class,
-        SpecialItemEntity::class,
-        SellingItemEntity::class,
-        CartEntity::class,
-    ],
+    entities = [ CartEntity::class, UserEntity::class, SpecialItemEntity::class, SellingItemEntity::class,],
     version = 1,
 )
-abstract class CartDataBase :RoomDatabase(){
-    abstract fun CartDao():CartDao
+abstract class ShoppingDataBase :RoomDatabase(){
+
+    abstract fun cartDao():CartDao
+    abstract fun sellingItemDao():SellingItemDao
+    abstract fun specialItemDao():SpecialItemDao
 
     companion object{
+        const val CARTDB_NAME = "shopping_cart_db"
         //Prevent race condition
         @Volatile
-        private var INSTANCE:CartDataBase? = null
+        private var INSTANCE:ShoppingDataBase? = null
 
         //Execute by single thread //singleton
         //which prevent creating multiple Database.
-        fun getInstance(context:Context):CartDataBase{
+        fun getInstance(context:Context):ShoppingDataBase{
             synchronized(this){
                 return INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
-                    CartDataBase::class.java,
+                    ShoppingDataBase::class.java,
                     "cart_db"
                 ).build().also{
                     INSTANCE = it

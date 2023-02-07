@@ -4,7 +4,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" / -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" / -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
     <!-- GPS Permission -->
     <!-- Needed only if your app targets Android 5.0 (API level 21) or higher. -->
     <uses-feature android:name="android.hardware.location.gps" />
@@ -23,7 +26,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Portfolio">
+        android:theme="@style/Theme.Portfolio"
+        android:requestLegacyExternalStorage="true"
+        >
         <activity
             android:name=".feature_practice.presentation.JetpackComposeActivity"
             android:exported="true"

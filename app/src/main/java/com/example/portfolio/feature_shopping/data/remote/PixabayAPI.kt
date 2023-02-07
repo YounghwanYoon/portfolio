@@ -19,6 +19,8 @@ interface PixabayAPI {
         @Query("image_type") imageType:String = "photo"
     ): Response<PixabayDTO>
 
+    //https://pixabay.com/api/?key=15227824-a2215005f70965bf20cc7de51&q=coffee+beans&image_type=photo
+
     @GET("/api")
     suspend fun getPixaBayCoffeeData(
         @Query("key") key:String,

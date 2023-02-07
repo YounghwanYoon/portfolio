@@ -1,11 +1,9 @@
 package com.example.portfolio.feature_shopping.presentation.splash
 
-import com.example.portfolio.feature_shopping.presentation.main.ShoppingMain
+import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.window.SplashScreen
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
@@ -32,39 +30,56 @@ import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_700
 import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
 import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
-import kotlinx.coroutines.delay
+import com.example.portfolio.utils.permissionHandlerCompose
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+/*
 
 @SuppressLint("CustomSplashScreen")
 class ShoppingSplashActivity : ComponentActivity() {
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+*/
+/*
+                val multiplePermissionsState = rememberMultiplePermissionsState(
+                    listOf(
+                        android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                        android.Manifest.permission.CAMERA,
+                    )
+                )
+                CheckPermissionState(multiplePermissionsState)
+ *//*
 
 
         lifecycleScope.launchWhenCreated {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                setContent {
-                    SplashScreen.SPLASH_SCREEN_STYLE_ICON
-                    ShoppingTheme {
-                        SplashContents(
-                            modifier = Modifier.background(color = Brown_700)
-                        )
-                        //SplashScreen()
-                    }
+            setContent {
+                //SplashScreen.SPLASH_SCREEN_STYLE_ICON
+                ShoppingTheme {
+
+                    SplashContents(
+                        modifier = Modifier.background(color = Brown_700)
+                    )
+                    //SplashScreen()
                 }
             }
-            else{
+            //if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { }
 
-            }
-
-
-            delay(3000)
-            val intent = Intent(this@ShoppingSplashActivity, ShoppingMain::class.java)
+*/
+/*
+            delay(2500)
+           val intent = Intent(this@ShoppingSplashActivity, ShoppingMain::class.java)
             startActivity(intent)
+
             finish()
+
+ *//*
+
         }
     }
 
-    /*  override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
+    */
+/*  override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
         return ComposeView(this).apply {
             lifecycleScope.launchWhenCreated {
                 delay(3000)
@@ -74,15 +89,19 @@ class ShoppingSplashActivity : ComponentActivity() {
 
             }
         }
-    }*/
+    }*//*
 
 
-    /**
+
+    */
+/**
      * remember save UI state while in use but it will be reset when it rotated or restarting activity.
      * rememberSaveable save UI state and it won't reset while rotated or on pause/restore
      * using 'by' will let you delegate to skip using '.value'
-     */
+     *//*
+
 }
+*/
 
 //Splash Screen
 @Composable

@@ -3,8 +3,10 @@ package com.example.portfolio.feature_shopping.presentation.main
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -42,40 +44,67 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.example.portfolio.R
 import com.example.portfolio.R.*
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.model.ShoppingUIEvent
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
+import com.example.portfolio.feature_shopping.domain.use_case.*
 import com.example.portfolio.feature_shopping.presentation.ShoppingListStateViewModel
 import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
 import com.example.portfolio.feature_shopping.presentation.utils.Screen
 import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
 import com.example.portfolio.feature_shopping.presentation.utils.setNavGraph
+import com.example.portfolio.utils.Resource
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.*
 
+private val TAG = "ShoppingMain.kt"
 @AndroidEntryPoint
 class ShoppingMain : ComponentActivity() {
 
-    //val shoppingListStateVM by viewModels<ShoppingListStateViewModel>()
+    //private val shoppingListStateVM by viewModels<ShoppingItemStateViewModel>()
 
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
         setContent {
             ShoppingTheme {
+                //registerVM(shoppingListStateVM)
+
                 val navController = rememberNavController()
                 setNavGraph(navController)
 
+/*
+            //Handle Permissions
+                val multiplePermissionsState = rememberMultiplePermissionsState(
+                    listOf(
+                        Manifest.permission.INTERNET
+                        //Manifest.permission.READ_EXTERNAL_STORAGE,
+                        //Manifest.permission.CAMERA,
+                        //Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    )
+                )
+
+                permissionHandlerCompose(
+                    multiplePermissionsState = multiplePermissionsState,
+                    afterGrant = {
+                        setNavGraph(navController)
+                    },
+                )*/
             }
+
         }
 /*        ComposeView(this).apply {
             setContent {
@@ -117,7 +146,8 @@ fun ShoppingApp(modifier: Modifier = Modifier, navController: NavController) {
                 specialItems = listOf(),
                 regularItems = listOf(),
                 screenHeight = 360.dp,
-                screenWidth = 480.dp
+                screenWidth = 480.dp,
+                navController = navController
             )
         },
         bottomBar = { Footer(modifier = Modifier, navController = navController) },
@@ -151,7 +181,7 @@ fun ShoppingMainScreen(navController: NavController) {
         Header(Modifier.weight(2.0f).background(color = MaterialTheme.colorScheme.background))
         MyDivider()
         //Spacer(modifier = Modifier.height(1.dp))
-        Body(Modifier.weight(7f), screenHeight, screenWidth)
+        Body(Modifier.weight(7f), screenHeight, screenWidth, navController = navController)
         MyDivider()
         Footer(Modifier.weight(1.0f), navController = navController)
     }
@@ -466,14 +496,17 @@ fun ItemListItem(ItemText: String, onItemClick: (String) -> Unit) {
 
 //@Preview(widthDp = 360, heightDp = 640)
 @Composable
-fun BodyPreview() {
+fun BodyPreview(navController: NavController) {
     ShoppingTheme {
-        Body()
+        Body(
+            navController = navController
+        )
     }
 }
 
 @Composable
-fun onLaunched(vm: ItemListViewModel): Boolean {
+fun registerVM(vm: ShoppingItemStateViewModel): Boolean {
+    Log.d(TAG, "registerVM: registerVM is called")
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(key1 = Unit) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
@@ -486,27 +519,76 @@ fun onLaunched(vm: ItemListViewModel): Boolean {
 }
 
 //---com.example.portfolio.feature_shopping.presentation.main.Body ----
+
 @Composable
 fun Body(
     modifier: Modifier = Modifier,
     screenHeight: Dp = 640.dp,
     screenWidth: Dp = 360.dp,
-    vm: ItemListViewModel = hiltViewModel()//viewModel() //
+    vm: ShoppingItemStateViewModel = hiltViewModel(),//viewModel() //
+    navController: NavController
 ) {
-    onLaunched(vm)
+    val TAG = "MainScreen"
 
-    val specialItems: List<SpecialItem> by vm.specialItemsState.collectAsState()
-    val regularItems: List<SellingItem> by vm.regularItemsState.collectAsState()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val specialItems = vm.specialItemState.collectAsStateWithLifecycle(
+        lifecycle = lifecycle,
+        minActiveState = Lifecycle.State.STARTED
+    )
+
+    /*by vm.specialItemState.collectAsStateWithLifecycle(
+        lifecycle = lifecycle,
+        minActiveState = Lifecycle.State.STARTED
+    )
+
+
+
+
+    val regularItems: List<SellingItem> by vm.sellingItemState.collectAsStateWithLifecycle(
+        lifecycle = lifecycle,
+        minActiveState = Lifecycle.State.STARTED
+    )
+ */
+    val regularItems = vm.sellingItemState.collectAsStateWithLifecycle(
+        lifecycle = lifecycle,
+        minActiveState = Lifecycle.State.STARTED
+    )
+
+//    Log.d(TAG, "Body: regular Item is ${regularItems.value.data?.get(0)?.imageUrl}")
 
     //com.example.portfolio.feature_shopping.presentation.main.SpecialSection(modifier)
     BodyContent(
         modifier,
         screenHeight = screenHeight,
         screenWidth = screenWidth,
-        specialItems = specialItems,
-        regularItems = regularItems
+        specialItems =
+          when(specialItems.value){
+               is Resource.Error -> emptyList()
+               is Resource.Loading -> emptyList()
+               is Resource.Success -> {
+                   specialItems.value.data!!
+               }
+           },
+        regularItems =
+            when(regularItems.value){
+                is Resource.Error -> emptyList()
+                is Resource.Loading -> {
+                    Log.d(TAG, "Body: Loading")
+                    emptyList()
+                }
+                is Resource.Success -> {
+                    Log.d(TAG, "Body: Success ${regularItems.value.data?.get(0)}")
+                    regularItems.value.data!!
+                }
+            },
+        navController =  navController
     )
     //com.example.portfolio.feature_shopping.presentation.main.GridView(modifier)
+}
+
+private fun onItemClicked(clickedItem:SellingItem){
+
+
 }
 
 
@@ -516,6 +598,7 @@ fun Body(
  * or as extra items block inside the LazyVerticalGrid()
  * will cause Error : Place was called on a node which was placed already
  */
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun BodyContent(
     modifier: Modifier = Modifier,
@@ -523,6 +606,8 @@ fun BodyContent(
     regularItems: List<SellingItem>,
     screenHeight: Dp = 360.dp,
     screenWidth: Dp = 640.dp,
+    navController: NavController,
+    vm:ShoppingItemStateViewModel = hiltViewModel()
 ) {
 
     LazyVerticalGrid(
@@ -609,6 +694,7 @@ fun BodyContent(
         }*/
 
         ) { index, item ->
+
             EachItemTwo(
                 modifier = Modifier
                     .width(
@@ -623,13 +709,18 @@ fun BodyContent(
                             0.27f
                         )
 
-                    ),
-                painter = painterResource(item.image),
+                    ).clickable {
+                        navController.navigate(route = "detail_screen/" + index)
+                    },
+                painter = if (item.imageUrl != "") rememberAsyncImagePainter(item.imageUrl)
+                //Image for local use for design
+                else painterResource(item.image),
                 text = item.description
             )
+
+
         }
     }
-
 }
 
 @Composable
@@ -812,7 +903,7 @@ fun SpecialSection(
                             .fillParentMaxHeight(0.8f),
                         painter =
                         //Image data from Server
-                        if (item.imageUrl != "") rememberImagePainter(item.imageUrl)
+                        if (item.imageUrl != "") rememberAsyncImagePainter(item.imageUrl)
                         //Image for local use for design
                         else painterResource(item.image),
                         contentDescription = item.description,
@@ -868,6 +959,9 @@ fun EachItem(
 
 }
 
+
+
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun EachItemTwo(
     modifier: Modifier = Modifier.size(128.dp),
@@ -875,7 +969,8 @@ fun EachItemTwo(
     contentDescription: String = "null",
     text: String = "Title of Item",
     screenHeight: Dp = 400.dp,
-    screenWidth: Dp = 360.dp
+    screenWidth: Dp = 360.dp,
+    vm:ShoppingItemStateViewModel = hiltViewModel()
 ) {
     val radius = 10.dp
 
@@ -888,7 +983,7 @@ fun EachItemTwo(
             ConstraintLayout(
             ) {
                 val (imageLayout, textLayout) = createRefs()
-
+                //handle local image & server image
                 Image(
                     modifier = Modifier
                         .padding(8.dp)
@@ -902,6 +997,8 @@ fun EachItemTwo(
                     painter = painter,
                     contentDescription = contentDescription
                 )
+
+
                 Text(
                     text = text,
                     modifier = Modifier
@@ -1010,6 +1107,7 @@ fun Footer(
     }
 }
 
+@SuppressLint("ComposableNaming")
 @Composable
 fun fastImageButton(
     modifier: Modifier = Modifier,

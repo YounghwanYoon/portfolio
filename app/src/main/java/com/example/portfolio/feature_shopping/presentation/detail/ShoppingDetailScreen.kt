@@ -2,6 +2,7 @@ package com.example.portfolio.feature_shopping.presentation.detail
 
 import com.example.portfolio.feature_shopping.presentation.main.Footer
 import android.view.Window
+import androidx.compose.Context
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -15,11 +16,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -29,11 +33,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.AsyncImage
 import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.presentation.ShoppingListStateViewModel
+import com.example.portfolio.feature_shopping.presentation.main.ShoppingItemStateViewModel
 
 
 @Composable
@@ -42,7 +50,8 @@ fun ShoppingDetailScreen (
     screenHeight:Dp = 640.dp ,
     screenWidth: Dp = 360.dp,
     window: Window ? = null,
-    navController:NavController
+    navController:NavController,
+    selectedItemId:String
 ){
 /*
     WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -59,7 +68,8 @@ fun ShoppingDetailScreen (
         Detail_Body(
             modifier = Modifier.weight(9f),
             screenHeight = screenHeight,
-            screenWidth = screenWidth
+            screenWidth = screenWidth,
+            selectedItemId = selectedItemId.toInt(),
         )
         Footer(Modifier.weight(1f), navController = navController)
     }
@@ -67,14 +77,26 @@ fun ShoppingDetailScreen (
 }
 
 
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun Detail_Body(
     modifier:Modifier = Modifier.padding(16.dp),
     painter: Painter = painterResource(R.drawable.coffee_animation),
     data: SellingItem? = null,
     screenHeight: Dp,
-    screenWidth: Dp
+    screenWidth: Dp,
+    selectedItemId:Int,
+    context:Context = LocalContext.current,
+    vm:ShoppingItemStateViewModel = hiltViewModel()
 ) {
+        println("Selected Item Id is $selectedItemId")
+        val lifecycleOwner = LocalLifecycleOwner.current
+        val itemFlowLifeCyleAware = remember(vm.sellingItemState, lifecycleOwner){
+            vm.sellingItemState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+        }
+
+        val selectedItem = remember{vm.getSelectedItem(selectedItemId)} ?: null
+
         ImageFrame(modifier
             .fillMaxSize()
             .fillMaxHeight()
@@ -82,7 +104,20 @@ fun Detail_Body(
             .padding(0.dp),
             bodyContent = {
                 Column(modifier.fillMaxSize()){
-                    Detail_ImageAndTitle(modifier.weight(5f).padding(top = 0.dp, bottom= 0.dp))
+
+                    selectedItem?.let{
+                        Detail_ImageAndTitle(
+                            modifier.weight(5f).padding(top = 0.dp, bottom= 0.dp),
+                            modelUrl = it.imageUrl,
+                            description = it.description,
+                            itemTitle = it.title,
+                        )
+                    } ?: Detail_ImageAndTitle(
+                        modifier.weight(5f).padding(top = 0.dp, bottom= 0.dp),
+                    )
+
+
+
                     Detail_ProductInfo(
                         modifier
                             .weight(5f)
@@ -91,7 +126,12 @@ fun Detail_Body(
                     )
                 }
             },
-            bodyBotContent = { Detail_PriceFloatBtn(Modifier) }
+            bodyBotContent = {
+                Detail_PriceFloatBtn(
+                    modifier = Modifier,
+                    price = "$${selectedItem?.price ?: 0.99}",
+                )
+            }
         )
 
 /*    Box(
@@ -216,6 +256,75 @@ fun ImageFrame(
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun Detail_ImageAndTitle(
+    modifier:Modifier = Modifier,
+    painter:Painter = painterResource(R.drawable.coffee_animation),
+    modelUrl:String = "",
+    description:String = "Coffee Image",
+    itemTitle:String = "American Coffee"
+){
+    Box(modifier = modifier){
+            Column(
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(16.dp)
+            ){
+                Card(
+                    elevation = 8.dp,
+                    modifier = Modifier
+                        .weight(7f)
+                        .border(
+                            width = 2.dp,
+                            color = MaterialTheme.colorScheme.onTertiary,
+                            shape = RoundedCornerShape(6.dp)
+                        )
+                ){
+                    println("selected Image Url is $modelUrl")
+                    if(modelUrl != ""){
+                        //val onlinePainter = rememberAsyncImagePainter(model = modelUrl)
+                        AsyncImage(
+                            model = modelUrl,
+                            contentDescription = description,
+                            modifier = Modifier,
+                            placeholder = painter,
+                        )
+                        /*Canvas(
+                            modifier = Modifier,
+                            contentDescription = description
+                        ){
+                            with(onlinePainter){
+                                draw()
+                            }
+                        }*/
+                    }else{
+                        Image(
+                            painter =painter,
+                            contentDescription = description,
+                            contentScale = ContentScale.FillBounds,
+                            modifier = Modifier
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    text = itemTitle,
+                    modifier = Modifier.weight(1f),
+                    style = TextStyle(
+                        fontSize = 22.sp,
+                        fontStyle = FontStyle.Normal,
+                        fontWeight = FontWeight.Bold,
+                    )
+                )
+            }
+
+    }
+}
+
+/*
+
 @Composable
 fun Detail_ImageAndTitle(
     modifier:Modifier = Modifier,
@@ -261,6 +370,7 @@ fun Detail_ImageAndTitle(
 
     }
 }
+*/
 
 @Composable
 fun Detail_ProductInfo(modifier:Modifier = Modifier.verticalScroll(rememberScrollState()), data: SelectedData = SelectedData(1)){
