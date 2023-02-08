@@ -561,16 +561,20 @@ fun Body(
         modifier,
         screenHeight = screenHeight,
         screenWidth = screenWidth,
-        specialItems =
-          when(specialItems.value){
+        specialItems = vm.specialItems.collectAsStateWithLifecycle(
+            lifecycle = lifecycle, minActiveState =  Lifecycle.State.STARTED
+        ).value
+          /*when(specialItems.value){
                is Resource.Error -> emptyList()
                is Resource.Loading -> emptyList()
                is Resource.Success -> {
                    specialItems.value.data!!
                }
-           },
-        regularItems =
-            when(regularItems.value){
+           }*/,
+        regularItems =vm.sellingItems.collectAsStateWithLifecycle(
+            lifecycle = lifecycle, minActiveState =  Lifecycle.State.STARTED
+        ).value
+            /*when(regularItems.value){
                 is Resource.Error -> emptyList()
                 is Resource.Loading -> {
                     Log.d(TAG, "Body: Loading")
@@ -580,7 +584,7 @@ fun Body(
                     Log.d(TAG, "Body: Success ${regularItems.value.data?.get(0)}")
                     regularItems.value.data!!
                 }
-            },
+            }*/,
         navController =  navController
     )
     //com.example.portfolio.feature_shopping.presentation.main.GridView(modifier)

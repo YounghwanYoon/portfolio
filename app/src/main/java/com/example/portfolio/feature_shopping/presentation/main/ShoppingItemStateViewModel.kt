@@ -35,6 +35,14 @@ class ShoppingItemStateViewModel @Inject constructor(
         ),*/
 ): ViewModel() {
     private val TAG = this.javaClass.name
+    private val _specialItems = MutableStateFlow<List<SpecialItem>>(emptyList())
+    val specialItems = _specialItems.asStateFlow()
+
+    private val _sellingItems = MutableStateFlow<List<SellingItem>>(emptyList())
+    val sellingItems = _sellingItems.asStateFlow()
+
+
+
 
     private val _specialItemState = MutableStateFlow<Resource<List<SpecialItem>>>(Resource.Loading(emptyList()))
     val specialItemState = _specialItemState.asStateFlow()
@@ -160,6 +168,8 @@ class ShoppingItemStateViewModel @Inject constructor(
                     it.data?.let{
                         savedStateHandle.set<List<SpecialItem>>(KEY_SPECIAL_ITEM, it)
                     }
+                    _specialItems.value = it.data!!
+
                     _specialItemState.value = it
                     //_SpecialListState.value = it
                     Log.d(TAG, "getSpecial: data from Viewmodel is ${it.data?.get(0)?.imageUrl}}")
@@ -184,6 +194,7 @@ class ShoppingItemStateViewModel @Inject constructor(
                 is Resource.Success -> {
                     Log.d(TAG, "onEvent - getRegular: Success collected from UseCase.getSpecial")
                     savedStateHandle[KEY_SELLING_ITEM] = it.data
+                    _sellingItems.value = it.data!!
 
                     for(item in savedStateHandle.get<List<SellingItem>>(KEY_SELLING_ITEM)!!){
                         Log.d(TAG, "getRegular: updated item ${item.imageUrl}")
