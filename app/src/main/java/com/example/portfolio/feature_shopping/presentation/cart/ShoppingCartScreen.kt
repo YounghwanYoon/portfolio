@@ -29,11 +29,16 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.presentation.detail.ImageFrame
+import com.example.portfolio.feature_shopping.presentation.main.ShoppingItemStateViewModel
 import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_300
 import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
 
 @Composable
-fun ShoppingCartScreen(modifier:Modifier = Modifier, navController:NavController){
+fun ShoppingCartScreen(
+    modifier:Modifier = Modifier,
+    navController:NavController,
+    viewModel: ShoppingItemStateViewModel
+){
     ShoppingTheme{
         Column(){
             ShoppingCartBody(Modifier.weight(9f))
@@ -62,13 +67,6 @@ fun ShoppingCartBody(modifier:Modifier = Modifier){
 
             ImageFrame(
                 modifier = Modifier.fillMaxHeight(),
-/*                modifier = Modifier.constrainAs(ListOrder){
-                    absoluteLeft.linkTo(parent.absoluteLeft)
-                    absoluteRight.linkTo(parent.absoluteRight)
-                    top.linkTo(parent.top, margin = 8.dp)
-                    //top.linkTo(OrderBtn.top)
-                    bottom.linkTo(parent.bottom, margin= 8.dp)
-                },*/
                 bodyContent = {
                     //List Order Section
                     Box(

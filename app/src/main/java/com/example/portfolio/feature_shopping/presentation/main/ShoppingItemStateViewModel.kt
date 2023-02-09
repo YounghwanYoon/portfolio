@@ -42,8 +42,6 @@ class ShoppingItemStateViewModel @Inject constructor(
     val sellingItems = _sellingItems.asStateFlow()
 
 
-
-
     private val _specialItemState = MutableStateFlow<Resource<List<SpecialItem>>>(Resource.Loading(emptyList()))
     val specialItemState = _specialItemState.asStateFlow()
 
@@ -206,11 +204,8 @@ class ShoppingItemStateViewModel @Inject constructor(
 
     }
 
-    var selectedItemState: SellingItem? = null
     fun getSelectedItem(itemId:Int):SellingItem{
-        selectedItemState = sellingItemState.value.data?.get(itemId)
-
-        return selectedItemState!!
+        return sellingItems.value[itemId]
     }
 
 }

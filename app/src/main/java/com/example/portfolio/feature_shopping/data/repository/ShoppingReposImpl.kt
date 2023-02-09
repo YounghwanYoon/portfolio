@@ -204,7 +204,7 @@ class ShoppingReposImpl @Inject constructor(
                         id = it.id,
                         image = 0,
                         imageUrl = it.largeImageURL,
-                        title = it.tags ?: "Coffee Bean",
+                        title = "Coffee Bean By ${it.user}" ?: "Coffee Bean",
                         description = "Coffee Bean Image",
                         price = (kotlin.random.Random.nextInt(4, 10) + 0.99),
                         quantity = (kotlin.random.Random.nextInt(3, 99))

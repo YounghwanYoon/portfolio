@@ -58,6 +58,14 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+
+        //To handle depreated freeCompilerArgs
+        //https://youtrack.jetbrains.com/issue/KT-54888/Add-Gradle-property-to-suppress-kotlinOptions.freeCompilerArgs-modification-on-execution-phase
+        freeCompilerArgs += [
+                "-Xallow-jvm-ir-dependencies",
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true"
+        ]
     }
     buildToolsVersion '32.1.0-rc1'
 

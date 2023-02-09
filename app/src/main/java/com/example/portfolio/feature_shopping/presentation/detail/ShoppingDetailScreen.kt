@@ -51,7 +51,8 @@ fun ShoppingDetailScreen (
     screenWidth: Dp = 360.dp,
     window: Window ? = null,
     navController:NavController,
-    selectedItemId:String
+    selectedItemId:String,
+    viewModel:ShoppingItemStateViewModel
 ){
 /*
     WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -70,6 +71,7 @@ fun ShoppingDetailScreen (
             screenHeight = screenHeight,
             screenWidth = screenWidth,
             selectedItemId = selectedItemId.toInt(),
+            vm = viewModel
         )
         Footer(Modifier.weight(1f), navController = navController)
     }
@@ -85,17 +87,11 @@ fun Detail_Body(
     data: SellingItem? = null,
     screenHeight: Dp,
     screenWidth: Dp,
-    selectedItemId:Int,
     context:Context = LocalContext.current,
-    vm:ShoppingItemStateViewModel = hiltViewModel()
+    selectedItemId:Int,
+    vm:ShoppingItemStateViewModel// = hiltViewModel<ShoppingItemStateViewModel>()
 ) {
         println("Selected Item Id is $selectedItemId")
-        val lifecycleOwner = LocalLifecycleOwner.current
-        val itemFlowLifeCyleAware = remember(vm.sellingItemState, lifecycleOwner){
-            vm.sellingItemState.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
-        }
-
-        val selectedItem = remember{vm.getSelectedItem(selectedItemId)} ?: null
 
         ImageFrame(modifier
             .fillMaxSize()
@@ -104,8 +100,7 @@ fun Detail_Body(
             .padding(0.dp),
             bodyContent = {
                 Column(modifier.fillMaxSize()){
-
-                    selectedItem?.let{
+                    vm.sellingItems.value.get(selectedItemId).let{
                         Detail_ImageAndTitle(
                             modifier.weight(5f).padding(top = 0.dp, bottom= 0.dp),
                             modelUrl = it.imageUrl,
@@ -115,9 +110,6 @@ fun Detail_Body(
                     } ?: Detail_ImageAndTitle(
                         modifier.weight(5f).padding(top = 0.dp, bottom= 0.dp),
                     )
-
-
-
                     Detail_ProductInfo(
                         modifier
                             .weight(5f)
@@ -129,7 +121,7 @@ fun Detail_Body(
             bodyBotContent = {
                 Detail_PriceFloatBtn(
                     modifier = Modifier,
-                    price = "$${selectedItem?.price ?: 0.99}",
+                    price = "$${ vm.sellingItems.value.get(selectedItemId).price ?: 0.99}",
                 )
             }
         )
