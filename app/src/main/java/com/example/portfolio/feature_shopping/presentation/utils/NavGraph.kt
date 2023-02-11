@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
 import com.example.portfolio.feature_shopping.presentation.cart.ShoppingCartScreen
 import com.example.portfolio.feature_shopping.presentation.detail.ShoppingDetailScreen
 import com.example.portfolio.feature_shopping.presentation.main.ShoppingItemStateViewModel
@@ -16,25 +17,29 @@ import com.example.portfolio.feature_shopping.presentation.splash.Shopping_Splas
 @Composable
 fun setNavGraph(navController: NavHostController){
 
+    val itemStateViewModel:ShoppingItemStateViewModel = hiltViewModel()
+    val cartStateViewModel: CartStateViewModel = hiltViewModel()
+
     NavHost(
         navController = navController,
         startDestination = Screen.Splash.rout
     ){
 
         composable(route = Screen.Main.rout){navBackStackEntry->
-            val viewModel:ShoppingItemStateViewModel = hiltViewModel(navBackStackEntry)
+            //val viewModel:ShoppingItemStateViewModel = hiltViewModel(navBackStackEntry)
             ShoppingMainScreen(
                 navController = navController,
-                viewModel = viewModel
+                itemStateVM = itemStateViewModel,
+                cartStateVM = cartStateViewModel
             )
             println("Home Button Clicked - from Nav Controller")
         }
 
         composable(route = Screen.Cart.rout){ navBackStackEntry->
-            val viewModel:ShoppingItemStateViewModel = hiltViewModel(navController.previousBackStackEntry!!)
+           // val viewModel:ShoppingItemStateViewModel = hiltViewModel(navController.previousBackStackEntry!!)
             ShoppingCartScreen(
                 navController = navController,
-                viewModel = viewModel
+                cartStateViewModel = cartStateViewModel
             )
             println("Cart Button Clicked - from Nav Controller")
         }
@@ -44,12 +49,13 @@ fun setNavGraph(navController: NavHostController){
             arguments = listOf(navArgument("id"){
                 type = NavType.IntType
             })){ navBackStackEntry ->
-            val viewModel:ShoppingItemStateViewModel = hiltViewModel(navController.previousBackStackEntry!!)
+            //val viewModel:ShoppingItemStateViewModel = hiltViewModel(navController.previousBackStackEntry!!)
 
             ShoppingDetailScreen(
                 navController = navController,
                 selectedItemId = navBackStackEntry.arguments?.getInt("id").toString(),
-                viewModel = viewModel
+                itemStateVM = itemStateViewModel,
+                cartStateViewModel = cartStateViewModel
             )
         }
 

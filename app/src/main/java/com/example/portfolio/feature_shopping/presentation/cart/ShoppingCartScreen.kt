@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,7 +28,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.presentation.detail.ImageFrame
-import com.example.portfolio.feature_shopping.presentation.main.ShoppingItemStateViewModel
 import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_300
 import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
 
@@ -37,12 +35,13 @@ import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingThem
 fun ShoppingCartScreen(
     modifier:Modifier = Modifier,
     navController:NavController,
-    viewModel: ShoppingItemStateViewModel
+    cartStateViewModel: CartStateViewModel
 ){
     ShoppingTheme{
         Column(){
-            ShoppingCartBody(Modifier.weight(9f))
-            Footer(Modifier.weight(1f), navController = navController)
+            ShoppingCartBody(Modifier.weight(9f), cartStateVM = cartStateViewModel)
+
+            Footer(Modifier.weight(1f), navController = navController, cartStateVM = cartStateViewModel)
         }
     }
 
@@ -52,9 +51,13 @@ fun ShoppingCartScreen(
 fun ShoppingCartHeader(modifier:Modifier = Modifier){
 }
 
-@Preview(widthDp = 360, heightDp = 640)
+//@Preview(widthDp = 360, heightDp = 640)
 @Composable
-fun ShoppingCartBody(modifier:Modifier = Modifier){
+fun ShoppingCartBody(
+    modifier:Modifier = Modifier,
+    cartStateVM: CartStateViewModel// = hiltViewModel()
+){
+    println("viewmodel from cart screen- $cartStateVM")
 
     Surface(
         modifier = modifier,

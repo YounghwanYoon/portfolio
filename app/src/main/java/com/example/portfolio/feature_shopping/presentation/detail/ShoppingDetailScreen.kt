@@ -16,14 +16,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -32,28 +30,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavController
-import coil.annotation.ExperimentalCoilApi
 import coil.compose.AsyncImage
 import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
-import com.example.portfolio.feature_shopping.presentation.ShoppingListStateViewModel
+import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
 import com.example.portfolio.feature_shopping.presentation.main.ShoppingItemStateViewModel
 
 
 @Composable
 fun ShoppingDetailScreen (
     modifier: Modifier = Modifier,
-    screenHeight:Dp = 640.dp ,
+    screenHeight:Dp = 640.dp,
     screenWidth: Dp = 360.dp,
     window: Window ? = null,
     navController:NavController,
     selectedItemId:String,
-    viewModel:ShoppingItemStateViewModel
+    itemStateVM:ShoppingItemStateViewModel,
+    cartStateViewModel: CartStateViewModel
 ){
+    println("ShoppingItemStateVM - $itemStateVM")
+    val selectedItem = itemStateVM.getSelectedItem(selectedItemId.toInt())
+
 /*
     WindowCompat.setDecorFitsSystemWindows(window, false)
     window.setFlags(
@@ -70,28 +68,27 @@ fun ShoppingDetailScreen (
             modifier = Modifier.weight(9f),
             screenHeight = screenHeight,
             screenWidth = screenWidth,
-            selectedItemId = selectedItemId.toInt(),
-            vm = viewModel
+            selectedItem = selectedItem,
+            itemStateVM = itemStateVM,
+            cartStateVM = cartStateViewModel
         )
-        Footer(Modifier.weight(1f), navController = navController)
+        Footer(Modifier.weight(1f), navController = navController, cartStateVM = cartStateViewModel)
     }
 
 }
 
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun Detail_Body(
     modifier:Modifier = Modifier.padding(16.dp),
     painter: Painter = painterResource(R.drawable.coffee_animation),
-    data: SellingItem? = null,
     screenHeight: Dp,
     screenWidth: Dp,
     context:Context = LocalContext.current,
-    selectedItemId:Int,
-    vm:ShoppingItemStateViewModel// = hiltViewModel<ShoppingItemStateViewModel>()
+    selectedItem:SellingItem,
+    itemStateVM:ShoppingItemStateViewModel, //= hiltViewModel<ShoppingItemStateViewModel>()
+    cartStateVM:CartStateViewModel
 ) {
-        println("Selected Item Id is $selectedItemId")
 
         ImageFrame(modifier
             .fillMaxSize()
@@ -100,7 +97,7 @@ fun Detail_Body(
             .padding(0.dp),
             bodyContent = {
                 Column(modifier.fillMaxSize()){
-                    vm.sellingItems.value.get(selectedItemId).let{
+                    selectedItem.let{
                         Detail_ImageAndTitle(
                             modifier.weight(5f).padding(top = 0.dp, bottom= 0.dp),
                             modelUrl = it.imageUrl,
@@ -119,9 +116,10 @@ fun Detail_Body(
                 }
             },
             bodyBotContent = {
-                Detail_PriceFloatBtn(
+                Detail_AddItemFloatBtn(
                     modifier = Modifier,
-                    price = "$${ vm.sellingItems.value.get(selectedItemId).price ?: 0.99}",
+                    selectedItem = selectedItem,
+                    cartStateVM = cartStateVM
                 )
             }
         )
@@ -379,7 +377,7 @@ fun Detail_ProductInfo(modifier:Modifier = Modifier.verticalScroll(rememberScrol
                 BeanType.Dark -> {"Dark Roast"}
                 BeanType.Medium -> {"Medium Roast"}
                 BeanType.Light -> {"Light Roast"}
-                else -> {"Dark Roast"}
+                //else -> {"Dark Roast"}
             }
         }")
         Spacer(modifier.height(4.dp))
@@ -389,22 +387,24 @@ fun Detail_ProductInfo(modifier:Modifier = Modifier.verticalScroll(rememberScrol
 }
 
 @Composable
-fun Detail_PriceFloatBtn(
+fun Detail_AddItemFloatBtn(
     modifier:Modifier = Modifier,
-    price:String = "$6.99",
-    vm: ShoppingListStateViewModel = hiltViewModel()
+    selectedItem: SellingItem,
+    cartStateVM: CartStateViewModel //= hiltViewModel<CartStateViewModel>()
+
 ){
      Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ){
-        Box(modifier = Modifier.weight(8f).padding(start=16.dp)){Text(text=price, fontSize = 32.sp)}
+        Box(modifier = Modifier.weight(8f).padding(start=16.dp)){
+            Text(text="${selectedItem.price?:0.99}", fontSize = 32.sp)
+        }
         Box(modifier = Modifier.weight(2f)
         ){
             Shopping_FloatBtn(
                 onClick = {
-                    vm.addCounter()
-                    println("Current Counter is ${vm.counter.value}")
+                    cartStateVM.addItem(selectedItem)
                 }
             )
         }

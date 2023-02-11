@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.DrawerValue
 import androidx.compose.material3.*
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
@@ -33,13 +32,11 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -47,14 +44,12 @@ import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberAsyncImagePainter
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.example.portfolio.R
 import com.example.portfolio.R.*
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.model.ShoppingUIEvent
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
 import com.example.portfolio.feature_shopping.domain.use_case.*
-import com.example.portfolio.feature_shopping.presentation.ShoppingListStateViewModel
-import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
+import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
 import com.example.portfolio.feature_shopping.presentation.utils.Screen
 import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
 import kotlinx.coroutines.launch
@@ -93,7 +88,8 @@ fun ShoppingApp(modifier: Modifier = Modifier, navController: NavController) {
 @Composable
 fun ShoppingMainScreen(
     navController: NavController,
-    viewModel:ShoppingItemStateViewModel
+    itemStateVM:ShoppingItemStateViewModel,
+    cartStateVM: CartStateViewModel
 ) {
 
     val configuration = LocalConfiguration.current
@@ -116,9 +112,9 @@ fun ShoppingMainScreen(
         Header(Modifier.weight(2.0f).background(color = MaterialTheme.colorScheme.background))
         MyDivider()
         //Spacer(modifier = Modifier.height(1.dp))
-        Body(Modifier.weight(7f), screenHeight, screenWidth, navController = navController, vm = viewModel)
+        Body(Modifier.weight(7f), screenHeight, screenWidth, navController = navController, itemStateVM = itemStateVM)
         MyDivider()
-        Footer(Modifier.weight(1.0f), navController = navController)
+        Footer(Modifier.weight(1.0f), navController = navController, cartStateVM = cartStateVM)
     }
 
 
@@ -430,13 +426,13 @@ fun ItemListItem(ItemText: String, onItemClick: (String) -> Unit) {
 
 
 @Composable
-fun registerVM(vm: ShoppingItemStateViewModel): Boolean {
-    Log.d(TAG, "registerVM: registerVM is called")
+fun registeritemStateVM(itemStateVM: ShoppingItemStateViewModel): Boolean {
+    Log.d(TAG, "registeritemStateVM: registerVM is called")
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(key1 = Unit) {
         lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
             launch {
-                vm.onUIEvent(ShoppingUIEvent.AppLaunched)
+                itemStateVM.onUIEvent(ShoppingUIEvent.AppLaunched)
             }
         }
     }
@@ -451,12 +447,12 @@ fun Body(
     screenHeight: Dp = 640.dp,
     screenWidth: Dp = 360.dp,
     navController: NavController,
-    vm: ShoppingItemStateViewModel,
+    itemStateVM: ShoppingItemStateViewModel,
 ) {
     val TAG = "MainScreen"
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val specialItems = vm.specialItemState.collectAsStateWithLifecycle(
+    val specialItems = itemStateVM.specialItemState.collectAsStateWithLifecycle(
         lifecycle = lifecycle,
         minActiveState = Lifecycle.State.STARTED
     )
@@ -474,7 +470,7 @@ fun Body(
         minActiveState = Lifecycle.State.STARTED
     )
  */
-    val regularItems = vm.sellingItemState.collectAsStateWithLifecycle(
+    val regularItems = itemStateVM.sellingItemState.collectAsStateWithLifecycle(
         lifecycle = lifecycle,
         minActiveState = Lifecycle.State.STARTED
     )
@@ -486,7 +482,7 @@ fun Body(
         modifier,
         screenHeight = screenHeight,
         screenWidth = screenWidth,
-        specialItems = vm.specialItems.collectAsStateWithLifecycle(
+        specialItems = itemStateVM.specialItems.collectAsStateWithLifecycle(
             lifecycle = lifecycle, minActiveState =  Lifecycle.State.STARTED
         ).value
           /*when(specialItems.value){
@@ -496,7 +492,7 @@ fun Body(
                    specialItems.value.data!!
                }
            }*/,
-        regularItems =vm.sellingItems.collectAsStateWithLifecycle(
+        regularItems =itemStateVM.sellingItems.collectAsStateWithLifecycle(
             lifecycle = lifecycle, minActiveState =  Lifecycle.State.STARTED
         ).value
             /*when(regularItems.value){
@@ -511,7 +507,7 @@ fun Body(
                 }
             }*/,
         navController =  navController,
-        vm = vm
+        itemStateVM = itemStateVM
     )
     //com.example.portfolio.feature_shopping.presentation.main.GridView(modifier)
 }
@@ -537,7 +533,7 @@ fun BodyContent(
     screenHeight: Dp = 360.dp,
     screenWidth: Dp = 640.dp,
     navController: NavController,
-    vm:ShoppingItemStateViewModel
+    itemStateVM:ShoppingItemStateViewModel
 ) {
 
     LazyVerticalGrid(
@@ -953,8 +949,8 @@ fun EachItemTwo(
 fun Footer(
     modifier: Modifier,
     counter: Int = 1,
-    vm: ShoppingListStateViewModel = hiltViewModel(),//viewModel()//,
-    navController: NavController
+    navController: NavController,
+    cartStateVM: CartStateViewModel
 ) {
     Row(
         modifier = modifier
@@ -973,22 +969,6 @@ fun Footer(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-/*        Box(
-            modifier = Modifier
-                .weight(3f)
-                .clickable { },
-            contentAlignment = Alignment.Center,
-
-            ) {
-            IconButton(
-                onClick = {}
-            ){
-                androidx.compose.material3.Icon(
-                    painter = painterResource(R.drawable.coffee_menu_btn),
-                    contentDescription = "Coffee Menu Button"
-                )
-            }
-        }*/
 
         fastImageButton(
             modifier = Modifier.weight(3f),
@@ -1022,15 +1002,33 @@ fun Footer(
             },
             painter = painterResource(drawable.coffee_cart_btn),
         ) {
-            if (vm.counter.value >= 1) {
-                Text(
-                    text = " ${vm.counter.value.toString()} ",
-                    modifier = Modifier.background(
-                        color = MaterialTheme.colorScheme.secondary,
-                        shape = CircleShape
-                    ),
-                    color = MaterialTheme.colorScheme.onSecondary
-                )
+            val cart = cartStateVM.cart.collectAsStateWithLifecycle(
+                lifecycle = LocalLifecycleOwner.current.lifecycle,minActiveState = Lifecycle.State.STARTED
+            )
+
+            cart.value?.let{cart ->
+                when{
+                    cart.totalQuantity > 99 ->{
+                        Text(
+                            text = " ... ",
+                            modifier = Modifier.background(
+                                color = MaterialTheme.colorScheme.secondary,
+                                shape = CircleShape
+                            ),
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
+                    else ->{
+                        Text(
+                            text = "${cart.totalQuantity}",
+                            modifier = Modifier.background(
+                                color = MaterialTheme.colorScheme.secondary,
+                                shape = CircleShape
+                            ),
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
+                }
             }
         }
     }
