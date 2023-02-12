@@ -11,7 +11,7 @@ data class SellingItem(
     var title:String,
     var description:String = "null ",
     var price:Double,
-    var quantity:Int = 99
+    var quantity:Int = 1
 ):Parcelable{
 
 }

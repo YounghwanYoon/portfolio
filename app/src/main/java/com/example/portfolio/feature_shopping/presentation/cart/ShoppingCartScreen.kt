@@ -14,22 +14,32 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.portfolio.R
+import com.example.portfolio.feature_shopping.domain.model.Cart
+import com.example.portfolio.feature_shopping.domain.model.CartItem
+import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.presentation.detail.ImageFrame
 import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_300
 import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun ShoppingCartScreen(
@@ -82,13 +92,15 @@ fun ShoppingCartBody(
                                 bottom.linkTo(parent.bottom, margin= 8.dp)
                             }
                     ){
-                        CartListAndSubTotal()
+                        CartListAndSubTotal(
+                            cartVM = cartStateVM,
+                        )
                     }
 
                 }
             ){
                 //This is place for subtotal
-                Text("Sub Total")
+                Text("SubTotal:")
             }
             //In order to stay top of ImageFrame, it need to be called after ImageFrame
             Surface(
@@ -166,18 +178,20 @@ fun CoffeeButton(modifier:Modifier = Modifier, text:String = "Undefined"){
 }
 
 
-data class CartItem(
-    val id:Int,
-    var itemTitle:String = "I am the title",
-    var image:Painter,
-    var count:Int,
-    var price: Double,
-)
+
 
 //@Preview(widthDp = 360, heightDp = 640)
 @Composable
 fun CartListAndSubTotal(
     modifier:Modifier = Modifier,
+    cartVM:CartStateViewModel,
+    cart: Cart = cartVM
+        .cart
+        .collectAsStateWithLifecycle(
+        lifecycle = LocalLifecycleOwner.current.lifecycle,
+        minActiveState = Lifecycle.State.STARTED
+    ).value,
+    //For test use
     listCartItems:List<CartItem> = listOf(
         CartItem(id = 0, count = 1, price = 1.99, itemTitle = "Korea Coffee", image = painterResource(R.drawable.coffee_animation),),
         CartItem(id = 1, count = 1, price = 2.99, itemTitle = "America Coffee", image = painterResource(R.drawable.coffee_animation),),
@@ -188,11 +202,15 @@ fun CartListAndSubTotal(
     )
 
 ){
+    var items = cart.items
+    var totalSize = items.size
+    var list = cart.items.toList()
+
     Box(
         modifier = modifier ,
     ){
         LazyColumn{
-            items(listCartItems){ item ->
+/*            items(listCartItems){ item ->
                 CartEachItem(
                     modifier = Modifier.padding(bottom = 16.dp),
                     counter = item.count,
@@ -201,6 +219,18 @@ fun CartListAndSubTotal(
                     itemTotal = (item.count.times(item.price)),
                     productTitle = item.itemTitle,
                     removeListener = {}
+                )
+            }*/
+            items(cart.items.toList()){(SellingItem, Quantity)->
+                CartEachItem(
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    curQuantity = Quantity,//SellingItem.quantity,
+                    selectedItem = SellingItem,
+                    itemTotal =  SellingItem.price,
+                    productTitle = SellingItem.title,
+                    removeListener = {cartVM.removeItem(SellingItem)},
+                    addListener = {cartVM.addItem(SellingItem)},
+                    reduceListener = {cartVM.reduceItem(SellingItem)}
                 )
             }
         }
@@ -215,17 +245,18 @@ fun PrevEachItem(){
         CartEachItem()
     }
 }
-
 @Composable
 fun CartEachItem(
     modifier:Modifier = Modifier,
     painter: Painter = painterResource(R.drawable.coffee_animation),
-    id:Int = 0,
-    counter:Int = 1,
+    selectedItem: SellingItem? = null,
+    curQuantity:Int = 1,
     itemTotal:Double = 6.99,
     itemTotalTextSize: TextUnit = 28.sp,
     productTitle:String = "I am the title",
-    removeListener: () -> Unit = {}
+    removeListener: () -> Unit = {},
+    addListener:() -> Unit ={},
+    reduceListener:()->Unit={}
 ){
 
     Row(
@@ -247,6 +278,18 @@ fun CartEachItem(
                 Surface(
                    // color = Color.Black.copy(alpha=0.0f)
                 ){
+                    selectedItem?.let{
+                        AsyncImage(
+                            modifier = Modifier.border(
+                                width = 2.dp,
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.onTertiary
+                            ).clip(shape = RoundedCornerShape(8.dp)),
+                            model = selectedItem.imageUrl,
+                            contentDescription = selectedItem.description?: "Cart Item Image",
+                            placeholder = painterResource(R.drawable.coffee_animation),
+                        )
+                    } ?:
                     Image(
                         modifier = Modifier.border(
                             width = 2.dp,
@@ -261,6 +304,7 @@ fun CartEachItem(
                 }
                 Text(
                     //modifier = Modifier.weight(2f),
+                    textAlign = TextAlign.Center,
                     text = productTitle
                 )
             }
@@ -280,9 +324,10 @@ fun CartEachItem(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ){
+                    //reduce
                     IconButton(
-                        onClick = {},
-                        enabled = false,
+                        onClick = reduceListener,
+                        enabled = true,
                         colors = IconButtonDefaults.iconButtonColors(
                             contentColor = contentColorFor(MaterialTheme.colorScheme.onTertiary)
                         ),
@@ -296,13 +341,13 @@ fun CartEachItem(
                     }
 
                     Text(
-                        text = counter.toString(),
+                        text = curQuantity.toString(),
                         fontStyle = FontStyle.Italic,
                         fontSize = 18.sp
                     )
                     IconButton(
-                        onClick = {},
-                        enabled = false,
+                        onClick = addListener,
+                        enabled = true,
                         colors = IconButtonDefaults.iconButtonColors(
                             contentColor = contentColorFor(MaterialTheme.colorScheme.onTertiary)
                         )
@@ -316,9 +361,7 @@ fun CartEachItem(
                 }
 
                 TextButton(
-                    onClick = {
-                              //ToDo Update/Remove item from CartList
-                    },
+                    onClick = removeListener,
                 ){
                     Text(
                         text ="remove",
@@ -328,7 +371,11 @@ fun CartEachItem(
                 }
             }
         }
-
+        val itemPrice = remember{
+            selectedItem?.let{
+                it.price.times(it.quantity)
+            }
+        }
         //Calculation Section/Price Section
         Box(
             modifier = Modifier.weight(2f),
@@ -339,7 +386,7 @@ fun CartEachItem(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "$${itemTotal}",
+                    text = "$itemPrice",
                     fontSize = itemTotalTextSize
                 )
             }
@@ -347,9 +394,3 @@ fun CartEachItem(
     }
 
 }
-
-@Composable
-fun ShoppingCartFooter(modifier:Modifier = Modifier){
-
-}
-
