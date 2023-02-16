@@ -1,65 +1,53 @@
 package com.example.portfolio.feature_shopping.presentation.cart
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
+import com.example.portfolio.feature_shopping.domain.use_case.AddToCart
+import com.example.portfolio.feature_shopping.domain.use_case.GetCart
+import com.example.portfolio.feature_shopping.domain.use_case.RemoveReduceFromCart
 import com.example.portfolio.utils.SavedStateKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import javax.inject.Inject
 
 @HiltViewModel
 class CartStateViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val getCart: GetCart,
+    private val addToCart: AddToCart,
+    private val removeReduceFromCart: RemoveReduceFromCart
 ): ViewModel() {
     private val TAG = this.javaClass.name
-
-    private val _cartData = MutableStateFlow<Cart>(savedStateHandle.get(SavedStateKeys.CART) ?: Cart())
-//https://stackoverflow.com/questions/70433526/how-can-we-save-and-restore-state-for-android-stateflow
-    //One way to update savedStateHandle's value
-    private var _cart
-        get() = _cartData.value
-        set(_cart){
-            _cartData.value = _cart
-            savedStateHandle.set(SavedStateKeys.CART,_cart)
-        }
-
-    val cart = _cartData.asStateFlow()//savedStateHandle.getStateFlow<Cart?>(SavedStateKeys.CART, Cart())
-
-    fun addItem(newItem: SellingItem):Boolean{
-        println("added item Quantity - ${cart.value.totalQuantity}")
-        _cart.let{
-            if(isContain(newItem,it)){
-                it.items[newItem] = it.items[newItem]!! + 1
+    var cartUIState by mutableStateOf<Cart>(savedStateHandle.get<Cart>(SavedStateKeys.CART) ?: Cart())
+        private set
+    var subTotal by mutableStateOf<Double>(cartUIState.subTotal)
+        private set
+    fun addItem(selectedItem: SellingItem){
+        cartUIState.let{
+            if(isContain(selectedItem,it)){
+                it.items[selectedItem] = it.items[selectedItem]!! + 1
                 it.totalQuantity += 1
-                it.subTotal += newItem.price
+                it.subTotal = formatHelper( subTotal + selectedItem.price)
+                subTotal = it.subTotal
             }else{
-                it.items[newItem] = 1
+                it.items[selectedItem] = 1
                 it.totalQuantity += 1
-                it.subTotal += newItem.price
+                it.subTotal = formatHelper( subTotal + selectedItem.price)
+                subTotal = it.subTotal
             }
             updateCart()
-            return true
         }
-        //return false
-    }
-    fun removeItem(selectedItem: SellingItem):Boolean{
-        Log.d(TAG, "reduceItem: is called")
-        _cart.apply{
-            this.items.remove(selectedItem)
-            this.totalQuantity -= 1
-            this.subTotal -= selectedItem.price
-            updateCart()
-            return true
-        }
-        //return false
     }
     fun reduceItem(selectedItem:SellingItem):Boolean{
         Log.d(TAG, "removeItem: isCalled")
-        _cart.let{cart ->
+        cartUIState.let{cart ->
             when(cart.items[selectedItem]){
                 null ->{
                     //do nothing
@@ -69,9 +57,12 @@ class CartStateViewModel @Inject constructor(
                     removeItem(selectedItem)
                 }
                 else -> { //greater than 1
-                    cart.items[selectedItem] = cart.items[selectedItem]!! - 1
-                    cart.totalQuantity -= 1
-                    cart.subTotal -= selectedItem.price
+                    cart.let{
+                        it.items[selectedItem] = it.items[selectedItem]!! - 1
+                        it.totalQuantity -= 1
+                        it.subTotal = formatHelper(it.subTotal- selectedItem.price)
+                        subTotal = it.subTotal
+                    }
                 }
             }
             updateCart()
@@ -79,22 +70,39 @@ class CartStateViewModel @Inject constructor(
         }
         //return false
     }
+    fun removeItem(selectedItem: SellingItem):Boolean{
+        cartUIState.let{
+            it.totalQuantity -= 1
+            it.subTotal = formatHelper(it.subTotal - (selectedItem.price * it.items[selectedItem]!!))
+            subTotal = it.subTotal
+            it.items.remove(selectedItem)
+            updateCart()
+            return true
+        }
+        //return false
+    }
+    private fun updateCart() {
+        savedStateHandle[SavedStateKeys.CART] = cartUIState
+    }
+    private fun formatHelper(value:Double):Double{
+        val decimalFormatter = DecimalFormat("#.##")
+        decimalFormatter.roundingMode = RoundingMode.FLOOR
+
+        return decimalFormatter.format(value).toDouble()
+    }
+
+    fun getCurItemPrice(selectItem:SellingItem):Double{
+        //Quantity times price
+        return cartUIState.items[selectItem]!!.times(selectItem.price)
+    }
     private fun isContain(selectedItem:SellingItem, fromData:Cart):Boolean{
         return fromData.items.containsKey(selectedItem)
     }
-    private fun updateCart(){
-        //_cart = _cart
-        _cartData.value = _cart
-        savedStateHandle[SavedStateKeys.CART] = _cart
-/*        viewModelScope.launch{
-            savedStateHandle.set(SavedStateKeys.CART, _cart.value)
-        }*/
-    }
-    fun getSubTotal():Double = cart.value.subTotal
-    fun getTotalQuantity():Int = cart.value.totalQuantity //?: 0
-    fun getCurItemPrice(selectItem:SellingItem):Double{
-        //ToDo - Complete this calculation
-        //Also, consider change mutable map to MutableList<SellingItem>
-    }
-
 }
+/*
+
+sealed class CartUIEvent(){
+    class AddToCart(selectedItem: SellingItem):CartUIEvent()
+    class RemoveFromCart(selectedItem: SellingItem):CartUIEvent()
+    class ReduceFromCart(selectedItem: SellingItem):CartUIEvent()
+}*/

@@ -13,8 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +27,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -65,9 +65,15 @@ fun ShoppingCartHeader(modifier:Modifier = Modifier){
 @Composable
 fun ShoppingCartBody(
     modifier:Modifier = Modifier,
-    cartStateVM: CartStateViewModel// = hiltViewModel()
+    cartStateVM: CartStateViewModel = hiltViewModel(),
+    subTotal: Double = cartStateVM.subTotal/*cartStateVM.subTotal.collectAsStateWithLifecycle(
+        lifecycle = LocalLifecycleOwner.current.lifecycle,
+        minActiveState = Lifecycle.State.STARTED
+    )*/
 ){
-    println("viewmodel from cart screen- $cartStateVM")
+
+    //TODO SubTotal is not updating
+    println("subtotaltest.value = ${subTotal}")
 
     Surface(
         modifier = modifier,
@@ -99,8 +105,20 @@ fun ShoppingCartBody(
 
                 }
             ){
+                Row(modifier = Modifier){
+                    Text(
+                        modifier=Modifier.weight(weight = 3.5F, fill = false),
+                        textAlign = TextAlign.Start,
+                        text = "SubTotal:"
+                    )
+                    Text(
+                        modifier=Modifier.weight(weight = 6.5F, fill = false),
+                        textAlign = TextAlign.End,
+                        text = "$${subTotal}"
+                    )
+                }
                 //This is place for subtotal
-                Text("SubTotal:")
+
             }
             //In order to stay top of ImageFrame, it need to be called after ImageFrame
             Surface(
@@ -184,13 +202,18 @@ fun CoffeeButton(modifier:Modifier = Modifier, text:String = "Undefined"){
 @Composable
 fun CartListAndSubTotal(
     modifier:Modifier = Modifier,
-    cartVM:CartStateViewModel,
-    cart: Cart = cartVM
+    cartVM:CartStateViewModel = hiltViewModel(),
+    cart: Cart = cartVM.cartUIState,
+    items: MutableMap<SellingItem, Int> = cart.items,
+    totalQuantity:Int = cart.totalQuantity,
+    subTotal:Double = cartVM.subTotal,
+    list:List<Pair<SellingItem, Int>> = cart.items.toList(),
+    /*cartVM
         .cart
         .collectAsStateWithLifecycle(
         lifecycle = LocalLifecycleOwner.current.lifecycle,
         minActiveState = Lifecycle.State.STARTED
-    ).value,
+    ).value*/
     //For test use
     listCartItems:List<CartItem> = listOf(
         CartItem(id = 0, count = 1, price = 1.99, itemTitle = "Korea Coffee", image = painterResource(R.drawable.coffee_animation),),
@@ -202,9 +225,9 @@ fun CartListAndSubTotal(
     )
 
 ){
-    var items = cart.items
+/*    var items = cart.items
     var totalSize = items.size
-    var list = cart.items.toList()
+    var list = cart.items.toList()*/
 
     Box(
         modifier = modifier ,
@@ -225,6 +248,7 @@ fun CartListAndSubTotal(
                 CartEachItem(
                     modifier = Modifier.padding(bottom = 16.dp),
                     curQuantity = Quantity,//SellingItem.quantity,
+                    cartVM = cartVM,
                     selectedItem = SellingItem,
                     itemTotal =  SellingItem.price,
                     productTitle = SellingItem.title,
@@ -240,15 +264,10 @@ fun CartListAndSubTotal(
 }
 
 @Composable
-fun PrevEachItem(){
-    ShoppingTheme {
-        CartEachItem()
-    }
-}
-@Composable
 fun CartEachItem(
     modifier:Modifier = Modifier,
     painter: Painter = painterResource(R.drawable.coffee_animation),
+    cartVM:CartStateViewModel,
     selectedItem: SellingItem? = null,
     curQuantity:Int = 1,
     itemTotal:Double = 6.99,
@@ -386,7 +405,7 @@ fun CartEachItem(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "$itemPrice",
+                    text = "${selectedItem?.let { cartVM.getCurItemPrice(it) }}",
                     fontSize = itemTotalTextSize
                 )
             }

@@ -1,14 +1,19 @@
 package com.example.portfolio.feature_shopping.di
 
+import androidx.compose.runtime.MutableState
+import androidx.lifecycle.SavedStateHandle
 import com.example.portfolio.feature_shopping.data.remote.PixabayAPI
 import com.example.portfolio.feature_shopping.data.repository.ShoppingReposImpl
+import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.repository.webservices.ShoppingRepository
 import com.example.portfolio.feature_shopping.domain.use_case.*
+import com.example.portfolio.utils.SavedStateKeys
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.flow.MutableStateFlow
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Named
@@ -36,6 +41,7 @@ object ShoppingRepoModule{
             pixabayApi = api,
         )
     }*/
+
 
 
     @Module
@@ -77,7 +83,8 @@ object ShoppingUseCaseModule {
     @Singleton
     @Provides
     fun provideShoppingUseCase(
-        repository: ShoppingRepository
+        repository: ShoppingRepository,
+        //cart: Cart,
     ):ShoppingUseCases{
         return ShoppingUseCases(
             getSpecial = GetSpecialItem(
@@ -87,12 +94,24 @@ object ShoppingUseCaseModule {
                 repository
             ),
             addToCart = AddToCart(
-                repository
+                _repository = repository,
+                //_cartData = cart,
             ),
-            removeCart = RemoveFromCart(
-                repository
+            removeCart = RemoveReduceFromCart(
+                _repository = repository,
+                //_cartData = cart,
+            ),
+            getCart = GetCart(
+                //cart = cart
             )
         )
     }
+
+   /* @Provides
+    fun provideCart(
+        savedStateHandle:SavedStateHandle
+    ): Cart {
+        return savedStateHandle.get(SavedStateKeys.CART) ?: Cart()
+    }*/
 
 }

@@ -1002,11 +1002,11 @@ fun Footer(
             },
             painter = painterResource(drawable.coffee_cart_btn),
         ) {
-            val cart = cartStateVM.cart.collectAsStateWithLifecycle(
+            val cart = cartStateVM.cartUIState/*cartStateVM.cart.collectAsStateWithLifecycle(
                 lifecycle = LocalLifecycleOwner.current.lifecycle,minActiveState = Lifecycle.State.STARTED
-            )
+            )*/
 
-            cart.value?.let{cart ->
+            /*cart.value?.*/cart.let{cart ->
                 when{
                     cart.totalQuantity > 99 ->{
                         Text(

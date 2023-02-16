@@ -4,5 +4,6 @@ data class ShoppingUseCases(
     val getSpecial:GetSpecialItem,
     val getRegular:GetRegularItem,
     val addToCart:AddToCart,
-    val removeCart:RemoveFromCart,
+    val removeCart:RemoveReduceFromCart,
+    val getCart:GetCart,
 )
