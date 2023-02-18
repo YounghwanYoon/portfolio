@@ -48,7 +48,7 @@ class ShoppingReposImplTest constructor(){
             dispatcher = Dispatchers.Main,
             cartDao = roomDB.cartDao(),
             itemDao = roomDB.sellingItemDao(),
-            localMapper = localMapper//SellingItemMapperLocal()
+           // localMapper = localMapper//SellingItemMapperLocal()
         )
 
     }
@@ -94,7 +94,7 @@ class ShoppingReposImplTest constructor(){
             )
         val resultItem:SellingItem?
         runBlocking{
-            repo.insertItem( testingItem )
+            //repo.insertItem( testingItem )
             repo.getItemById(2)
             resultItem = repo.getItemById(2)
         }

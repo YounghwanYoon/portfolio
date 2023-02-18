@@ -11,6 +11,7 @@ import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.use_case.AddToCart
 import com.example.portfolio.feature_shopping.domain.use_case.GetCart
 import com.example.portfolio.feature_shopping.domain.use_case.RemoveReduceFromCart
+import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
 import com.example.portfolio.utils.SavedStateKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.math.RoundingMode
@@ -86,7 +87,7 @@ class CartStateViewModel @Inject constructor(
     }
     private fun formatHelper(value:Double):Double{
         val decimalFormatter = DecimalFormat("#.##")
-        decimalFormatter.roundingMode = RoundingMode.FLOOR
+        decimalFormatter.roundingMode = RoundingMode.HALF_UP
 
         return decimalFormatter.format(value).toDouble()
     }
@@ -98,11 +99,20 @@ class CartStateViewModel @Inject constructor(
     private fun isContain(selectedItem:SellingItem, fromData:Cart):Boolean{
         return fromData.items.containsKey(selectedItem)
     }
-}
-/*
 
-sealed class CartUIEvent(){
-    class AddToCart(selectedItem: SellingItem):CartUIEvent()
-    class RemoveFromCart(selectedItem: SellingItem):CartUIEvent()
-    class ReduceFromCart(selectedItem: SellingItem):CartUIEvent()
-}*/
+    fun setCartUIEvent(event : CartUIEvent){
+        when(event){
+            is CartUIEvent.AddToCart -> {
+                addItem(selectedItem = event.selectedItem)
+            }
+            is CartUIEvent.ReduceFromCart -> {
+                reduceItem(selectedItem = event.selectedItem)
+            }
+            is CartUIEvent.RemoveFromCart -> {
+                removeItem(selectedItem = event.selectedItem)
+            }
+        }
+    }
+}
+
+

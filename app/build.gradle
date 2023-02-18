@@ -307,6 +307,8 @@ dependencies {
     //following alternative way suggested by
     //https://github.com/barteksc/AndroidPdfViewer/issues/1067
     implementation "com.github.mhiew:android-pdf-viewer:3.2.0-beta.1"
+    //ViewPager with dot for compose
+    implementation "com.google.accompanist:accompanist-pager:0.22.0-rc"
 
     //implementation 'com.github.barteksc:AndroidPdfViewer:2.3.0'
 

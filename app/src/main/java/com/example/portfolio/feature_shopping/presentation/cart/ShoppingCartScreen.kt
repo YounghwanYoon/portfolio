@@ -19,17 +19,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.portfolio.R
@@ -39,7 +37,7 @@ import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.presentation.detail.ImageFrame
 import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_300
 import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
-import kotlinx.coroutines.flow.StateFlow
+import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
 
 @Composable
 fun ShoppingCartScreen(
@@ -47,6 +45,7 @@ fun ShoppingCartScreen(
     navController:NavController,
     cartStateViewModel: CartStateViewModel
 ){
+    println("ShoppingCartScreen")
     ShoppingTheme{
         Column(){
             ShoppingCartBody(Modifier.weight(9f), cartStateVM = cartStateViewModel)
@@ -58,21 +57,15 @@ fun ShoppingCartScreen(
 }
 
 @Composable
-fun ShoppingCartHeader(modifier:Modifier = Modifier){
-}
-
-//@Preview(widthDp = 360, heightDp = 640)
-@Composable
 fun ShoppingCartBody(
     modifier:Modifier = Modifier,
-    cartStateVM: CartStateViewModel = hiltViewModel(),
+    cartStateVM: CartStateViewModel,
     subTotal: Double = cartStateVM.subTotal/*cartStateVM.subTotal.collectAsStateWithLifecycle(
         lifecycle = LocalLifecycleOwner.current.lifecycle,
         minActiveState = Lifecycle.State.STARTED
     )*/
 ){
 
-    //TODO SubTotal is not updating
     println("subtotaltest.value = ${subTotal}")
 
     Surface(
@@ -133,9 +126,7 @@ fun ShoppingCartBody(
                 shadowElevation = 8.dp
             ) {
                 Box() {
-                    CoffeeButton(
-                        text = "Order"
-                    )
+                    OrderButton()
                 }
             }
         }
@@ -168,23 +159,32 @@ fun PreviewCoffeeButton(modifier:Modifier = Modifier, text:String ="Order"){
 
 }*/
 
+@Preview(widthDp = 360)
 @Composable
-fun CoffeeButton(modifier:Modifier = Modifier, text:String = "Undefined"){
+fun OrderButton(
+    modifier:Modifier = Modifier
+        .fillMaxWidth()
+        .padding(start = 8.dp, end=8.dp)
+    ,
+    text:String = "Place Order"
+){
     Surface(
         color=Color.White.copy(alpha=0.1f),
     ){
         Box(
-            modifier=modifier,
             contentAlignment = Alignment.Center
         ){
             FloatingActionButton(
                 onClick = {},
                 shape = RoundedCornerShape(8.dp),
                 backgroundColor = Brown_300,
-                modifier =  Modifier.defaultMinSize(minWidth = 75.dp, minHeight = 50.dp),
+                modifier =  Modifier
+                    .defaultMinSize(minWidth = 75.dp, minHeight = 50.dp)
+                    .fillMaxWidth(0.8f),
             ){
                 Text(
                     text = text,
+                    textAlign = TextAlign.Justify,
                     color = Color.White,
                     fontSize = 18.sp,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
@@ -228,6 +228,7 @@ fun CartListAndSubTotal(
 /*    var items = cart.items
     var totalSize = items.size
     var list = cart.items.toList()*/
+    println("CartListAndSubTotal")
 
     Box(
         modifier = modifier ,
@@ -252,9 +253,9 @@ fun CartListAndSubTotal(
                     selectedItem = SellingItem,
                     itemTotal =  SellingItem.price,
                     productTitle = SellingItem.title,
-                    removeListener = {cartVM.removeItem(SellingItem)},
-                    addListener = {cartVM.addItem(SellingItem)},
-                    reduceListener = {cartVM.reduceItem(SellingItem)}
+                    removeListener = {cartVM.setCartUIEvent(CartUIEvent.RemoveFromCart(SellingItem))},
+                    addListener = {cartVM.setCartUIEvent(CartUIEvent.AddToCart(SellingItem))},
+                    reduceListener = {cartVM.setCartUIEvent(CartUIEvent.ReduceFromCart(SellingItem))}
                 )
             }
         }
@@ -277,6 +278,10 @@ fun CartEachItem(
     addListener:() -> Unit ={},
     reduceListener:()->Unit={}
 ){
+    println("CartEachItem")
+
+    var mitemTotal by remember{mutableStateOf(itemTotal)}
+    var mProductTitle by remember{mutableStateOf(productTitle)}
 
     Row(
         modifier = modifier
@@ -324,7 +329,7 @@ fun CartEachItem(
                 Text(
                     //modifier = Modifier.weight(2f),
                     textAlign = TextAlign.Center,
-                    text = productTitle
+                    text = mProductTitle
                 )
             }
         }
@@ -390,11 +395,7 @@ fun CartEachItem(
                 }
             }
         }
-        val itemPrice = remember{
-            selectedItem?.let{
-                it.price.times(it.quantity)
-            }
-        }
+
         //Calculation Section/Price Section
         Box(
             modifier = Modifier.weight(2f),

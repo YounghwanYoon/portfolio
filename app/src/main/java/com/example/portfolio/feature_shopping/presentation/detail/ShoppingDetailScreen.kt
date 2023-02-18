@@ -230,7 +230,7 @@ fun ImageFrame(
                     Row(modifier = Modifier
                         .weight(0.70f)
                         .fillMaxWidth()
-                        .padding(top = 12.dp, bottom = 0.dp)
+                        .padding(top = 4.dp, bottom = 4.dp)
                     ){
                         bodyBotContent()
                     }/*
@@ -398,7 +398,7 @@ fun Detail_AddItemFloatBtn(
         verticalAlignment = Alignment.CenterVertically
     ){
         Box(modifier = Modifier.weight(8f).padding(start=16.dp)){
-            Text(text="${selectedItem.price?:0.99}", fontSize = 32.sp)
+            Text(text="$${selectedItem.price?:0.99}", fontSize = 30.sp)
         }
         Box(modifier = Modifier.weight(2f)
         ){
