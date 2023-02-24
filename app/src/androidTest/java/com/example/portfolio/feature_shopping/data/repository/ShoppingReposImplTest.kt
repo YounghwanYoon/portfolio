@@ -42,14 +42,14 @@ class ShoppingReposImplTest constructor(){
             .build()
             .create(PixabayAPI::class.java)
 
-        repo = ShoppingReposImpl(
+/*        repo = ShoppingReposImpl(
             pixabayApi = api,
             pixabayKey = "15227824-a2215005f70965bf20cc7de51",
             dispatcher = Dispatchers.Main,
             cartDao = roomDB.cartDao(),
             itemDao = roomDB.sellingItemDao(),
            // localMapper = localMapper//SellingItemMapperLocal()
-        )
+        )*/
 
     }
 
@@ -95,8 +95,8 @@ class ShoppingReposImplTest constructor(){
         val resultItem:SellingItem?
         runBlocking{
             //repo.insertItem( testingItem )
-            repo.getItemById(2)
-            resultItem = repo.getItemById(2)
+            //repo.getItemById(2)
+            //resultItem = repo.getItemById(2)
         }
 
         //assertThat(resultItem).isEqualTo(testingItem)

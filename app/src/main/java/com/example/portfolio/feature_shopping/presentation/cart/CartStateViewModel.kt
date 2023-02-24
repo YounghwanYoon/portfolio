@@ -12,7 +12,7 @@ import com.example.portfolio.feature_shopping.domain.use_case.AddToCart
 import com.example.portfolio.feature_shopping.domain.use_case.GetCart
 import com.example.portfolio.feature_shopping.domain.use_case.RemoveReduceFromCart
 import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
-import com.example.portfolio.utils.SavedStateKeys
+import com.example.portfolio.utils.SAVEDSTATEKEYS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -26,7 +26,7 @@ class CartStateViewModel @Inject constructor(
     private val removeReduceFromCart: RemoveReduceFromCart
 ): ViewModel() {
     private val TAG = this.javaClass.name
-    var cartUIState by mutableStateOf<Cart>(savedStateHandle.get<Cart>(SavedStateKeys.CART) ?: Cart())
+    var cartUIState by mutableStateOf<Cart>(savedStateHandle.get<Cart>(SAVEDSTATEKEYS.CART) ?: Cart())
         private set
     var subTotal by mutableStateOf<Double>(cartUIState.subTotal)
         private set
@@ -83,7 +83,7 @@ class CartStateViewModel @Inject constructor(
         //return false
     }
     private fun updateCart() {
-        savedStateHandle[SavedStateKeys.CART] = cartUIState
+        savedStateHandle[SAVEDSTATEKEYS.CART] = cartUIState
     }
     private fun formatHelper(value:Double):Double{
         val decimalFormatter = DecimalFormat("#.##")

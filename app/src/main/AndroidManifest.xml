@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!-- uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" / -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <!-- GPS Permission -->
     <!-- Needed only if your app targets Android 5.0 (API level 21) or higher. -->
@@ -44,15 +43,6 @@
                 android:name="android.app.lib_name"
                 android:value="" />-->
         </activity>
-        <activity
-            android:name=".feature_shopping.presentation.splash.ShoppingSplashActivity"
-            android:exported="true"
-            android:label="@string/title_activity_shopping_splash"
-            android:theme="@style/Theme.Portfolio.SplashScreen_Shopping">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
 
         <activity
             android:name=".MainActivity"
@@ -77,6 +67,17 @@
                 android:name="preloaded_fonts"
                 android:resource="@array/preloaded_fonts" />
         </activity>
+
+
+<!--        <activity
+            android:name=".feature_shopping.presentation.splash.ShoppingSplashActivity"
+            android:exported="true"
+            android:label="@string/title_activity_shopping_splash"
+            android:theme="@style/Theme.Portfolio.SplashScreen_Shopping">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>-->
     </application>
 
 </manifest>

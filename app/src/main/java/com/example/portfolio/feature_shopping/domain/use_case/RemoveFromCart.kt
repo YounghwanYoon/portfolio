@@ -1,13 +1,6 @@
 package com.example.portfolio.feature_shopping.domain.use_case
 
-import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.lifecycle.SavedStateHandle
-import com.example.portfolio.feature_shopping.domain.model.Cart
-import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.repository.webservices.ShoppingRepository
-import com.example.portfolio.utils.SavedStateKeys
-import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
 class RemoveReduceFromCart @Inject constructor(
@@ -23,7 +16,7 @@ class RemoveReduceFromCart @Inject constructor(
         get() = _cartData.value
         set(_cart){
             _cartData.value = _cart
-            savedStateHandle.set(SavedStateKeys.CART,_cart)
+            savedStateHandle.set(SAVEDSTATEKEYS.CART,_cart)
         }
 
     fun removeItem(selectedItem: SellingItem):Boolean{

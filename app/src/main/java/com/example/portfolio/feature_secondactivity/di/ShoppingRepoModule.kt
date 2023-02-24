@@ -1,19 +1,14 @@
-package com.example.portfolio.feature_shopping.di
+package com.example.portfolio.feature_secondactivity.di
 
-import androidx.compose.runtime.MutableState
-import androidx.lifecycle.SavedStateHandle
 import com.example.portfolio.feature_shopping.data.remote.PixabayAPI
 import com.example.portfolio.feature_shopping.data.repository.ShoppingReposImpl
-import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.repository.webservices.ShoppingRepository
 import com.example.portfolio.feature_shopping.domain.use_case.*
-import com.example.portfolio.utils.SavedStateKeys
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.flow.MutableStateFlow
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Named
@@ -107,11 +102,22 @@ object ShoppingUseCaseModule {
         )
     }
 
+    @Singleton
+    @Provides
+    fun providePaymentUseCase(
+
+    ):PaymentUseCases{
+        return PaymentUseCases(
+            getUserInfo = GetUserInfo()
+        )
+    }
+
+
    /* @Provides
     fun provideCart(
         savedStateHandle:SavedStateHandle
     ): Cart {
-        return savedStateHandle.get(SavedStateKeys.CART) ?: Cart()
+        return savedStateHandle.get(SAVEDSTATEKEYS.CART) ?: Cart()
     }*/
 
 }

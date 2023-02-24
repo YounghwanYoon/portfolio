@@ -1,5 +1,6 @@
 package com.example.portfolio.feature_shopping.presentation.splash
 
+import android.os.Build
 import android.view.animation.OvershootInterpolator
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -12,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.portfolio.R
 import androidx.compose.material.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,12 +22,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.portfolio.R
 import com.example.portfolio.feature_practice.presentation.ui.theme.JetpackComposeTheme
 import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_700
 import com.example.portfolio.feature_shopping.presentation.utils.Screen
 import kotlinx.coroutines.delay
 
-@Preview (
+/*@Preview (
     showBackground = true,
     widthDp = 360,
     heightDp = 640
@@ -37,7 +38,7 @@ fun PreviewSplashScreen(){
     JetpackComposeTheme {
         Shopping_SplashScreen()
     }
-}
+}*/
 @Composable
 fun Shopping_SplashScreen(navController: NavController){
 
@@ -69,7 +70,7 @@ fun Shopping_SplashScreen(navController: NavController){
 @Composable
 fun SplashContents(
     modifier:Modifier = Modifier,
-    painter: Painter = painterResource(R.drawable.coffee_bean_falling),
+    painter: Painter = painterResource(com.example.portfolio.R.drawable.coffee_bean_falling),
     welcomeString: String = stringResource(R.string.splash_view_with_coffee_image)
 ){
     Column(

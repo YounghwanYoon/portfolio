@@ -1,4 +1,4 @@
-package com.example.portfolio.feature_shopping.di
+package com.example.portfolio.feature_secondactivity.di
 
 import androidx.compose.Context
 import androidx.room.Room
