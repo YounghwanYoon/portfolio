@@ -50,6 +50,7 @@ import com.example.portfolio.feature_shopping.domain.model.ShoppingUIEvent
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
 import com.example.portfolio.feature_shopping.domain.use_case.*
 import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
+import com.example.portfolio.feature_shopping.presentation.utils.MyDivider
 import com.example.portfolio.feature_shopping.presentation.utils.Screen
 import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
 import kotlinx.coroutines.launch
@@ -261,20 +262,6 @@ fun Header(modifier: Modifier = Modifier) {
     }
 
 
-}
-
-@Composable
-fun MyDivider(modifier: Modifier = Modifier, height: Dp = 2.dp, shadowElevation: Dp = 8.dp) {
-    Surface(
-        shadowElevation = shadowElevation
-    ) {
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(height)
-                .background(color = com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_700)
-        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
