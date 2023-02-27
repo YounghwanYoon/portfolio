@@ -1,6 +1,5 @@
 package com.example.portfolio.feature_shopping.presentation.payment
 
-import android.content.res.Resources.Theme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -23,7 +22,6 @@ import androidx.compose.ui.window.Dialog
 import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.model.PaymentInfo
 import com.example.portfolio.feature_shopping.domain.model.User
-import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
 import com.example.portfolio.feature_shopping.presentation.utils.Helper
 import com.example.portfolio.feature_shopping.presentation.utils.MyDivider
 import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
@@ -53,15 +51,16 @@ fun PaymentScreen(
 //https://stackoverflow.com/questions/68852110/show-custom-alert-dialog-in-jetpack-compose
 @Composable
 fun CustomPaymentDialog(
-    openDialogCustom: MutableState<Boolean> = mutableStateOf(true),
+    shouldOpenDialog: Boolean = false,
     title:String ="Order Summary"
 ){
+    var openDialogState by remember{ mutableStateOf(shouldOpenDialog)}
     Dialog(
-        onDismissRequest = {openDialogCustom.value = false}
+        onDismissRequest = {openDialogState = false}
     ){
         PaymentUIDialog(
             modifier =  Modifier.background(color = Color.White),
-            openDialogCustom = openDialogCustom,
+            //openDialogCustom = openDialogState,
             bodyContent = {
                 ViewPager(
                     contentList = listOf({ShippingAndPayment_Page()}, {OrderSummary_Page()})

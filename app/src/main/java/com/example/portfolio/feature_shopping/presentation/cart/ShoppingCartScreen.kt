@@ -35,6 +35,7 @@ import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.model.CartItem
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.presentation.detail.ImageFrame
+import com.example.portfolio.feature_shopping.presentation.payment.CustomPaymentDialog
 import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_300
 import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
 import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
@@ -82,13 +83,14 @@ fun ShoppingCartBody(
                 bodyContent = {
                     //List Order Section
                     Box(
-                        modifier = Modifier.padding(top = 16.dp)
-                            .constrainAs(ListOrder){
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .constrainAs(ListOrder) {
                                 absoluteLeft.linkTo(parent.absoluteLeft)
                                 absoluteRight.linkTo(parent.absoluteRight)
                                 top.linkTo(parent.top, margin = 8.dp)
                                 //top.linkTo(OrderBtn.top)
-                                bottom.linkTo(parent.bottom, margin= 8.dp)
+                                bottom.linkTo(parent.bottom, margin = 8.dp)
                             }
                     ){
                         CartListAndSubTotal(
@@ -159,15 +161,17 @@ fun PreviewCoffeeButton(modifier:Modifier = Modifier, text:String ="Order"){
 
 }*/
 
-@Preview(widthDp = 360)
 @Composable
 fun OrderButton(
     modifier:Modifier = Modifier
         .fillMaxWidth()
-        .padding(start = 8.dp, end=8.dp)
-    ,
+        .padding(start = 8.dp, end = 8.dp),
     text:String = "Place Order"
 ){
+    var openDialogState by remember{ mutableStateOf(false) }
+    //should be closed on back button && complete order
+    var isCompletedOrder by remember { mutableStateOf(false) }
+
     Surface(
         color=Color.White.copy(alpha=0.1f),
     ){
@@ -175,10 +179,10 @@ fun OrderButton(
             contentAlignment = Alignment.Center
         ){
             FloatingActionButton(
-                onClick = {},
+                onClick = {openDialogState = true},
                 shape = RoundedCornerShape(8.dp),
                 backgroundColor = Brown_300,
-                modifier =  Modifier
+                modifier = Modifier
                     .defaultMinSize(minWidth = 75.dp, minHeight = 50.dp)
                     .fillMaxWidth(0.8f),
             ){
@@ -189,6 +193,7 @@ fun OrderButton(
                     fontSize = 18.sp,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                 )
+                CustomPaymentDialog(openDialogState)
             }
         }
     }
@@ -285,7 +290,7 @@ fun CartEachItem(
 
     Row(
         modifier = modifier
-            .background(color=Color.White)
+            .background(color = Color.White)
             .defaultMinSize(minHeight = 100.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -293,7 +298,9 @@ fun CartEachItem(
 
         //Selected Item Image Section
         Box(
-            modifier = Modifier.weight(4.5f).padding(start = 8.dp)
+            modifier = Modifier
+                .weight(4.5f)
+                .padding(start = 8.dp)
         ){
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -304,22 +311,26 @@ fun CartEachItem(
                 ){
                     selectedItem?.let{
                         AsyncImage(
-                            modifier = Modifier.border(
-                                width = 2.dp,
-                                shape = RoundedCornerShape(8.dp),
-                                color = MaterialTheme.colorScheme.onTertiary
-                            ).clip(shape = RoundedCornerShape(8.dp)),
+                            modifier = Modifier
+                                .border(
+                                    width = 2.dp,
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = MaterialTheme.colorScheme.onTertiary
+                                )
+                                .clip(shape = RoundedCornerShape(8.dp)),
                             model = selectedItem.imageUrl,
                             contentDescription = selectedItem.description?: "Cart Item Image",
                             placeholder = painterResource(R.drawable.coffee_animation),
                         )
                     } ?:
                     Image(
-                        modifier = Modifier.border(
-                            width = 2.dp,
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.onTertiary
-                        ).clip(shape = RoundedCornerShape(8.dp)),
+                        modifier = Modifier
+                            .border(
+                                width = 2.dp,
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.onTertiary
+                            )
+                            .clip(shape = RoundedCornerShape(8.dp)),
                         painter = painter,
                         contentDescription = "Cart Item Image",
                         //contentScale = ContentScale.Fit
