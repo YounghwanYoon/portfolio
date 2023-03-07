@@ -1,8 +1,10 @@
 package com.example.portfolio.feature_shopping.presentation.main
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -51,7 +54,7 @@ import com.example.portfolio.feature_shopping.domain.model.SpecialItem
 import com.example.portfolio.feature_shopping.domain.use_case.*
 import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
 import com.example.portfolio.feature_shopping.presentation.utils.MyDivider
-import com.example.portfolio.feature_shopping.presentation.utils.Screen
+import com.example.portfolio.feature_shopping.presentation.utils.Screens
 import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
 import kotlinx.coroutines.launch
 import java.util.*
@@ -110,12 +113,20 @@ fun ShoppingMainScreen(
             .width(screenWidth)
             .height(screenHeight)
     ) {
-        Header(Modifier.weight(2.0f).background(color = MaterialTheme.colorScheme.background))
+        Header(
+            Modifier
+                .weight(2.0f)
+                .background(color = MaterialTheme.colorScheme.background))
         MyDivider()
         //Spacer(modifier = Modifier.height(1.dp))
         Body(Modifier.weight(7f), screenHeight, screenWidth, navController = navController, itemStateVM = itemStateVM)
         MyDivider()
         Footer(Modifier.weight(1.0f), navController = navController, cartStateVM = cartStateVM)
+    }
+
+    val activity = LocalContext.current as Activity
+    BackHandler() {
+        activity.finish()
     }
 
 
@@ -622,7 +633,8 @@ fun BodyContent(
                             0.27f
                         )
 
-                    ).clickable {
+                    )
+                    .clickable {
                         println("clicked item")
                         navController.navigate(route = "detail_screen/$index")
                     },
@@ -969,8 +981,8 @@ fun Footer(
         fastImageButton(
             modifier = Modifier.weight(3f),
             onClick = {
-                navController.navigate(Screen.Main.rout) {
-                    popUpTo(Screen.Main.rout)
+                navController.navigate(Screens.Main.rout) {
+                    popUpTo(Screens.Main.rout)
                 }
                 println("First Image Clicked TO THE HOME")
 
@@ -979,10 +991,12 @@ fun Footer(
         )
 
         fastImageButton(
-            modifier = Modifier.weight(3f).defaultMinSize(50.dp),
+            modifier = Modifier
+                .weight(3f)
+                .defaultMinSize(50.dp),
             onClick = {
-                navController.navigate(Screen.Cart.rout) {
-                    popUpTo(Screen.Cart.rout)
+                navController.navigate(Screens.Cart.rout) {
+                    popUpTo(Screens.Cart.rout)
                 }
                 println("First Image Clicked TO THE CART!!")
 

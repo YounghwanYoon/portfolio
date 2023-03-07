@@ -1,5 +1,6 @@
 package com.example.portfolio.feature_shopping.presentation.cart
 
+import androidx.activity.compose.BackHandler
 import com.example.portfolio.feature_shopping.presentation.main.Footer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,10 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,10 +36,12 @@ import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.model.CartItem
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.presentation.detail.ImageFrame
-import com.example.portfolio.feature_shopping.presentation.payment.CustomPaymentDialog
+import com.example.portfolio.feature_shopping.presentation.payment.PaymentDialogScreen
 import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_300
 import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
 import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
+import com.example.portfolio.feature_shopping.presentation.utils.Helper.nonScaledSp
+import com.example.portfolio.feature_shopping.presentation.utils.Screens
 
 @Composable
 fun ShoppingCartScreen(
@@ -47,11 +50,16 @@ fun ShoppingCartScreen(
     cartStateViewModel: CartStateViewModel
 ){
     println("ShoppingCartScreen")
+
     ShoppingTheme{
+
         Column(){
             ShoppingCartBody(Modifier.weight(9f), cartStateVM = cartStateViewModel)
 
             Footer(Modifier.weight(1f), navController = navController, cartStateVM = cartStateViewModel)
+        }
+        BackHandler() {
+            navController.navigate(Screens.Main.rout)
         }
     }
 
@@ -65,10 +73,7 @@ fun ShoppingCartBody(
         lifecycle = LocalLifecycleOwner.current.lifecycle,
         minActiveState = Lifecycle.State.STARTED
     )*/
-){
-
-    println("subtotaltest.value = ${subTotal}")
-
+) {
     Surface(
         modifier = modifier,
         shadowElevation = 8.dp
@@ -134,32 +139,8 @@ fun ShoppingCartBody(
         }
     }
 
+
 }
-
-
-/*@Preview(widthDp = 360, heightDp = 640)
-@Composable
-fun PreviewCoffeeButton(modifier:Modifier = Modifier, text:String ="Order"){
-    Box(
-        modifier=modifier,
-        contentAlignment = Alignment.Center
-    ){
-        FloatingActionButton(
-            onClick = {},
-            shape = RoundedCornerShape(8.dp),
-            backgroundColor = Brown_300,
-            modifier =  Modifier.defaultMinSize(minWidth = 75.dp, minHeight = 50.dp)
-        ){
-            Text(
-                text = text,
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-            )
-        }
-    }
-
-}*/
 
 @Composable
 fun OrderButton(
@@ -168,9 +149,10 @@ fun OrderButton(
         .padding(start = 8.dp, end = 8.dp),
     text:String = "Place Order"
 ){
-    var openDialogState by remember{ mutableStateOf(false) }
+    var openDialog by remember{ mutableStateOf(false) }
     //should be closed on back button && complete order
     var isCompletedOrder by remember { mutableStateOf(false) }
+
 
     Surface(
         color=Color.White.copy(alpha=0.1f),
@@ -179,25 +161,33 @@ fun OrderButton(
             contentAlignment = Alignment.Center
         ){
             FloatingActionButton(
-                onClick = {openDialogState = true},
+                onClick = {
+                    println("openDialog from parent UI - ${openDialog}")
+                    openDialog = true
+                },
                 shape = RoundedCornerShape(8.dp),
                 backgroundColor = Brown_300,
                 modifier = Modifier
                     .defaultMinSize(minWidth = 75.dp, minHeight = 50.dp)
                     .fillMaxWidth(0.8f),
             ){
+
                 Text(
                     text = text,
                     textAlign = TextAlign.Justify,
                     color = Color.White,
-                    fontSize = 18.sp,
+                    fontSize = 18.nonScaledSp,//18.sp,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                 )
-                CustomPaymentDialog(openDialogState)
+                if(openDialog){
+                    PaymentDialogScreen(
+                        shouldOpenDialog = openDialog
+                    )
+                    openDialog = false
+                }
             }
         }
     }
-
 }
 
 
@@ -228,7 +218,6 @@ fun CartListAndSubTotal(
         CartItem(id = 4, count = 1, price = 5.99, itemTitle = "England Coffee", image = painterResource(R.drawable.coffee_animation),),
         CartItem(id = 5, count = 1, price = 6.99, itemTitle = "Italia Coffee", image = painterResource(R.drawable.coffee_animation),),
     )
-
 ){
 /*    var items = cart.items
     var totalSize = items.size

@@ -1,6 +1,5 @@
 package com.example.portfolio.feature_shopping.presentation.splash
 
-import android.os.Build
 import android.view.animation.OvershootInterpolator
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -12,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,9 +21,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.portfolio.R
-import com.example.portfolio.feature_practice.presentation.ui.theme.JetpackComposeTheme
 import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_700
-import com.example.portfolio.feature_shopping.presentation.utils.Screen
+import com.example.portfolio.feature_shopping.presentation.utils.Screens
 import kotlinx.coroutines.delay
 
 /*@Preview (
@@ -58,7 +55,7 @@ fun Shopping_SplashScreen(navController: NavController){
         )
 
         delay(2000L)
-        navController.navigate(Screen.Main.rout)
+        navController.navigate(Screens.Main.rout)
 
     }
     SplashContents(

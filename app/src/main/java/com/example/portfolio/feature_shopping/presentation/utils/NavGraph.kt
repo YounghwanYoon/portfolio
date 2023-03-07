@@ -1,6 +1,10 @@
 package com.example.portfolio.feature_shopping.presentation.utils
 
+import android.app.Activity
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -14,6 +18,7 @@ import com.example.portfolio.feature_shopping.presentation.main.ShoppingItemStat
 import com.example.portfolio.feature_shopping.presentation.main.ShoppingMainScreen
 import com.example.portfolio.feature_shopping.presentation.splash.Shopping_SplashScreen
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun setNavGraph(navController: NavHostController){
 
@@ -22,10 +27,12 @@ fun setNavGraph(navController: NavHostController){
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Splash.rout
+        startDestination = Screens.Cart.rout//Screens.Splash.rout
     ){
 
-        composable(route = Screen.Main.rout){navBackStackEntry->
+        composable(route = Screens.Main.rout){ navBackStackEntry->
+
+
             //val viewModel:ShoppingItemStateViewModel = hiltViewModel(navBackStackEntry)
             ShoppingMainScreen(
                 navController = navController,
@@ -35,7 +42,12 @@ fun setNavGraph(navController: NavHostController){
             println("Home Button Clicked - from Nav Controller")
         }
 
-        composable(route = Screen.Cart.rout){ navBackStackEntry->
+        composable(route = Screens.Cart.rout){ navBackStackEntry->
+
+/*            val parentEntry  = remember(navBackStackEntry){
+//                navController.getBackStackEntry(Screens.Main.rout)
+            }*/
+
            // val viewModel:ShoppingItemStateViewModel = hiltViewModel(navController.previousBackStackEntry!!)
             ShoppingCartScreen(
                 navController = navController,
@@ -45,12 +57,11 @@ fun setNavGraph(navController: NavHostController){
         }
 
         composable(
-            route = Screen.Detail.rout,
+            route = Screens.Detail.rout,
             arguments = listOf(navArgument("id"){
                 type = NavType.IntType
             })){ navBackStackEntry ->
             //val viewModel:ShoppingItemStateViewModel = hiltViewModel(navController.previousBackStackEntry!!)
-
             ShoppingDetailScreen(
                 navController = navController,
                 selectedItemId = navBackStackEntry.arguments?.getInt("id").toString(),
@@ -59,9 +70,11 @@ fun setNavGraph(navController: NavHostController){
             )
         }
 
-        composable(route = Screen.Splash.rout){
+        composable(route = Screens.Splash.rout){
             Shopping_SplashScreen(navController = navController)
         }
     }
+
+    //BackStateHandler(navController = navController, activity = LocalContext.current as Activity)
 
 }

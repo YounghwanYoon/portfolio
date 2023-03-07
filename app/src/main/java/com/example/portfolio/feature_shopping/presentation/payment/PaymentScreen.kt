@@ -1,5 +1,6 @@
 package com.example.portfolio.feature_shopping.presentation.payment
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -15,64 +16,51 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavController
 import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.model.PaymentInfo
 import com.example.portfolio.feature_shopping.domain.model.User
-import com.example.portfolio.feature_shopping.presentation.utils.Helper
-import com.example.portfolio.feature_shopping.presentation.utils.MyDivider
-import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
-import com.example.portfolio.feature_shopping.presentation.utils.ViewPager
+import com.example.portfolio.feature_shopping.presentation.utils.*
 import java.util.*
 
-@Preview(
-    showSystemUi = false,
-    showBackground = true,
-    name = "Preview_PaymentScreen",
-    group = "",
-    widthDp = 360,
-    heightDp = 640,
-    locale = "us",
-    backgroundColor = 0,
-    uiMode = 0,
-    device = ""
-)
-@Composable
-fun PaymentScreen(
-    modifier:Modifier=Modifier,
-    //paymentVM:PaymentViewModel = hiltViewModel()
-){
-    CustomPaymentDialog()
-    //ShippingAndPayment_Page()
-}
 //https://stackoverflow.com/questions/68852110/show-custom-alert-dialog-in-jetpack-compose
 @Composable
-fun CustomPaymentDialog(
-    shouldOpenDialog: Boolean = false,
-    title:String ="Order Summary"
+fun PaymentDialogScreen(
+    shouldOpenDialog: Boolean,
+    title:String ="Order Summary",
+    onCompleted: (Boolean) -> Unit  = {false},
 ){
-    var openDialogState by remember{ mutableStateOf(shouldOpenDialog)}
-    Dialog(
-        onDismissRequest = {openDialogState = false}
-    ){
-        PaymentUIDialog(
-            modifier =  Modifier.background(color = Color.White),
-            //openDialogCustom = openDialogState,
-            bodyContent = {
-                ViewPager(
-                    contentList = listOf({ShippingAndPayment_Page()}, {OrderSummary_Page()})
-                )
-            }
-        )
+    var openDialog by remember{ mutableStateOf(shouldOpenDialog)}
+    println("from Payment Dialog, openDialog $openDialog")
+
+    if(openDialog){
+        Dialog(
+            onDismissRequest = {openDialog = !openDialog},
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true
+            )
+        ){
+            DialogContent(
+                modifier =  Modifier.background(color = Color.White),
+                //openDialogCustom = openDialogState,
+                bodyContent = {
+                    ViewPager(
+                        contentList = listOf({ShippingAndPayment_Page()}, {OrderSummary_Page()})
+                    )
+                }
+            )
+        }
     }
 }
 
 
 @Composable
-fun PaymentUIDialog(
+fun DialogContent(
     modifier: Modifier = Modifier,
     openDialogCustom: MutableState<Boolean> = mutableStateOf(false),
     onCompleted:MutableState<Boolean> = mutableStateOf(false),
@@ -81,7 +69,8 @@ fun PaymentUIDialog(
     Column(modifier = modifier){
         //MainBody
         Row(
-            modifier= Modifier.weight(0.95f)
+            modifier= Modifier
+                .weight(0.95f)
                 .fillMaxWidth()
                 .background(color = Color.White)
         ){
@@ -93,7 +82,7 @@ fun PaymentUIDialog(
             modifier= Modifier//.weight(0.07f)
                 .fillMaxWidth()
                 .background(
-                    color = if(!onCompleted.value) ShoppingColors.LightGrey else ShoppingColors.Brown_300,
+                    color = if (!onCompleted.value) ShoppingColors.LightGrey else ShoppingColors.Brown_300,
                     shape = RoundedCornerShape(4.dp)
                 ),
             horizontalArrangement = Arrangement.Center
@@ -157,13 +146,15 @@ fun TitleSection(modifier:Modifier = Modifier, title:String = "Title Section"){
         verticalArrangement = Arrangement.Bottom
     ) {
         Text(
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
                 .padding(vertical = 4.dp),
             fontStyle = FontStyle.Italic,
             text = title,
         )
         MyDivider(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .align(Alignment.CenterHorizontally)
                 /*.background(color = Color.Transparent)*/,
             height = 2.dp
@@ -175,7 +166,9 @@ fun TitleSection(modifier:Modifier = Modifier, title:String = "Title Section"){
 fun ShippingAddress(modifier:Modifier = Modifier, user:User = User()){
     Column(modifier = modifier){
         Text(modifier = Modifier.padding(8.dp), text = "Shipping Address")
-        Card(modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp).fillMaxWidth()){
+        Card(modifier = Modifier
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .fillMaxWidth()){
             Column{
                 Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically){
                     Text(
@@ -227,13 +220,17 @@ fun PaymentMethods(
 ){
     Column(modifier = modifier){
         Column(
-            modifier = Modifier.padding(bottom = 8.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(bottom = 8.dp)
+                .fillMaxWidth(),
         ){
             Text(
                 modifier = Modifier.padding(start = 8.dp),
                 text = "Choose Payment Type"
             )
-            Spacer(modifier = Modifier.padding(8.dp).fillMaxWidth())
+            Spacer(modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth())
             LazyRow(horizontalArrangement = Arrangement.Center){
                 items(paymentInfos.size){ index ->
                     Spacer(modifier = Modifier.padding(4.dp))
@@ -294,7 +291,8 @@ fun TotalPrice(modifier:Modifier = Modifier, givenSubTotal:Double = 7.99){
             verticalArrangement = Arrangement.SpaceEvenly
         ){
             MyDivider(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
                     .background(color = Color.Transparent),
                 height = 2.dp
@@ -331,7 +329,8 @@ fun TotalPrice(modifier:Modifier = Modifier, givenSubTotal:Double = 7.99){
             }
             //Spacer(modifier=Modifier.padding(4.dp))
             MyDivider(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .align(Alignment.CenterHorizontally)
                     .background(color = Color.Transparent),
                 height = 2.dp

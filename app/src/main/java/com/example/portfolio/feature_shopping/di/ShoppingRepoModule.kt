@@ -1,5 +1,6 @@
-package com.example.portfolio.feature_secondactivity.di
+package com.example.portfolio.feature_shopping.di
 
+import androidx.lifecycle.SavedStateHandle
 import com.example.portfolio.feature_shopping.data.remote.PixabayAPI
 import com.example.portfolio.feature_shopping.data.repository.ShoppingReposImpl
 import com.example.portfolio.feature_shopping.domain.repository.webservices.ShoppingRepository
@@ -108,9 +109,13 @@ object ShoppingUseCaseModule {
 
     ):PaymentUseCases{
         return PaymentUseCases(
-            getUserInfo = GetUserInfo()
+            getUserInfo = GetUserInfo(),
+            getCart = GetCart()
         )
     }
+
+   /* @Provides
+    fun provideSavedState()= SavedStateHandle()*/
 
 
    /* @Provides

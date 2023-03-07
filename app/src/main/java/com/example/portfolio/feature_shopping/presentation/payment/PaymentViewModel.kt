@@ -1,11 +1,11 @@
 package com.example.portfolio.feature_shopping.presentation.payment
 
+import android.os.Environment
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.portfolio.feature_shopping.domain.model.PaymentInfo
 import com.example.portfolio.feature_shopping.domain.model.User
 import com.example.portfolio.feature_shopping.domain.use_case.PaymentUseCases
 import com.example.portfolio.utils.DataState
@@ -20,6 +20,9 @@ class PaymentViewModel @Inject constructor(
 
     private var _userInfo: MutableState<User> = mutableStateOf(User())
     var userInfo: State<User> = _userInfo
+
+    private var _openDialogState:MutableState<Boolean> = mutableStateOf(false)
+    var openDialogState:State<Boolean> = _openDialogState
 
     init{
         loadUserInfo()
@@ -42,4 +45,38 @@ class PaymentViewModel @Inject constructor(
         }
     }
 
+    private fun paymentEvent(event:PaymentUIEvent){
+        when(event){
+            is PaymentUIEvent.CompletedOrder ->{
+                closeDialog()
+            }
+            is PaymentUIEvent.CloseDialog -> {
+                closeDialog()
+            }
+            is PaymentUIEvent.OnBackPressed -> {
+                closeDialog()
+            }
+            is PaymentUIEvent.OpenDialog -> {
+                openDialog()
+            }
+
+
+        }
+    }
+
+    private fun closeDialog(){
+        _openDialogState.value = false
+    }
+    private fun openDialog(){
+        _openDialogState.value = true
+    }
+
+}
+
+sealed class PaymentUIEvent(){
+    object CompletedOrder :PaymentUIEvent()
+    object CloseDialog:PaymentUIEvent()
+    object OpenDialog:PaymentUIEvent()
+
+    object OnBackPressed:PaymentUIEvent()
 }

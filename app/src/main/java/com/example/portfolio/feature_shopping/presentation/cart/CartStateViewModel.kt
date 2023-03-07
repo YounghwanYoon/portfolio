@@ -10,6 +10,7 @@ import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.use_case.AddToCart
 import com.example.portfolio.feature_shopping.domain.use_case.GetCart
+import com.example.portfolio.feature_shopping.domain.use_case.PaymentUseCases
 import com.example.portfolio.feature_shopping.domain.use_case.RemoveReduceFromCart
 import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
 import com.example.portfolio.utils.SAVEDSTATEKEYS
@@ -23,13 +24,14 @@ class CartStateViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getCart: GetCart,
     private val addToCart: AddToCart,
-    private val removeReduceFromCart: RemoveReduceFromCart
+    private val removeReduceFromCart: RemoveReduceFromCart,
 ): ViewModel() {
     private val TAG = this.javaClass.name
     var cartUIState by mutableStateOf<Cart>(savedStateHandle.get<Cart>(SAVEDSTATEKEYS.CART) ?: Cart())
         private set
     var subTotal by mutableStateOf<Double>(cartUIState.subTotal)
         private set
+
     fun addItem(selectedItem: SellingItem){
         cartUIState.let{
             if(isContain(selectedItem,it)){
@@ -82,6 +84,10 @@ class CartStateViewModel @Inject constructor(
         }
         //return false
     }
+    fun removeAllItem(){
+        cartUIState = Cart()
+        savedStateHandle[SAVEDSTATEKEYS.CART] = cartUIState
+    }
     private fun updateCart() {
         savedStateHandle[SAVEDSTATEKEYS.CART] = cartUIState
     }
@@ -99,7 +105,6 @@ class CartStateViewModel @Inject constructor(
     private fun isContain(selectedItem:SellingItem, fromData:Cart):Boolean{
         return fromData.items.containsKey(selectedItem)
     }
-
     fun setCartUIEvent(event : CartUIEvent){
         when(event){
             is CartUIEvent.AddToCart -> {

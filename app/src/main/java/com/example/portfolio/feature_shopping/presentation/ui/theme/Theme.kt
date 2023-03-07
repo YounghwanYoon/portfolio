@@ -72,7 +72,7 @@ fun ShoppingTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        //typography = Typography,
         shapes = Shapes,
         content = content
     )
