@@ -9,6 +9,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -80,6 +81,7 @@ object ShoppingUseCaseModule {
     @Provides
     fun provideShoppingUseCase(
         repository: ShoppingRepository,
+        //savedStateHandle:SavedStateHandle,
         //cart: Cart,
     ):ShoppingUseCases{
         return ShoppingUseCases(
@@ -97,32 +99,18 @@ object ShoppingUseCaseModule {
                 _repository = repository,
                 //_cartData = cart,
             ),
-            getCart = GetCart(
-                //cart = cart
-            )
+            getCart = GetCart()//provideSavedState())
         )
     }
 
     @Singleton
     @Provides
     fun providePaymentUseCase(
-
+        //savedStateHandle:SavedStateHandle
     ):PaymentUseCases{
         return PaymentUseCases(
             getUserInfo = GetUserInfo(),
             getCart = GetCart()
         )
     }
-
-   /* @Provides
-    fun provideSavedState()= SavedStateHandle()*/
-
-
-   /* @Provides
-    fun provideCart(
-        savedStateHandle:SavedStateHandle
-    ): Cart {
-        return savedStateHandle.get(SAVEDSTATEKEYS.CART) ?: Cart()
-    }*/
-
 }

@@ -1,16 +1,13 @@
 package com.example.portfolio.feature_shopping.presentation.payment
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
@@ -20,11 +17,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.model.PaymentInfo
 import com.example.portfolio.feature_shopping.domain.model.User
+import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
 import com.example.portfolio.feature_shopping.presentation.utils.*
+import com.example.portfolio.feature_shopping.presentation.utils.Helper.nonScaledSp
 import java.util.*
 
 //https://stackoverflow.com/questions/68852110/show-custom-alert-dialog-in-jetpack-compose
@@ -32,17 +31,43 @@ import java.util.*
 fun PaymentDialogScreen(
     shouldOpenDialog: Boolean,
     title:String ="Order Summary",
-    onCompleted: (Boolean) -> Unit  = {false},
+    onDismissedCalled: () -> Unit,
+    cartStateViewModel: CartStateViewModel = hiltViewModel(),
+    paymentViewModel: PaymentViewModel = hiltViewModel()
+
 ){
     var openDialog by remember{ mutableStateOf(shouldOpenDialog)}
-    println("from Payment Dialog, openDialog $openDialog")
+    var shouldChangeButtonColor by remember{ mutableStateOf(false) }
 
+    println("from Payment Dialog, openDialog $openDialog")
+    println("shouldChnageButton Color $shouldChangeButtonColor")
     if(openDialog){
+        CustomDialog(
+            onDismissRequest = {
+                openDialog = !openDialog
+                onDismissedCalled()
+            },
+            width = 0.9f
+        ){
+            DialogContent(
+                modifier =  Modifier.background(color = Color.White),
+                changeButtonColor = if(shouldChangeButtonColor) true else false,
+                //openDialogCustom = openDialogState,
+                bodyContent = {
+                    CustomViewPager(
+                        contentList = listOf({ShippingAndPayment_Page()}, {OrderSummary_Page()}),
+                        onLastPage = {shouldChangeButtonColor = true}
+                    )
+                }
+            )
+        }
+    }
+    /*if(openDialog){
         Dialog(
             onDismissRequest = {openDialog = !openDialog},
             properties = DialogProperties(
                 dismissOnBackPress = true,
-                dismissOnClickOutside = true
+                dismissOnClickOutside = true,
             )
         ){
             DialogContent(
@@ -55,15 +80,47 @@ fun PaymentDialogScreen(
                 }
             )
         }
-    }
+    }*/
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun CustomDialog(
+    onDismissRequest: () -> Unit,
+    properties: DialogProperties = DialogProperties(),
+    width:Float = 0.9f,
+    content: @Composable () -> Unit,
+) {
+    println("CustomDialog  is called")
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        // We are copying the passed properties
+        // then setting usePlatformDefaultWidth to false
+        properties = properties.let {
+            DialogProperties(
+                dismissOnBackPress = it.dismissOnBackPress,
+                dismissOnClickOutside = it.dismissOnClickOutside,
+                securePolicy = it.securePolicy,
+                usePlatformDefaultWidth = false
+            )
+        },
+        content = {
+            Surface(
+                color = Color.Transparent,
+                //this is where to control size of dialog
+                modifier = Modifier.fillMaxWidth(width),
+                content = content
+            )
+        }
+    )
+}
 
 @Composable
 fun DialogContent(
     modifier: Modifier = Modifier,
-    openDialogCustom: MutableState<Boolean> = mutableStateOf(false),
-    onCompleted:MutableState<Boolean> = mutableStateOf(false),
+    //openDialogCustom: MutableState<Boolean> = mutableStateOf(false),
+    changeButtonColor: Boolean,
+    //onCompleted:MutableState<Boolean> = mutableStateOf(false),
     bodyContent:@Composable () -> Unit,
 ){
     Column(modifier = modifier){
@@ -82,20 +139,24 @@ fun DialogContent(
             modifier= Modifier//.weight(0.07f)
                 .fillMaxWidth()
                 .background(
-                    color = if (!onCompleted.value) ShoppingColors.LightGrey else ShoppingColors.Brown_300,
-                    shape = RoundedCornerShape(4.dp)
+                    color = if(!changeButtonColor) ShoppingColors.LightGrey else ShoppingColors.Brown_300,
+                    //shape = RoundedCornerShape(4.dp)
                 ),
             horizontalArrangement = Arrangement.Center
         ){
             TextButton(
                 modifier = Modifier,
-                enabled = if(onCompleted.value == false) false else true,
-                onClick = {onCompleted.value = false},
+                enabled = changeButtonColor,
+                onClick = {
+                    println("Complete Order Btn is clicked")
+                    //onCompleted.value = false
+                    //changeBtnColorState = false
+                },
             ){
                 Text(
                     text = "Complete Order",
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize= 26.sp,
+                    fontSize= 26.nonScaledSp,
                     color = Color.White
                 )
             }
@@ -123,7 +184,11 @@ fun ShippingAndPayment_Page(
 
 }
 @Composable
-fun OrderSummary_Page(modifier:Modifier = Modifier, user:User = User(), title:String = "Order Summary"){
+fun OrderSummary_Page(
+    modifier:Modifier = Modifier,
+    user:User = User(),
+    title:String = "Order Summary",
+){
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ){

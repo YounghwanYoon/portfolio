@@ -27,7 +27,7 @@ fun setNavGraph(navController: NavHostController){
 
     NavHost(
         navController = navController,
-        startDestination = Screens.Cart.rout//Screens.Splash.rout
+        startDestination = Screens.Splash.rout//Screens.Splash.rout
     ){
 
         composable(route = Screens.Main.rout){ navBackStackEntry->

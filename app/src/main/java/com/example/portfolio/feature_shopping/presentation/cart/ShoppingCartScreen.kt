@@ -153,7 +153,6 @@ fun OrderButton(
     //should be closed on back button && complete order
     var isCompletedOrder by remember { mutableStateOf(false) }
 
-
     Surface(
         color=Color.White.copy(alpha=0.1f),
     ){
@@ -162,7 +161,7 @@ fun OrderButton(
         ){
             FloatingActionButton(
                 onClick = {
-                    println("openDialog from parent UI - ${openDialog}")
+                    //println("openDialog from parent UI - ${openDialog}")
                     openDialog = true
                 },
                 shape = RoundedCornerShape(8.dp),
@@ -171,7 +170,6 @@ fun OrderButton(
                     .defaultMinSize(minWidth = 75.dp, minHeight = 50.dp)
                     .fillMaxWidth(0.8f),
             ){
-
                 Text(
                     text = text,
                     textAlign = TextAlign.Justify,
@@ -180,17 +178,19 @@ fun OrderButton(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                 )
                 if(openDialog){
+
+                    println("OrderButton is clicked")
                     PaymentDialogScreen(
-                        shouldOpenDialog = openDialog
+                        shouldOpenDialog = openDialog,
+                        onDismissedCalled = {openDialog = !openDialog}
                     )
-                    openDialog = false
                 }
             }
         }
     }
 }
 
-
+typealias Callback = (bool:Boolean) -> Boolean
 
 
 //@Preview(widthDp = 360, heightDp = 640)
@@ -367,7 +367,7 @@ fun CartEachItem(
                     Text(
                         text = curQuantity.toString(),
                         fontStyle = FontStyle.Italic,
-                        fontSize = 18.sp
+                        fontSize = 18.nonScaledSp
                     )
                     IconButton(
                         onClick = addListener,
@@ -389,7 +389,7 @@ fun CartEachItem(
                 ){
                     Text(
                         text ="remove",
-                        fontSize = 12.sp,
+                        fontSize = 12.nonScaledSp,
                         color = Color.Blue
                     )
                 }

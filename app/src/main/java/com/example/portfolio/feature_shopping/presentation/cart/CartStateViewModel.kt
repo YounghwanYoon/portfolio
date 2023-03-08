@@ -27,7 +27,7 @@ class CartStateViewModel @Inject constructor(
     private val removeReduceFromCart: RemoveReduceFromCart,
 ): ViewModel() {
     private val TAG = this.javaClass.name
-    var cartUIState by mutableStateOf<Cart>(savedStateHandle.get<Cart>(SAVEDSTATEKEYS.CART) ?: Cart())
+    var cartUIState by mutableStateOf<Cart>(getCart())//savedStateHandle.get<Cart>(SAVEDSTATEKEYS.CART) ?: Cart())
         private set
     var subTotal by mutableStateOf<Double>(cartUIState.subTotal)
         private set

@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,9 +37,10 @@ fun MyDivider(modifier: Modifier = Modifier, height: Dp = 2.dp, shadowElevation:
 //reference : https://medium.com/@prashantappdeveloper/viewpager-in-jetpack-compose-with-dot-indicators-within-minutes-a2779970534e
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun ViewPager(
+fun CustomViewPager(
     modifier: Modifier = Modifier,
     color: Color = ShoppingColors.Brown_300,
+    onLastPage: ()->Unit = {},
     contentList:List<@Composable () ->Unit> = listOf(
         { Text(modifier = Modifier, text = "Page 1") },
         { Text(modifier = Modifier, text = "Page 2") },
@@ -47,6 +49,15 @@ fun ViewPager(
 ){
     //val slideContent = remember { mutableStateOf(Text("Slide")) }
     val state = rememberPagerState(initialPage = 0)
+
+    val lastPage = remember{contentList.size -1}
+
+
+    println("current Page is ${state.currentPage}")
+    if(state.currentPage == lastPage){
+        println("reached last page ${lastPage}")
+        onLastPage()
+    }
 
     Column(
         modifier = modifier.wrapContentHeight(),
