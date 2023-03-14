@@ -3,7 +3,10 @@ package com.example.portfolio.feature_shopping.presentation.main
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.ui.res.booleanResource
+import androidx.compose.ui.res.colorResource
 import androidx.navigation.compose.rememberNavController
+import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
 import com.example.portfolio.feature_shopping.presentation.utils.setNavGraph
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,6 +22,9 @@ class ShoppingMain : ComponentActivity() {
         setContent {
             ShoppingTheme {
 
+
+                val isTablet = booleanResource(id = R.bool.is_tablet)
+                val color = colorResource(id = R.color.brown_300)
                 val navController = rememberNavController()
                 setNavGraph(navController)
 

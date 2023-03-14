@@ -1,11 +1,12 @@
 package com.example.portfolio.feature_shopping.presentation.payment
 
-import android.os.Environment
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.model.User
 import com.example.portfolio.feature_shopping.domain.use_case.PaymentUseCases
 import com.example.portfolio.utils.DataState
@@ -15,6 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PaymentViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val paymentUseCases: PaymentUseCases
 ) : ViewModel(){
 
@@ -23,6 +25,9 @@ class PaymentViewModel @Inject constructor(
 
     private var _openDialogState:MutableState<Boolean> = mutableStateOf(false)
     var openDialogState:State<Boolean> = _openDialogState
+
+    private var _cartData:MutableState<Cart> = mutableStateOf(paymentUseCases.getCart())
+    var cartData:State<Cart> = _cartData
 
     init{
         loadUserInfo()
@@ -44,25 +49,22 @@ class PaymentViewModel @Inject constructor(
            }
         }
     }
-
     private fun paymentEvent(event:PaymentUIEvent){
         when(event){
-            is PaymentUIEvent.CompletedOrder ->{
-                closeDialog()
+            is PaymentUIEvent.ClickedCompleteOrder ->{
+                removeAllItems()
             }
-            is PaymentUIEvent.CloseDialog -> {
-                closeDialog()
-            }
+
             is PaymentUIEvent.OnBackPressed -> {
                 closeDialog()
             }
-            is PaymentUIEvent.OpenDialog -> {
-                openDialog()
-            }
-
-
         }
     }
+
+    fun removeAllItems(){
+        paymentUseCases.removeReduceCart.removeAllItem()
+    }
+
 
     private fun closeDialog(){
         _openDialogState.value = false
@@ -74,9 +76,6 @@ class PaymentViewModel @Inject constructor(
 }
 
 sealed class PaymentUIEvent(){
-    object CompletedOrder :PaymentUIEvent()
-    object CloseDialog:PaymentUIEvent()
-    object OpenDialog:PaymentUIEvent()
-
+    object ClickedCompleteOrder :PaymentUIEvent()
     object OnBackPressed:PaymentUIEvent()
 }

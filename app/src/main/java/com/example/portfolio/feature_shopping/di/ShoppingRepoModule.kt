@@ -106,11 +106,15 @@ object ShoppingUseCaseModule {
     @Singleton
     @Provides
     fun providePaymentUseCase(
+        repository: ShoppingRepository,
         //savedStateHandle:SavedStateHandle
     ):PaymentUseCases{
         return PaymentUseCases(
             getUserInfo = GetUserInfo(),
-            getCart = GetCart()
+            getCart = GetCart(),
+            removeReduceCart = RemoveReduceFromCart(
+                _repository = repository,
+            )
         )
     }
 }

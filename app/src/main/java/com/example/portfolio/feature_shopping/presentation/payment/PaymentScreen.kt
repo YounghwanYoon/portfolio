@@ -1,27 +1,35 @@
 package com.example.portfolio.feature_shopping.presentation.payment
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.model.PaymentInfo
 import com.example.portfolio.feature_shopping.domain.model.User
-import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
 import com.example.portfolio.feature_shopping.presentation.utils.*
 import com.example.portfolio.feature_shopping.presentation.utils.Helper.nonScaledSp
 import java.util.*
@@ -32,9 +40,11 @@ fun PaymentDialogScreen(
     shouldOpenDialog: Boolean,
     title:String ="Order Summary",
     onDismissedCalled: () -> Unit,
-    cartStateViewModel: CartStateViewModel = hiltViewModel(),
-    paymentViewModel: PaymentViewModel = hiltViewModel()
-
+    cartData: Cart,
+    paymentViewModel: PaymentViewModel = hiltViewModel(),
+    removeItems: () ->Unit,
+    onComplete: () ->Unit,
+    confirmNotificationService:ConfirmNotificationService = ConfirmNotificationService(LocalContext.current)
 ){
     var openDialog by remember{ mutableStateOf(shouldOpenDialog)}
     var shouldChangeButtonColor by remember{ mutableStateOf(false) }
@@ -52,35 +62,36 @@ fun PaymentDialogScreen(
             DialogContent(
                 modifier =  Modifier.background(color = Color.White),
                 changeButtonColor = if(shouldChangeButtonColor) true else false,
+                onCompleted = {
+                    //TODO::
+                    // 1. Complete Order Summary Page by adding Cart List - completed but improvement is needed
+                    // 2. Show Order Confirmation Page
+                    // 3. Add Order History Page
+                    // 4. Update CartList to Empty from CartViewModel. - completed
+                    // Maybe try to pass savedstate from viewmodel to usecase. - failed
+
+                    //paymentViewModel.removeAllItems()
+                    //cartStateViewModel.removeAllItem()
+                    removeItems()
+                    onComplete()
+                    openDialog= false
+                    confirmNotificationService.showNotification(123456)
+                },
                 //openDialogCustom = openDialogState,
                 bodyContent = {
                     CustomViewPager(
-                        contentList = listOf({ShippingAndPayment_Page()}, {OrderSummary_Page()}),
-                        onLastPage = {shouldChangeButtonColor = true}
+                        contentList = listOf(
+                            {ShippingAndPayment_Page()},
+                            {OrderSummary_Page(cartData = cartData)}
+                        ),
+                        onLastPage = {
+                            shouldChangeButtonColor = true
+                        }
                     )
                 }
             )
         }
     }
-    /*if(openDialog){
-        Dialog(
-            onDismissRequest = {openDialog = !openDialog},
-            properties = DialogProperties(
-                dismissOnBackPress = true,
-                dismissOnClickOutside = true,
-            )
-        ){
-            DialogContent(
-                modifier =  Modifier.background(color = Color.White),
-                //openDialogCustom = openDialogState,
-                bodyContent = {
-                    ViewPager(
-                        contentList = listOf({ShippingAndPayment_Page()}, {OrderSummary_Page()})
-                    )
-                }
-            )
-        }
-    }*/
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -120,7 +131,7 @@ fun DialogContent(
     modifier: Modifier = Modifier,
     //openDialogCustom: MutableState<Boolean> = mutableStateOf(false),
     changeButtonColor: Boolean,
-    //onCompleted:MutableState<Boolean> = mutableStateOf(false),
+    onCompleted: () -> Unit,
     bodyContent:@Composable () -> Unit,
 ){
     Column(modifier = modifier){
@@ -139,7 +150,7 @@ fun DialogContent(
             modifier= Modifier//.weight(0.07f)
                 .fillMaxWidth()
                 .background(
-                    color = if(!changeButtonColor) ShoppingColors.LightGrey else ShoppingColors.Brown_300,
+                    color = if (!changeButtonColor) ShoppingColors.LightGrey else ShoppingColors.Brown_300,
                     //shape = RoundedCornerShape(4.dp)
                 ),
             horizontalArrangement = Arrangement.Center
@@ -149,6 +160,7 @@ fun DialogContent(
                 enabled = changeButtonColor,
                 onClick = {
                     println("Complete Order Btn is clicked")
+                    onCompleted()
                     //onCompleted.value = false
                     //changeBtnColorState = false
                 },
@@ -163,7 +175,6 @@ fun DialogContent(
         }
     }
 }
-
 @Composable
 fun ShippingAndPayment_Page(
     modifier:Modifier = Modifier,
@@ -183,24 +194,65 @@ fun ShippingAndPayment_Page(
     }
 
 }
+
+@Preview(
+    name = "OrderSummary",
+    widthDp = 360,
+    heightDp = 640,
+)
 @Composable
 fun OrderSummary_Page(
     modifier:Modifier = Modifier,
-    user:User = User(),
+    cartData:Cart = Cart(),
     title:String = "Order Summary",
 ){
+
+    var cartItems by remember {
+        mutableStateOf(cartData.items.toList())
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ){
         TitleSection(modifier = Modifier.weight(0.05f), title = title)
-        Card(modifier.weight(0.90f)){
-            Row(){
-                Text("List of Items")
-                Text("Item Quantity")
+        Card(
+            modifier
+                .weight(0.90f)
+                .fillMaxWidth(0.90f)){
+            LazyColumn(){
+                items(cartItems){(sellingItem, quantity)->
+                    Row(modifier = Modifier.padding(8.dp)){
+                        Surface(
+                            modifier = Modifier.weight(0.2f)
+                            // color = Color.Black.copy(alpha=0.0f)
+                        ){
+                            sellingItem.let{
+                                AsyncImage(
+                                    modifier = Modifier
+                                        .border(
+                                            width = 2.dp,
+                                            shape = RoundedCornerShape(8.dp),
+                                            color = MaterialTheme.colorScheme.onTertiary
+                                        )
+                                        .clip(shape = RoundedCornerShape(8.dp)),
+                                    model = it.imageUrl,
+                                    contentDescription = sellingItem.description?: "Cart Item Image",
+                                    placeholder = painterResource(R.drawable.coffee_animation),
+                                )
+                            }
+
+                        }
+                        Spacer(modifier.weight(0.6f))
+                        Text(
+                            modifier = Modifier.weight(0.2f),
+                            text = "Qty: $quantity"
+                        )
+                    }
+                }
             }
+
         }
         MyDivider()
-        Text("Total Quantity")
+        Text("Total Quantity - ${cartData.totalQuantity}")
     }
 }
 
