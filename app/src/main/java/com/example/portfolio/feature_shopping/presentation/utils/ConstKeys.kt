@@ -1,6 +1,6 @@
 package com.example.portfolio.utils
 
-object SAVEDSTATEKEYS {
+object ConstKeys {
     const val USER = "user"
     const val CART = "cart"
     const val PAYMENT = "payment"
@@ -8,3 +8,4 @@ object SAVEDSTATEKEYS {
     const val SPECIAL_ITEM = "specialItems"
     const val SELECTED_ITEM = "selectedItem"
 }
+

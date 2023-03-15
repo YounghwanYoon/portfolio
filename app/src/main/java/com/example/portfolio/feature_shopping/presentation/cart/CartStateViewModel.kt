@@ -10,10 +10,9 @@ import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.use_case.AddToCart
 import com.example.portfolio.feature_shopping.domain.use_case.GetCart
-import com.example.portfolio.feature_shopping.domain.use_case.PaymentUseCases
 import com.example.portfolio.feature_shopping.domain.use_case.RemoveReduceFromCart
 import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
-import com.example.portfolio.utils.SAVEDSTATEKEYS
+import com.example.portfolio.utils.ConstKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -85,11 +84,13 @@ class CartStateViewModel @Inject constructor(
         //return false
     }
     fun removeAllItem(){
+        removeReduceFromCart.removeAllItem()
         cartUIState = Cart()
-        savedStateHandle[SAVEDSTATEKEYS.CART] = cartUIState
+        subTotal = 0.00
+        //savedStateHandle[SAVEDSTATEKEYS.CART] = cartUIState
     }
     private fun updateCart() {
-        savedStateHandle[SAVEDSTATEKEYS.CART] = cartUIState
+        savedStateHandle[ConstKeys.CART] = cartUIState
     }
     private fun formatHelper(value:Double):Double{
         val decimalFormatter = DecimalFormat("#.##")
@@ -97,7 +98,6 @@ class CartStateViewModel @Inject constructor(
 
         return decimalFormatter.format(value).toDouble()
     }
-
     fun getCurItemPrice(selectItem:SellingItem):Double{
         //Quantity times price
         return cartUIState.items[selectItem]!!.times(selectItem.price)

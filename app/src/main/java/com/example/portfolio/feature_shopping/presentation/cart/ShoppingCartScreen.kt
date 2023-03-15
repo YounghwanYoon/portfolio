@@ -69,11 +69,14 @@ fun ShoppingCartScreen(
 fun ShoppingCartBody(
     modifier:Modifier = Modifier,
     cartStateVM: CartStateViewModel,
-    subTotal: Double = cartStateVM.subTotal/*cartStateVM.subTotal.collectAsStateWithLifecycle(
+    subTotal: Double = cartStateVM.subTotal,/*cartStateVM.subTotal.collectAsStateWithLifecycle(
         lifecycle = LocalLifecycleOwner.current.lifecycle,
         minActiveState = Lifecycle.State.STARTED
     )*/
 ) {
+
+    var cartVM by remember {mutableStateOf(cartStateVM)}
+
     Surface(
         modifier = modifier,
         shadowElevation = 8.dp
@@ -133,7 +136,9 @@ fun ShoppingCartBody(
                 shadowElevation = 8.dp
             ) {
                 Box() {
-                    OrderButton()
+                    OrderButton(
+                        cartVM = cartStateVM
+                    )
                 }
             }
         }
@@ -147,12 +152,10 @@ fun OrderButton(
     modifier:Modifier = Modifier
         .fillMaxWidth()
         .padding(start = 8.dp, end = 8.dp),
-    text:String = "Place Order"
+    text:String = "Place Order",
+    cartVM:CartStateViewModel
 ){
     var openDialog by remember{ mutableStateOf(false) }
-    //should be closed on back button && complete order
-    var isCompletedOrder by remember { mutableStateOf(false) }
-
     Surface(
         color=Color.White.copy(alpha=0.1f),
     ){
@@ -182,16 +185,20 @@ fun OrderButton(
                     println("OrderButton is clicked")
                     PaymentDialogScreen(
                         shouldOpenDialog = openDialog,
-                        onDismissedCalled = {openDialog = !openDialog}
+                        onDismissedCalled = {
+                            openDialog = !openDialog
+
+                        },
+                        //cartStateViewModel = cartVM,
+                        cartData  = cartVM.cartUIState,
+                        removeItems = {cartVM.removeAllItem()},
+                        onComplete = {openDialog = !openDialog}
                     )
                 }
             }
         }
     }
 }
-
-typealias Callback = (bool:Boolean) -> Boolean
-
 
 //@Preview(widthDp = 360, heightDp = 640)
 @Composable

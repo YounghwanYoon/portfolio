@@ -9,7 +9,7 @@ import com.example.portfolio.feature_shopping.domain.model.ShoppingUIEvent
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
 import com.example.portfolio.feature_shopping.domain.use_case.ShoppingUseCases
 import com.example.portfolio.utils.Resource
-import com.example.portfolio.utils.SAVEDSTATEKEYS
+import com.example.portfolio.utils.ConstKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -49,7 +49,7 @@ class ShoppingItemStateViewModel @Inject constructor(
     private val _sellingItemState = MutableStateFlow<Resource<List<SellingItem>>>(Resource.Loading(emptyList()))
     val sellingItemState = _sellingItemState.asStateFlow()
 
-    val selectedItem = savedStateHandle.getStateFlow<SellingItem?>(SAVEDSTATEKEYS.SELECTED_ITEM, null)
+    val selectedItem = savedStateHandle.getStateFlow<SellingItem?>(ConstKeys.SELECTED_ITEM, null)
 
     init{
         viewModelScope.launch{
@@ -211,7 +211,7 @@ class ShoppingItemStateViewModel @Inject constructor(
         return sellingItems.value[itemId]
     }
     fun setSelectedItem(item: SellingItem){
-        savedStateHandle[SAVEDSTATEKEYS.SELECTED_ITEM] = item
+        savedStateHandle[ConstKeys.SELECTED_ITEM] = item
     }
 
 }
