@@ -17,14 +17,19 @@ import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -34,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -53,6 +59,7 @@ import com.example.portfolio.feature_shopping.domain.model.ShoppingUIEvent
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
 import com.example.portfolio.feature_shopping.domain.use_case.*
 import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
+import com.example.portfolio.feature_shopping.presentation.search.util.SearchBarState
 import com.example.portfolio.feature_shopping.presentation.utils.MyDivider
 import com.example.portfolio.feature_shopping.presentation.utils.Screens
 import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
@@ -96,6 +103,7 @@ fun ShoppingMainScreen(
     cartStateVM: CartStateViewModel
 ) {
 
+
     val configuration = LocalConfiguration.current
     val screenHeight: Dp
     val screenWidth: Dp
@@ -114,9 +122,15 @@ fun ShoppingMainScreen(
             .height(screenHeight)
     ) {
         Header(
-            Modifier
+            modifier = Modifier
                 .weight(2.0f)
-                .background(color = MaterialTheme.colorScheme.background))
+                .background(color = MaterialTheme.colorScheme.background),
+            onSearchClicked = {
+                navController.navigate(Screens.Search.rout) {
+                    popUpTo(Screens.Search.rout)
+                }
+            }
+        )
         MyDivider()
         //Spacer(modifier = Modifier.height(1.dp))
         Body(Modifier.weight(7f), screenHeight, screenWidth, navController = navController, itemStateVM = itemStateVM)
@@ -142,31 +156,24 @@ fun PreviewHeader() {
 //***HEADER***
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun Header(modifier: Modifier = Modifier) {
-    val textState = remember { mutableStateOf(TextFieldValue("Search")) }
+fun Header(
+    modifier: Modifier = Modifier,
+    onSearchClicked: () -> Unit
+
+) {
     Row(modifier = modifier) {
         Box() {
             Column(
                 modifier = Modifier,
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center
             ) {
-
                 Row(
                     modifier = Modifier
-                    //.fillMaxWidth()
-                    //.background(Color.White)
-//                    ,//padding(top = 4.dp, bottom = 4.dp),
-//                    horizontalArrangement = Arrangement.Center
-
                 ) {
                     ConstraintLayout(
                         modifier = Modifier
                             .fillMaxWidth()
-
                     ) {
                         val (buttonCart, logoTitle, search) = createRefs()
-
                         Text(
                             modifier = Modifier
                                 .padding(8.dp)
@@ -200,178 +207,31 @@ fun Header(modifier: Modifier = Modifier) {
                                 contentDescription = "Shopping Cart"
                             )
                         }
+                        //Search Bar Section
 
-                        SearchView(
+                        androidx.compose.material3.TextButton(
                             modifier = Modifier
-                                .padding(top = 0.dp)
-                                .constrainAs(search) {
-                                    top.linkTo(logoTitle.bottom, margin = 4.dp)
-                                    bottom.linkTo(parent.bottom, margin = 0.dp)
-                                    absoluteLeft.linkTo(parent.absoluteLeft)
-                                    absoluteRight.linkTo(parent.absoluteRight)
-                                },
-                            textState
-                        )
-                    }
-
-/*            Image(
-                modifier = Modifier
-                    .clickable { }
-                    .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
-                    //.clip(CircleShape)
-                    .background(Color.LightGray, RoundedCornerShape(8.dp))
-                    .clip(RectangleShape),
-                painter = painterResource(drawable.ic_face_48dp),
-                contentDescription = "Logo",
-            )
-            */
-
-                }
-
-/*
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Transparent)
-                        .padding(start = 24.dp, end = 24.dp),
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    com.example.portfolio.feature_shopping.presentation.main.SearchView(textState)
-                }*/
-/*
-                val padding = 20.dp
-                val density = LocalDensity.current
-                Surface(
-                    shape = RectangleShape,
-                    color = Color.White,
-                    tonalElevation = 12.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(14.dp)
-                        //.padding(padding)
-                        .drawWithContent {
-                            val paddingPx = with(density) { padding.toPx() }
-                            clipRect(
-                                left = 0f,//-paddingPx,
-                                top = 0f,
-                                right = 0f,
-                                bottom = size.height + paddingPx
-                            ) {
-                                this@drawWithContent.drawContent()
-                            }
+                            .padding(top = 0.dp)
+                            .constrainAs(search) {
+                                top.linkTo(logoTitle.bottom, margin = 4.dp)
+                                bottom.linkTo(parent.bottom, margin = 0.dp)
+                                absoluteLeft.linkTo(parent.absoluteLeft)
+                                absoluteRight.linkTo(parent.absoluteRight)
+                            },
+                            onClick = onSearchClicked
+                        ) {
+                            Text(
+                                text = "Seach Your Bean..."
+                            )
                         }
-                ) {
-                    Spacer(modifier.height(20.dp))
-                    com.example.portfolio.feature_shopping.presentation.main.MyDivider()
-                }
-
-*/
-
-            }
-        }
-
-    }
-
-
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SearchView(
-    modifier: Modifier,
-    state: MutableState<TextFieldValue> = mutableStateOf<TextFieldValue>(TextFieldValue("Search"))
-) {
-    val options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5")
-    var exp by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("") }
-
-    androidx.compose.material3.ExposedDropdownMenuBox(
-        modifier = modifier.background(color = Color.White),
-        expanded = exp,
-        onExpandedChange = { exp = !exp }) {
-        TextField(
-            modifier = Modifier.background(
-                color = Color.White,//MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(24.dp)
-            ),
-            value = selectedOption,
-            onValueChange = { selectedOption = it },
-            label = { Text("Search") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = exp)
-            },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
-        )
-        // filter options based on text field value (i.e. crude autocomplete)
-        val filterOpts = options.filter { it.contains(selectedOption, ignoreCase = true) }
-        if (filterOpts.isNotEmpty()) {
-            ExposedDropdownMenu(expanded = exp, onDismissRequest = { exp = false }) {
-                filterOpts.forEach { option ->
-                    androidx.compose.material3.DropdownMenuItem(
-                        onClick = {
-                            selectedOption = option
-                            exp = false
-                        },
-                        text = { Text(text = option) }
-                    )
-                }
-            }
-        }
-    }
-
-
-    /*TextField(
-        value = state.value,
-        onValueChange = { value ->
-            state.value = value
-        },
-
-        modifier = Modifier.fillMaxWidth()
-            .clickable { }
-            .background(color = ShoppingColors.DarkGrey, shape = RoundedCornerShape(4.dp)),
-        textStyle = TextStyle(color = Color.White, fontSize = 18.sp),
-        leadingIcon = {
-            Icon(
-                Icons.Default.Search,
-                contentDescription = "",
-                modifier = Modifier
-                    .padding(15.dp)
-                    .size(24.dp)
-            )
-        },
-        trailingIcon = {
-            if (state.value != TextFieldValue("")) {
-                IconButton(
-                    onClick = {
-                        state.value =
-                            TextFieldValue("") // Remove text from TextField when you press the 'X' icon
                     }
-                ) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = "",
-                        modifier = Modifier
-                            .padding(15.dp)
-                            .size(24.dp)
-                    )
                 }
             }
-        },
-        singleLine = true,
+        }
 
-        //shape = RectangleShape, // The TextFiled has rounded corners top left and right by default
-        colors = TextFieldDefaults.textFieldColors(
-            textColor = Color.White,
-            cursorColor = Color.White,
-            leadingIconColor = Color.White,
-            trailingIconColor = Color.White,
-            //backgroundColor = ShoppingColors.LightColors.primary,//MaterialTheme.colors.primary,
-            //focusedIndicatorColor = Color.Transparent,
-            //unfocusedIndicatorColor = Color.Transparent,
-            //disabledIndicatorColor = Color.Transparent
-        ),
-    )*/
+    }
 }
+
 
 @Composable
 fun ItemList(state: MutableState<TextFieldValue>) {

@@ -14,5 +14,15 @@ data class SellingItem(
     var quantity:Int = 0
 ):Parcelable{
 
+    fun doesMatchSearchQuery(query: String): Boolean {
+        val matchingCombinations = listOf(
+            title,
+            "${title.first()} ${title.last()}",
+        )
+
+        return matchingCombinations.any {
+            it.contains(query, ignoreCase = true)
+        }
+    }
 }
 
