@@ -103,6 +103,19 @@ object ShoppingUseCaseModule {
         )
     }
 
+
+    @Singleton
+    @Provides
+    fun provideSearchUseCase(
+        repository: ShoppingRepository,
+    ):SearchUseCase{
+        return SearchUseCase(
+            getLocalData = GetItemsFromLocalDB(repository)
+        )
+    }
+
+
+
     @Singleton
     @Provides
     fun providePaymentUseCase(

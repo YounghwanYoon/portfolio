@@ -26,7 +26,6 @@ fun setNavGraph(navController: NavHostController){
 
     val itemStateViewModel:ShoppingItemStateViewModel = hiltViewModel()
     val cartStateViewModel: CartStateViewModel = hiltViewModel()
-    val searchStateViewModel:SearchViewModel = hiltViewModel()
 
     NavHost(
         navController = navController,
@@ -43,6 +42,8 @@ fun setNavGraph(navController: NavHostController){
         }
 
         composable(route = Screens.Search.rout){navBackStackEntry ->
+            val searchStateViewModel:SearchViewModel = hiltViewModel()
+
             SearchScreen(
                 navController = navController,
                 searchVM = searchStateViewModel

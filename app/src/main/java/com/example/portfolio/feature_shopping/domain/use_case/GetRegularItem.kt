@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetRegularItem @Inject constructor(
-    private val repository: ShoppingRepository
+    private val repository: ShoppingRepository,
 ){
     operator fun invoke(): Flow<Resource<List<SellingItem>>> {
-        return repository.getSellingItem()
+        return repository.fetchAndLoadSellingItems()
     }
 }

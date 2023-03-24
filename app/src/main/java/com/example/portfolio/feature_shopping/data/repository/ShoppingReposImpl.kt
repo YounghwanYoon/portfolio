@@ -34,7 +34,7 @@ class ShoppingReposImpl @Inject constructor(
 ) : ShoppingRepository {
     private val TAG = "ShoppingReposImpl"
 
-    override fun getSpecial(): Flow<Resource<List<SpecialItem>>> {
+    override fun fetchAndLoadSpecialItems(): Flow<Resource<List<SpecialItem>>> {
         Log.d(TAG, "getSpecial: is called")
         return flow<Resource<List<SpecialItem>>> {
             val entityData = getDataFromRoom(ShoppingDataType.SpecialItems()) as List<SpecialItemEntity>
@@ -122,7 +122,7 @@ class ShoppingReposImpl @Inject constructor(
         class SellingItems(val listData: List<Any>? = null) : ShoppingDataType(listData)
     }
 
-    override fun getSellingItem(): Flow<Resource<List<SellingItem>>> {
+    override fun fetchAndLoadSellingItems(): Flow<Resource<List<SellingItem>>> {
         Log.d(TAG, "getSellingItem: is called()")
 
         return flow<Resource<List<SellingItem>>> {
@@ -213,15 +213,11 @@ class ShoppingReposImpl @Inject constructor(
                 Log.d(
                     TAG, "getSellingItem: size of newData = ${listOfSellingItem.size}"
                 )
+
                 //when retrieving data from server was successful
                 //save them to RoomDB
                 insertItem(ShoppingDataType.SellingItems(listOfSellingItem))
-
-                emit(
-                    Resource.Success(
-                        listOfSellingItem
-                    )
-                )
+                emit(Resource.Success(listOfSellingItem))
             } else emit(Resource.Error("There is no data from server"))
 
 
@@ -263,17 +259,21 @@ class ShoppingReposImpl @Inject constructor(
 
     }
 
-    override suspend fun getDataFromRoom(data: ShoppingDataType): List<Any> {
-        when (data) {
+
+    override suspend fun  getDataFromRoom(dataType: ShoppingDataType): List<Any> {
+        when (dataType) {
             is ShoppingDataType.SellingItems -> {
-                return itemDao.getSellingItems()
+                return localMapperSellingItem
+                    .mapToListOf(itemDao.getSellingItems()) //Resource.Success(model)
             }
             is ShoppingDataType.SpecialItems -> {
-                return specialDao.getSpecialItems()
+                val dataEntity = specialDao.getSpecialItems()
+                return localMapperSpecialItem.mapToListOf(dataEntity) //Resource.Success(model)
             }
             else -> {
                 Log.d(TAG, "getDataFromRoom: this should not be called.")
                 return emptyList()
+                //return Resource.Error("getting data from Room encounter an error")
                 //not supposed to be called
             }
         }

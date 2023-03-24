@@ -1,8 +1,6 @@
 package com.example.portfolio.feature_shopping.presentation.main
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,7 +8,6 @@ import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.model.ShoppingUIEvent
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
 import com.example.portfolio.feature_shopping.domain.use_case.ShoppingUseCases
-import com.example.portfolio.feature_shopping.presentation.search.util.SearchBarState
 import com.example.portfolio.utils.Resource
 import com.example.portfolio.utils.ConstKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -94,7 +91,7 @@ class ShoppingItemStateViewModel @Inject constructor(
                     Log.d(TAG, "onEvent: Success collected from UseCase.getSpecial")
 
                     it.data?.let{
-                        savedStateHandle.set<List<SpecialItem>>(ConstKeys.SELLING_ITEM, it)
+                        savedStateHandle.set<List<SpecialItem>>(ConstKeys.SELLING_ITEMS, it)
                     }
                     _specialItems.value = it.data!!
 
@@ -104,7 +101,7 @@ class ShoppingItemStateViewModel @Inject constructor(
 
 
 
-                    //savedStateHandle[ConstKeys.ConstKeys.SELLING_ITEM] = it.data
+                    //savedStateHandle[ConstKeys.ConstKeys.SELLING_ITEMS] = it.data
                 }
             }
 
@@ -121,10 +118,11 @@ class ShoppingItemStateViewModel @Inject constructor(
                 }
                 is Resource.Success -> {
                     Log.d(TAG, "onEvent - getRegular: Success collected from UseCase.getSpecial")
-                    savedStateHandle[ConstKeys.SELLING_ITEM] = it.data
+                    savedStateHandle[ConstKeys.SELLING_ITEMS] = it.data
+                    println("size of loaded data ${savedStateHandle.get<List<SellingItem>>(ConstKeys.SELLING_ITEMS)!!.size}")
                     _sellingItems.value = it.data!!
 
-                    for(item in savedStateHandle.get<List<SellingItem>>(ConstKeys.SELLING_ITEM)!!){
+                    for(item in savedStateHandle.get<List<SellingItem>>(ConstKeys.SELLING_ITEMS)!!){
                         Log.d(TAG, "getRegular: updated item ${item.imageUrl}")
                     }
                     _sellingItemState.value = it

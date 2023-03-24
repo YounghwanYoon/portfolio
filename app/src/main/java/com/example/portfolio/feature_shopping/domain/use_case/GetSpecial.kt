@@ -18,7 +18,7 @@ class GetSpecialItem @Inject constructor(
     ): Flow<Resource<List<SpecialItem>>> {
         return flow{
 
-            repository.getSpecial().collect{
+            repository.fetchAndLoadSpecialItems().collect{
                 when(it){
                     is Resource.Error -> {
                         Log.d(TAG, "invoke: Error is called")

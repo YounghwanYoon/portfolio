@@ -10,7 +10,6 @@ import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.utils.Resource
 import com.google.common.truth.*
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -57,7 +56,7 @@ class ShoppingReposImplTest constructor(){
     //@Test
     @Throws(Exception::class)
     fun getDataFromAPI() = runBlocking{
-        repo.getSellingItem().collect{
+        repo.fetchAndLoadSellingItems().collect{
             when(it){
                 is Resource.Error -> println("Error - ${it.message}")
                 is Resource.Loading -> println("Loading")

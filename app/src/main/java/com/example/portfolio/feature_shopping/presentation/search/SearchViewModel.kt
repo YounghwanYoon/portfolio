@@ -6,16 +6,19 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
+import com.example.portfolio.feature_shopping.domain.use_case.GetItemsFromLocalDB
 import com.example.portfolio.feature_shopping.presentation.search.util.SearchBarState
 import com.example.portfolio.utils.ConstKeys
+import com.example.portfolio.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
+    private val getLocalData: GetItemsFromLocalDB
 ):ViewModel() {
 
     private val _searchBarState = mutableStateOf(value = SearchBarState.CLOSED)
@@ -25,12 +28,13 @@ class SearchViewModel @Inject constructor(
     var searchTextState: StateFlow<String> = _searchTextState
 
     private val _isSearching = MutableStateFlow(value = false)
-    val isSearhing = _isSearching.asStateFlow()
+    val isSearching = _isSearching.asStateFlow()
 
-    private var _matchedItems = MutableStateFlow(savedStateHandle.get<List<SellingItem>>(ConstKeys.SELLING_ITEM) ?: emptyList())
+    private var _matchedItems:MutableStateFlow<List<SellingItem>> = MutableStateFlow(emptyList())
     val matchedItems: StateFlow<List<SellingItem>> = _matchedItems.asStateFlow()
 
-    val items = searchTextState
+
+    /*val matchedItems = searchTextState
         // this will help wait user's type until 1 sec
         .debounce(1000L)
         .onEach{ _isSearching.update {true}}
@@ -51,18 +55,42 @@ class SearchViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             _matchedItems.value
         )
+*/
 
+    init{
+        getData()
+    }
+    private fun loadItems(){
+        _matchedItems.value = savedStateHandle.get<List<SellingItem>>(ConstKeys.SELLING_ITEMS)?:emptyList()
+        println("size of loaded Items ${_matchedItems.value.size}")
+    }
 
-
-
-
-
+    private fun getData(){
+        viewModelScope.launch{
+            getLocalData().collect{
+                when(it){
+                    is Resource.Error -> {
+                        println("Error from ROOM")
+                    }
+                    is Resource.Loading -> {
+                        println("Loading from ROOM")
+                    }
+                    is Resource.Success -> {
+                        println("Success from ROOM")
+                        println(it.data!!.size)
+                        _matchedItems.value = it.data ?: emptyList()
+                    }
+                }
+            }
+        }
+    }
 
     fun updateSearchState(updatedValue: SearchBarState){
         _searchBarState.value = updatedValue
     }
     fun updateSearchTextState(updatedValue:String){
         _searchTextState.value = updatedValue
+        //loadItems()
     }
 
 }

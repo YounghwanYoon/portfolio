@@ -1,8 +1,12 @@
 package com.example.portfolio.feature_shopping.presentation.search
 
 import android.annotation.SuppressLint
-import android.os.Build
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -14,33 +18,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.portfolio.feature_shopping.presentation.search.util.SearchBarState
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -51,8 +37,11 @@ fun SearchScreen(
 ){
     val searchBarState by searchVM.searchBarState
     val searchTextState by searchVM.searchTextState.collectAsState()
-    val isSearching by searchVM.isSearhing.collectAsState()
+    val isSearching by searchVM.isSearching.collectAsState()
     val matchedItems by searchVM.matchedItems.collectAsState()
+    println("isSearching $isSearching")
+    println("searchTextState $searchTextState")
+    println("size of matchedItems ${matchedItems.size}")
 
     Scaffold(
        topBar = {
@@ -104,54 +93,61 @@ fun SearchScreen(
 }
 
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@Preview
 @Composable
-fun BouncingBall() {
-    val radius = 50f
+fun SearchTester(
+    modifier:Modifier = Modifier,
+    isSearching:Boolean = false,
+    searchBarState:SearchBarState = SearchBarState.OPENED,
+    searchTextState:String = "123",
 
-    val animatableX = remember { Animatable(0f) }
-    val animatableY = remember { Animatable(0f) }
+){
+    Scaffold(
+        topBar = {
+            CustomTopBar(
+                searchBarState = searchBarState,
+                searchTextState = searchTextState,
+                onSearchTriggered = {
+                    //when search icon is clicked
+                    //searchVM.updateSearchState(updatedValue = SearchBarState.OPENED)
+                },
+                onTextChange = {}, //{itemStateVM.updateSearchTextState(updatedValue= it)}
+                onCloseClicked = {
+                   // searchVM.updateSearchTextState(updatedValue = "")
+                   // searchVM.updateSearchState(updatedValue = SearchBarState.CLOSED)
+                },
+                onSearchClicked = {
+                    println("Searched Text $it")
+                },
+            )
+        },
+    ){
+        when(isSearching){
+            true -> {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
+            false ->{
+                val matchedItems = mutableListOf("1", "2", "3", "4" ,"5")
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ){
+                    items(matchedItems){item ->
+                        //
+                        Text(
+                            text = item,
+                            color = Color.Black
+                        )
+                    }
+                }
+            }
+        }
 
-    val configuration = LocalConfiguration.current
-
-    val screenHeight: Dp
-    val screenWidth: Float
-
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB_MR2) {
-        screenHeight = 400.dp
-        screenWidth = 360.dp.value
-    } else {
-        screenHeight = configuration.screenHeightDp.dp
-        screenWidth = configuration.screenWidthDp.dp.value - radius *2
-    }
-    //val screenWidth = LocalConfiguration.current.dimension.screenWidthDp.dp.value - radius * 2
-
-    LaunchedEffect(Unit) {
-        animatableX.animateTo(
-            targetValue = screenWidth,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 2000, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        )
-        animatableY.animateTo(
-            targetValue = screenWidth,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 3000, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        )
-    }
-
-    val x by animateFloatAsState(targetValue = animatableX.value)
-    val y by animateFloatAsState(targetValue = animatableY.value)
-
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        drawCircle(
-            color = Color.Gray,
-            radius = center.x + x,
-            center = Offset(0f, (center.y + y)),//.intOffset,
-            radius,
-        )
     }
 }
 
