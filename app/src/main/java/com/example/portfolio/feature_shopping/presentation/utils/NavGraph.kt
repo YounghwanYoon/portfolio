@@ -46,6 +46,7 @@ fun setNavGraph(navController: NavHostController){
 
             SearchScreen(
                 navController = navController,
+                onBackClicked ={navController},
                 searchVM = searchStateViewModel
             )
         }
@@ -65,17 +66,21 @@ fun setNavGraph(navController: NavHostController){
         }
 
         composable(
-            route = Screens.Detail.rout,
-            arguments = listOf(navArgument("id"){
-                type = NavType.IntType
-            })){ navBackStackEntry ->
-            val parentEntry  = remember(navBackStackEntry){
-                navController.getBackStackEntry(Screens.Main.rout)
-            }
+            route = Screens.Detail.rout + "/{id}",
+            arguments =
+                listOf(
+                    navArgument("id"){
+                         type = NavType.StringType
+                    }
+                )
+        ){ navBackStackEntry ->
+                    val parentEntry  = remember(navBackStackEntry){
+                        navController.getBackStackEntry(Screens.Main.rout)
+                }
             //val viewModel:ShoppingItemStateViewModel = hiltViewModel(navController.previousBackStackEntry!!)
             ShoppingDetailScreen(
                 navController = navController,
-                selectedItemId = navBackStackEntry.arguments?.getInt("id").toString(),
+                selectedItemId = navBackStackEntry.arguments?.getString("id").toString(),
                 itemStateVM = itemStateViewModel,
                 cartStateViewModel = cartStateViewModel
             )

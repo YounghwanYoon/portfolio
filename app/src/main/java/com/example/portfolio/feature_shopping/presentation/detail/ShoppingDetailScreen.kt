@@ -64,14 +64,16 @@ fun ShoppingDetailScreen (
         modifier= modifier.background(color = MaterialTheme.colorScheme.background)
     ){
         //com.example.portfolio.feature_shopping.presentation.main.Header() // Skip in this section
-        Detail_Body(
-            modifier = Modifier.weight(9f),
-            screenHeight = screenHeight,
-            screenWidth = screenWidth,
-            selectedItem = selectedItem,
-            itemStateVM = itemStateVM,
-            cartStateVM = cartStateViewModel
-        )
+        if (selectedItem != null) {
+            Detail_Body(
+                modifier = Modifier.weight(9f),
+                screenHeight = screenHeight,
+                screenWidth = screenWidth,
+                selectedItem = selectedItem,
+                itemStateVM = itemStateVM,
+                cartStateVM = cartStateViewModel
+            )
+        }
         Footer(Modifier.weight(1f), navController = navController, cartStateVM = cartStateViewModel)
     }
 

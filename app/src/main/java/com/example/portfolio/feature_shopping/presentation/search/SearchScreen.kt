@@ -2,9 +2,7 @@ package com.example.portfolio.feature_shopping.presentation.search
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -27,12 +26,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.portfolio.feature_shopping.presentation.search.util.SearchBarState
+import com.example.portfolio.feature_shopping.presentation.utils.Screens
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SearchScreen(
     navController:NavController,
+    onBackClicked: ()->Unit = {},
     searchVM:SearchViewModel
 ){
     val searchBarState by searchVM.searchBarState
@@ -43,8 +44,19 @@ fun SearchScreen(
     println("searchTextState $searchTextState")
     println("size of matchedItems ${matchedItems.size}")
 
+    navController.previousBackStackEntry != null
     Scaffold(
+
        topBar = {
+           IconButton(
+               onClick = {navController.navigate(Screens.Main.rout)},
+           ){
+               Icon(
+                   imageVector = Icons.Filled.ArrowBack,
+                   contentDescription = "Back To Previous Screen",
+                   tint = Color.White
+               )
+           }
             CustomTopBar(
                 searchBarState = searchBarState,
                 searchTextState = searchTextState,
@@ -62,9 +74,11 @@ fun SearchScreen(
                 },
             )
        },
+
     ){
         //for content, show different item base on isSearching state
         //need to display items on body.
+        Spacer(modifier = Modifier.height(8.dp))
         when(isSearching){
             true -> {
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -78,12 +92,22 @@ fun SearchScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                 ){
-                    items(matchedItems){items ->
+                    items(matchedItems){item ->
                         //
-                        Text(
-                            text = items.title,
-                            color = Color.Black
-                        )
+                        TextButton(
+                            onClick = {
+                                println("clicked ${item.title}")
+                                navController.navigate(
+                                    route = Screens.Detail.withArgs("${item.id}")
+                                )
+                            }
+                        ){
+                            Text(
+                                text = item.title,
+                                color = Color.Black
+                            )
+                        }
+
                     }
                 }
             }

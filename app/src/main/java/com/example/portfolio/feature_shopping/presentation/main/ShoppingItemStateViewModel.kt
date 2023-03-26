@@ -132,8 +132,11 @@ class ShoppingItemStateViewModel @Inject constructor(
 
     }
 
-    fun getSelectedItem(itemId:Int):SellingItem{
-        return sellingItems.value[itemId]
+    fun getSelectedItem(itemId:Int):SellingItem?{
+        val selectedItem:SellingItem? = sellingItems.value.find{
+             it.id == itemId
+         }
+        return selectedItem
     }
     fun setSelectedItem(item: SellingItem){
         savedStateHandle[ConstKeys.SELECTED_ITEM] = item

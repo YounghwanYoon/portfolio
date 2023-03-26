@@ -11,6 +11,7 @@ import com.example.portfolio.feature_shopping.presentation.search.util.SearchBar
 import com.example.portfolio.utils.ConstKeys
 import com.example.portfolio.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,11 +31,12 @@ class SearchViewModel @Inject constructor(
     private val _isSearching = MutableStateFlow(value = false)
     val isSearching = _isSearching.asStateFlow()
 
+    //private val allData = MutableStateFlow<List<SellingItem>>(emptyList())
+
     private var _matchedItems:MutableStateFlow<List<SellingItem>> = MutableStateFlow(emptyList())
-    val matchedItems: StateFlow<List<SellingItem>> = _matchedItems.asStateFlow()
+    //val matchedItems: StateFlow<List<SellingItem>> = _matchedItems.asStateFlow()
 
-
-    /*val matchedItems = searchTextState
+    val  matchedItems:StateFlow<List<SellingItem>> = searchTextState
         // this will help wait user's type until 1 sec
         .debounce(1000L)
         .onEach{ _isSearching.update {true}}
@@ -55,14 +57,10 @@ class SearchViewModel @Inject constructor(
             SharingStarted.WhileSubscribed(5000),
             _matchedItems.value
         )
-*/
+
 
     init{
         getData()
-    }
-    private fun loadItems(){
-        _matchedItems.value = savedStateHandle.get<List<SellingItem>>(ConstKeys.SELLING_ITEMS)?:emptyList()
-        println("size of loaded Items ${_matchedItems.value.size}")
     }
 
     private fun getData(){
@@ -79,6 +77,8 @@ class SearchViewModel @Inject constructor(
                         println("Success from ROOM")
                         println(it.data!!.size)
                         _matchedItems.value = it.data ?: emptyList()
+                        //allData. value = it.data
+                        //_matchedItems = allData
                     }
                 }
             }
@@ -91,6 +91,12 @@ class SearchViewModel @Inject constructor(
     fun updateSearchTextState(updatedValue:String){
         _searchTextState.value = updatedValue
         //loadItems()
+    }
+    fun getSelectedItem(itemId:Int):SellingItem?{
+        val selectedItem:SellingItem? = _matchedItems.value.find{
+            it.id == itemId
+        }
+        return selectedItem
     }
 
 }

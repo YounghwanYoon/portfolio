@@ -496,7 +496,7 @@ fun BodyContent(
                     )
                     .clickable {
                         println("clicked item")
-                        navController.navigate(route = "detail_screen/$index")
+                        navController.navigate(route = Screens.Detail.withArgs("${item.id}") )//navigate(route = "detail_screen/$index")
                     },
                 painter = if (item.imageUrl != "") rememberAsyncImagePainter(item.imageUrl)
                 //Image for local use for design
