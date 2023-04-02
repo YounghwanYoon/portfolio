@@ -37,7 +37,7 @@ fun PreviewSplashScreen(){
     }
 }*/
 @Composable
-fun Shopping_SplashScreen(navController: NavController){
+fun Shopping_SplashScreen(navController: NavController,isTablet:Boolean){
 
     val scale = remember{
         Animatable(0f)
@@ -54,7 +54,7 @@ fun Shopping_SplashScreen(navController: NavController){
             )
         )
 
-        delay(2000L)
+        delay(1500L)
         navController.navigate(Screens.Main.rout)
 
     }

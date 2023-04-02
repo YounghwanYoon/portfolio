@@ -34,6 +34,7 @@
     <!-- Splash Screen -->
     <string name="shopping_splash_content_description">Welcome Screen an Image</string>
     <string name="shopping_splash_loading_text">Roasting Coffee Bean</string>
+    <string name="searchview_text">Search Your Bean…</string>
 
 
 

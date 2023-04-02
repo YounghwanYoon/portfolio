@@ -107,8 +107,8 @@ class ShoppingSplashActivity : ComponentActivity() {
 @Composable
 fun Shopping_SplashScreen(
     color: Color = ShoppingColors.LightColors.primaryVariant,
+    isTablet:Boolean
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()

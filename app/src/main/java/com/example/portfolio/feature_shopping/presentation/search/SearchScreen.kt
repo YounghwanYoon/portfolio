@@ -21,20 +21,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.presentation.search.util.SearchBarState
 import com.example.portfolio.feature_shopping.presentation.utils.Screens
-
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SearchScreen(
     navController:NavController,
     onBackClicked: ()->Unit = {},
-    searchVM:SearchViewModel
+    searchVM:SearchViewModel,
+    isTablet:Boolean
 ){
     val searchBarState by searchVM.searchBarState
     val searchTextState by searchVM.searchTextState.collectAsState()
@@ -46,39 +47,47 @@ fun SearchScreen(
 
     navController.previousBackStackEntry != null
     Scaffold(
-
        topBar = {
-           IconButton(
-               onClick = {navController.navigate(Screens.Main.rout)},
+           Row(
+               verticalAlignment = Alignment.Top,
+               horizontalArrangement = Arrangement.Center
            ){
-               Icon(
-                   imageVector = Icons.Filled.ArrowBack,
-                   contentDescription = "Back To Previous Screen",
-                   tint = Color.White
-               )
+               Box(contentAlignment = Alignment.CenterStart){
+                   IconButton(
+                       onClick = {navController.navigate(Screens.Main.rout)},
+                   ){
+                       Icon(
+                           imageVector = Icons.Filled.ArrowBack,
+                           contentDescription = "Back To Previous Screen",
+                       )
+                   }
+               }
+               Box(
+                   contentAlignment = Alignment.Center
+               ){
+                   CustomTopBar(
+                       searchBarState = searchBarState,
+                       searchTextState = searchTextState,
+                       onSearchTriggered = {
+                           //when search icon is clicked
+                           searchVM.updateSearchState(updatedValue = SearchBarState.OPENED)
+                       },
+                       onTextChange = searchVM::updateSearchTextState, //{itemStateVM.updateSearchTextState(updatedValue= it)}
+                       onCloseClicked = {
+                           searchVM.updateSearchTextState(updatedValue = "")
+                           searchVM.updateSearchState(updatedValue = SearchBarState.CLOSED)
+                       },
+                       onSearchClicked = {
+                           println("Searched Text $it")
+                       },
+                   )
+               }
            }
-            CustomTopBar(
-                searchBarState = searchBarState,
-                searchTextState = searchTextState,
-                onSearchTriggered = {
-                    //when search icon is clicked
-                    searchVM.updateSearchState(updatedValue = SearchBarState.OPENED)
-                },
-                onTextChange = searchVM::updateSearchTextState, //{itemStateVM.updateSearchTextState(updatedValue= it)}
-                onCloseClicked = {
-                    searchVM.updateSearchTextState(updatedValue = "")
-                    searchVM.updateSearchState(updatedValue = SearchBarState.CLOSED)
-                },
-                onSearchClicked = {
-                    println("Searched Text $it")
-                },
-            )
        },
-
     ){
         //for content, show different item base on isSearching state
         //need to display items on body.
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         when(isSearching){
             true -> {
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -116,65 +125,6 @@ fun SearchScreen(
     }
 }
 
-
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@Preview
-@Composable
-fun SearchTester(
-    modifier:Modifier = Modifier,
-    isSearching:Boolean = false,
-    searchBarState:SearchBarState = SearchBarState.OPENED,
-    searchTextState:String = "123",
-
-){
-    Scaffold(
-        topBar = {
-            CustomTopBar(
-                searchBarState = searchBarState,
-                searchTextState = searchTextState,
-                onSearchTriggered = {
-                    //when search icon is clicked
-                    //searchVM.updateSearchState(updatedValue = SearchBarState.OPENED)
-                },
-                onTextChange = {}, //{itemStateVM.updateSearchTextState(updatedValue= it)}
-                onCloseClicked = {
-                   // searchVM.updateSearchTextState(updatedValue = "")
-                   // searchVM.updateSearchState(updatedValue = SearchBarState.CLOSED)
-                },
-                onSearchClicked = {
-                    println("Searched Text $it")
-                },
-            )
-        },
-    ){
-        when(isSearching){
-            true -> {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-            }
-            false ->{
-                val matchedItems = mutableListOf("1", "2", "3", "4" ,"5")
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ){
-                    items(matchedItems){item ->
-                        //
-                        Text(
-                            text = item,
-                            color = Color.Black
-                        )
-                    }
-                }
-            }
-        }
-
-    }
-}
-
 @Composable
 fun CustomTopBar(
     searchBarState: SearchBarState,
@@ -191,6 +141,7 @@ fun CustomTopBar(
         onCloseClicked = onCloseClicked,
         onClicked = onSearchClicked
     )
+
 
 /*
     when(searchBarState){
@@ -222,67 +173,77 @@ fun SearchView(
     onClicked:(String) -> Unit,
 ) {
     var selectedOption by remember { mutableStateOf("") }
-    var text by remember{ mutableStateOf(searchTextState) }
+    val text by remember{ mutableStateOf(searchTextState) }
 
     Surface(modifier =modifier){
-        TextField(
-            modifier = Modifier.background(
-                color = Color.Transparent,//MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(24.dp)
-            ),
-            value = searchTextState,//selectedOption,
-            onValueChange = {
-                selectedOption = it
-                onTextChange(it)
-            },
-            placeholder = { Text(text = "Search Bean...", color = MaterialTheme.colorScheme.onBackground) },
-            singleLine = true,
-            //label = { Text("Search") },
-            leadingIcon = {
-                IconButton (
-                    modifier = Modifier
-                        .alpha(ContentAlpha.medium),
-                    onClick = {}
-                ){
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search Icon",
-                        tint = MaterialTheme.colorScheme.onBackground
+        Card(
+            shape = RoundedCornerShape(4.dp),
+            backgroundColor = Color.White
+        ){
+            TextField(
+                modifier = Modifier.background(
+                    color = Color.Transparent,//MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(24.dp)
+                ),
+                value = searchTextState,//selectedOption,
+                onValueChange = {
+                    selectedOption = it
+                    onTextChange(it)
+                },
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.searchview_text),
+                        color = MaterialTheme.colorScheme.onBackground
                     )
-                }
-            },
-            trailingIcon = {
-                IconButton (
-                    onClick = {
-                        if(text.isNotEmpty()){
-                            onTextChange("")
-                        }else{
-                            onCloseClicked()
-                        }
+                  },
+                singleLine = true,
+                //label = { Text("Search") },
+                leadingIcon = {
+                    IconButton (
+                        modifier = Modifier
+                            .alpha(ContentAlpha.medium),
+                        onClick = {}
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search Icon",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
                     }
-                ){
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close Icon",
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
+                },
+                trailingIcon = {
+                    IconButton (
+                        onClick = {
+                            if(text.isNotEmpty()){
+                                onTextChange("")
+                            }else{
+                                onCloseClicked()
+                            }
+                        }
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close Icon",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
 
-                //ExposedDropdownMenuDefaults.TrailingIcon(expanded = exp)
-            },
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Search
-            ),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    onClicked(text)
-                }
-            ),
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = Color.Transparent,
-                cursorColor = Color.White.copy(alpha = ContentAlpha.medium)
+                    //ExposedDropdownMenuDefaults.TrailingIcon(expanded = exp)
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Search
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        onClicked(text)
+                    }
+                ),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    cursorColor = Color.White.copy(alpha = ContentAlpha.medium)
+                )
             )
-        )
+        }
     }
 }
 

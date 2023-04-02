@@ -21,7 +21,6 @@ class SearchViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getLocalData: GetItemsFromLocalDB
 ):ViewModel() {
-
     private val _searchBarState = mutableStateOf(value = SearchBarState.CLOSED)
     var searchBarState: State<SearchBarState> = _searchBarState
 

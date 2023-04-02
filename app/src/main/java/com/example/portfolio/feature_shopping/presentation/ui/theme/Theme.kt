@@ -17,7 +17,7 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary= PearlWhite,
     secondary = Brown_300,
     background = Brown_700,
-    onBackground =Color.White,
+    onBackground = Brown_50,
 
     onSecondary = PearlWhite,
     tertiary = Pink80,

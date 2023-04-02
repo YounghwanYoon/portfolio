@@ -1,6 +1,6 @@
 package com.example.portfolio.feature_shopping.presentation.detail
 
-import com.example.portfolio.feature_shopping.presentation.main.Footer
+import Footer
 import android.view.Window
 import androidx.compose.Context
 import androidx.compose.foundation.*
@@ -47,7 +47,8 @@ fun ShoppingDetailScreen (
     navController:NavController,
     selectedItemId:String,
     itemStateVM:ShoppingItemStateViewModel,
-    cartStateViewModel: CartStateViewModel
+    cartStateViewModel: CartStateViewModel,
+    isTablet:Boolean
 ){
     println("ShoppingItemStateVM - $itemStateVM")
     val selectedItem = itemStateVM.getSelectedItem(selectedItemId.toInt())
@@ -59,14 +60,13 @@ fun ShoppingDetailScreen (
         WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
     )*/
 
-
     Column(
         modifier= modifier.background(color = MaterialTheme.colorScheme.background)
     ){
         //com.example.portfolio.feature_shopping.presentation.main.Header() // Skip in this section
         if (selectedItem != null) {
             Detail_Body(
-                modifier = Modifier.weight(9f),
+                modifier = Modifier.weight(0.9f),
                 screenHeight = screenHeight,
                 screenWidth = screenWidth,
                 selectedItem = selectedItem,
@@ -74,9 +74,22 @@ fun ShoppingDetailScreen (
                 cartStateVM = cartStateViewModel
             )
         }
-        Footer(Modifier.weight(1f), navController = navController, cartStateVM = cartStateViewModel)
-    }
+        Footer(
+            modifier = when(isTablet){
+                false->{
+                    Modifier.weight(0.08f)
+                        .defaultMinSize(minHeight = 50.dp)
+                    //.fillMaxWidth()
 
+                }
+                true ->{
+                    Modifier.weight(0.10f)
+                        .defaultMinSize(minHeight = 50.dp)
+                }
+            },
+            navController = navController
+        )
+    }
 }
 
 
@@ -91,7 +104,6 @@ fun Detail_Body(
     itemStateVM:ShoppingItemStateViewModel, //= hiltViewModel<ShoppingItemStateViewModel>()
     cartStateVM:CartStateViewModel
 ) {
-
         ImageFrame(modifier
             .fillMaxSize()
             .fillMaxHeight()
@@ -125,51 +137,6 @@ fun Detail_Body(
                 )
             }
         )
-
-/*    Box(
-        modifier = modifier
-    ){
-        //MugFrame with Image
-        ImageFrame(Modifier.fillMaxSize())
-        //MugFrame
-
-            Column(
-                modifier = Modifier.padding(0.dp).background(color=MaterialTheme.colorScheme.primary)
-            ){
-                Card(
-                    modifier = Modifier.weight(4f).background(color=MaterialTheme.colorScheme.primary),
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize().background(color=MaterialTheme.colorScheme.primary),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        BorderImage(
-                            Modifier
-                            .padding(8.dp)
-                            .weight(8f)
-                        )
-                        Text(
-                            modifier=Modifier.weight(2f),
-                            text = "Seasonal Spice",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
-                Text( text = "Country:America",
-                    modifier = Modifier
-                        .weight(5f)
-                        .padding(start=16.dp)
-                )
-                com.example.portfolio.feature_shopping.presentation.main.MyDivider()
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                ){
-                    Text("$6.99")
-                }
-            }
-        }*/
-
 }
 
 /**

@@ -3,6 +3,8 @@ package com.example.portfolio.feature_shopping.presentation.main
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.colorResource
 import androidx.navigation.compose.rememberNavController
@@ -21,13 +23,13 @@ class ShoppingMain : ComponentActivity() {
 
         setContent {
             ShoppingTheme {
-
-
-                val isTablet = booleanResource(id = R.bool.is_tablet)
+                val isTabletOrRoated=
+                    if(isRoated()) true
+                    else booleanResource(id = R.bool.is_tablet)
+                println("is Tablet or Rotated $isTabletOrRoated")
                 val color = colorResource(id = R.color.brown_300)
                 val navController = rememberNavController()
-                setNavGraph(navController)
-
+                setNavGraph(navController, isTabletOrRoated)
 /*
             //Handle Permissions
                 val multiplePermissionsState = rememberMultiplePermissionsState(
@@ -46,7 +48,10 @@ class ShoppingMain : ComponentActivity() {
                     },
                 )*/
             }
-
         }
     }
+
+    @Composable
+    private fun isRoated():Boolean = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp
+
 }

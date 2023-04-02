@@ -22,11 +22,11 @@ import com.example.portfolio.feature_shopping.presentation.splash.Shopping_Splas
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun setNavGraph(navController: NavHostController){
+fun setNavGraph(navController: NavHostController, isTablet:Boolean){
 
     val itemStateViewModel:ShoppingItemStateViewModel = hiltViewModel()
     val cartStateViewModel: CartStateViewModel = hiltViewModel()
-
+    val isTablet = remember{isTablet}
     NavHost(
         navController = navController,
         startDestination = Screens.Splash.rout//Screens.Splash.rout
@@ -36,7 +36,8 @@ fun setNavGraph(navController: NavHostController){
             ShoppingMainScreen(
                 navController = navController,
                 itemStateVM = itemStateViewModel,
-                cartStateVM = cartStateViewModel
+                cartStateVM = cartStateViewModel,
+                tabletState = isTablet
             )
             println("Home Button Clicked - from Nav Controller")
         }
@@ -47,7 +48,8 @@ fun setNavGraph(navController: NavHostController){
             SearchScreen(
                 navController = navController,
                 onBackClicked ={navController},
-                searchVM = searchStateViewModel
+                searchVM = searchStateViewModel,
+                isTablet = isTablet
             )
         }
 
@@ -60,7 +62,8 @@ fun setNavGraph(navController: NavHostController){
            // val viewModel:ShoppingItemStateViewModel = hiltViewModel(navController.previousBackStackEntry!!)
             ShoppingCartScreen(
                 navController = navController,
-                cartStateViewModel = cartStateViewModel
+                cartStateViewModel = cartStateViewModel,
+                isTablet = isTablet
             )
             println("Cart Button Clicked - from Nav Controller")
         }
@@ -82,12 +85,13 @@ fun setNavGraph(navController: NavHostController){
                 navController = navController,
                 selectedItemId = navBackStackEntry.arguments?.getString("id").toString(),
                 itemStateVM = itemStateViewModel,
-                cartStateViewModel = cartStateViewModel
+                cartStateViewModel = cartStateViewModel,
+                isTablet = isTablet
             )
         }
 
         composable(route = Screens.Splash.rout){
-            Shopping_SplashScreen(navController = navController)
+            Shopping_SplashScreen(navController = navController,isTablet = isTablet)
         }
     }
 }

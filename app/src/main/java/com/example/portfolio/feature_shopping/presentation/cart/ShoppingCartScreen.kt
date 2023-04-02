@@ -1,7 +1,7 @@
 package com.example.portfolio.feature_shopping.presentation.cart
 
+import Footer
 import androidx.activity.compose.BackHandler
-import com.example.portfolio.feature_shopping.presentation.main.Footer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -47,22 +46,38 @@ import com.example.portfolio.feature_shopping.presentation.utils.Screens
 fun ShoppingCartScreen(
     modifier:Modifier = Modifier,
     navController:NavController,
-    cartStateViewModel: CartStateViewModel
+    cartStateViewModel: CartStateViewModel,
+    isTablet:Boolean
 ){
     println("ShoppingCartScreen")
 
     ShoppingTheme{
-
         Column(){
-            ShoppingCartBody(Modifier.weight(9f), cartStateVM = cartStateViewModel)
+            ShoppingCartBody(
+                modifier = Modifier.weight(0.9f),
+                cartStateVM = cartStateViewModel,
+                isTablet = isTablet
+            )
 
-            Footer(Modifier.weight(1f), navController = navController, cartStateVM = cartStateViewModel)
+            Footer(
+                modifier = when(isTablet){
+                    false->{
+                        Modifier.weight(0.08f)
+                            .defaultMinSize(minHeight = 50.dp)
+                        //.fillMaxWidth()
+
+                    }
+                    true ->{
+                        Modifier.weight(0.10f)
+                            .defaultMinSize(minHeight = 50.dp)
+                    }
+                },
+                navController = navController)
         }
         BackHandler() {
             navController.navigate(Screens.Main.rout)
         }
     }
-
 }
 
 @Composable
@@ -73,6 +88,7 @@ fun ShoppingCartBody(
         lifecycle = LocalLifecycleOwner.current.lifecycle,
         minActiveState = Lifecycle.State.STARTED
     )*/
+    isTablet: Boolean
 ) {
 
     var cartVM by remember {mutableStateOf(cartStateVM)}
@@ -137,7 +153,8 @@ fun ShoppingCartBody(
             ) {
                 Box() {
                     OrderButton(
-                        cartVM = cartStateVM
+                        cartVM = cartStateVM,
+                        isTablet = isTablet
                     )
                 }
             }
@@ -153,7 +170,8 @@ fun OrderButton(
         .fillMaxWidth()
         .padding(start = 8.dp, end = 8.dp),
     text:String = "Place Order",
-    cartVM:CartStateViewModel
+    cartVM:CartStateViewModel,
+    isTablet:Boolean
 ){
     var openDialog by remember{ mutableStateOf(false) }
     Surface(
@@ -192,7 +210,8 @@ fun OrderButton(
                         //cartStateViewModel = cartVM,
                         cartData  = cartVM.cartUIState,
                         removeItems = {cartVM.removeAllItem()},
-                        onComplete = {openDialog = !openDialog}
+                        onComplete = {openDialog = !openDialog},
+                        isTablet = isTablet
                     )
                 }
             }

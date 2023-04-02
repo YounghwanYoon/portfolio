@@ -44,7 +44,8 @@ fun PaymentDialogScreen(
     paymentViewModel: PaymentViewModel = hiltViewModel(),
     removeItems: () ->Unit,
     onComplete: () ->Unit,
-    confirmNotificationService:ConfirmNotificationService = ConfirmNotificationService(LocalContext.current)
+    confirmNotificationService:ConfirmNotificationService = ConfirmNotificationService(LocalContext.current),
+    isTablet:Boolean
 ){
     var openDialog by remember{ mutableStateOf(shouldOpenDialog)}
     var shouldChangeButtonColor by remember{ mutableStateOf(false) }
@@ -63,13 +64,6 @@ fun PaymentDialogScreen(
                 modifier =  Modifier.background(color = Color.White),
                 changeButtonColor = if(shouldChangeButtonColor) true else false,
                 onCompleted = {
-                    //TODO::
-                    // 1. Complete Order Summary Page by adding Cart List - completed but improvement is needed
-                    // 2. Show Order Confirmation Page
-                    // 3. Add Order History Page
-                    // 4. Update CartList to Empty from CartViewModel. - completed
-                    // Maybe try to pass savedstate from viewmodel to usecase. - failed
-
                     //paymentViewModel.removeAllItems()
                     //cartStateViewModel.removeAllItem()
                     removeItems()

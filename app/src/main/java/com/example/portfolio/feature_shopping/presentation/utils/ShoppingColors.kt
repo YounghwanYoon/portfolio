@@ -9,6 +9,8 @@ object ShoppingColors {
     val DarkGrey = Color(0xE2403D3D)
     val GreenWhite = Color(0xFFE3FBC7)
     val LightGrey = Color(0xFF858484)
+    val LightBrown = Color(0xFFE1AA1E)
+    val CounterBlue = Color(0xFF1E55E1)
 
     val Brown_50 = Color (0xFFFFF6E5)
     val Brown_300 = Color (0xFFC7880E)
