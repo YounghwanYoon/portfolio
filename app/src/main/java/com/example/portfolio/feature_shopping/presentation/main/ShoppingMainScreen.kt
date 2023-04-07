@@ -2,10 +2,8 @@ package com.example.portfolio.feature_shopping.presentation.main
 
 import Footer
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.os.Build
 import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,12 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -147,7 +143,6 @@ fun Header(
                 .fillMaxWidth()
         ) {
             val (buttonCart, logoTitle, search) = createRefs()
-
             when(isTablet){
                 false ->{
                     Text(
@@ -282,136 +277,6 @@ fun Header(
             }
         }
     }
-/*    Row(modifier = modifier) {
-        Box() {
-            Column(
-                modifier = Modifier,
-            ) {
-                Row(
-                    modifier = modifier
-                ) {
-                    ConstraintLayout(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        val (buttonCart, logoTitle, search) = createRefs()
-
-                        when(isTablet){
-                            true ->{
-                                Text(
-                                    modifier = Modifier
-                                        .padding(8.dp)
-                                        .constrainAs(logoTitle) {
-                                            absoluteLeft.linkTo(parent.start)
-                                            absoluteRight.linkTo(parent.end)
-                                            top.linkTo(parent.top)
-                                            bottom.linkTo(search.top)
-                                        },
-
-                                    text = "Find Beans",
-                                    style = TextStyle(
-                                        color = MaterialTheme.colorScheme.onTertiary,
-                                        fontSize = 24.sp
-                                    )
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-
-                                androidx.compose.material3.IconButton(
-                                    modifier = Modifier.constrainAs(buttonCart) {
-                                        top.linkTo(logoTitle.top)
-                                        bottom.linkTo(logoTitle.bottom)
-                                        //absoluteLeft.linkTo(logoTitle.absoluteRight, margin = 8.dp)
-                                        absoluteRight.linkTo(parent.end, margin = 8.dp)
-                                    },
-                                    onClick = {}
-                                ) {
-                                    androidx.compose.material3.Icon(
-                                        modifier = Modifier,
-                                        painter = painterResource(drawable.coffee_icon_mugcup),
-                                        contentDescription = "Shopping Cart"
-                                    )
-                                }
-                                //Search Bar Section
-
-                                Spacer(modifier = Modifier.height(4.dp))
-                                SearchViewBtn(
-                                    modifier = Modifier
-                                        .padding(top = 0.dp)
-                                        .background(
-                                            color = ShoppingColors.PearlWhite
-                                        )
-                                        .constrainAs(search) {
-                                            top.linkTo(logoTitle.bottom, margin = 4.dp)
-                                            bottom.linkTo(parent.bottom, margin = 0.dp)
-                                            absoluteLeft.linkTo(parent.absoluteLeft)
-                                            absoluteRight.linkTo(parent.absoluteRight)
-                                        }
-                                        .clickable {
-                                            onSearchClicked()
-                                        },
-                                    //onClick = onSearchClicked
-                                )
-                            }
-                            false ->{
-                                Text(
-                                    modifier = Modifier
-                                        .padding(8.dp)
-                                        .constrainAs(logoTitle) {
-                                            absoluteLeft.linkTo(parent.start)
-                                            absoluteRight.linkTo(search.start)
-                                            top.linkTo(parent.top)
-                                            bottom.linkTo(parent.bottom)
-                                        },
-                                    text = "Find Beans",
-                                    style = TextStyle(
-                                        color = MaterialTheme.colorScheme.onTertiary,
-                                        fontSize = 24.sp
-                                    )
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-
-                                androidx.compose.material3.IconButton(
-                                    modifier = Modifier.constrainAs(buttonCart) {
-                                        top.linkTo(logoTitle.top)
-                                        bottom.linkTo(logoTitle.bottom)
-                                        //absoluteLeft.linkTo(logoTitle.absoluteRight, margin = 8.dp)
-                                        absoluteRight.linkTo(parent.end, margin = 8.dp)
-                                    },
-                                    onClick = {}
-                                ) {
-                                    androidx.compose.material3.Icon(
-                                        modifier = Modifier,
-                                        painter = painterResource(drawable.coffee_icon_mugcup),
-                                        contentDescription = "Shopping Cart"
-                                    )
-                                }
-                                //Search Bar Section
-
-                                Spacer(modifier = Modifier.height(4.dp))
-                                SearchViewBtn(
-                                    modifier = Modifier
-                                        .padding(top = 0.dp)
-                                        .background(
-                                            color = ShoppingColors.PearlWhite
-                                        )
-                                        .constrainAs(search) {
-                                            top.linkTo(logoTitle.bottom, margin = 4.dp)
-                                            bottom.linkTo(parent.bottom, margin = 0.dp)
-                                            absoluteLeft.linkTo(parent.absoluteLeft)
-                                            absoluteRight.linkTo(parent.absoluteRight)
-                                        }
-                                        .clickable {
-                                            onSearchClicked()
-                                        },
-                                    //onClick = onSearchClicked
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }*/
 }
 
 @Composable
