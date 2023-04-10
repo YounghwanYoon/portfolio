@@ -43,17 +43,19 @@ import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberAsyncImagePainter
 import com.example.portfolio.R
-import com.example.portfolio.R.*
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.model.ShoppingUIEvent
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
 import com.example.portfolio.feature_shopping.domain.use_case.*
 import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
+import com.example.portfolio.feature_shopping.presentation.main.*
+import com.example.portfolio.feature_shopping.presentation.utils.AutomaticPager
 import com.example.portfolio.feature_shopping.presentation.utils.MyDivider
 import com.example.portfolio.feature_shopping.presentation.utils.Screens
 import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
 import kotlinx.coroutines.launch
 import java.util.*
+
 
 private val TAG = "ShoppingMainScreen.kt"
 
@@ -174,7 +176,7 @@ fun Header(
                     ) {
                         androidx.compose.material3.Icon(
                             modifier = Modifier,
-                            painter = painterResource(drawable.coffee_icon_mugcup),
+                            painter = painterResource(R.drawable.coffee_icon_mugcup),
                             contentDescription = "Shopping Cart"
                         )
                     }
@@ -228,7 +230,7 @@ fun Header(
                     ) {
                         androidx.compose.material3.Icon(
                             modifier = Modifier,
-                            painter = painterResource(drawable.coffee_icon_mugcup),
+                            painter = painterResource(R.drawable.coffee_icon_mugcup),
                             contentDescription = "Shopping Cart"
                         )
                     }
@@ -271,7 +273,6 @@ fun Header(
                                         }
                                 }
                             },
-                        //onClick = onSearchClicked
                     )
                 }
             }
@@ -427,6 +428,8 @@ fun BodyContent(
 
     LazyVerticalGrid(
         modifier = modifier,
+        //This asking into how many cells do you want to divide and control for grid view
+        // In this case, it is divided into two, so width is controlled by two cells.
         columns = GridCells
             .Fixed(2),
 
@@ -446,13 +449,25 @@ fun BodyContent(
 
         // First Section with title and LazyRow
         // It takes two span to override
-        item(
+/*        item(
             span = { GridItemSpan(2) }
         ) {
             SpecialSection(
                 modifier = Modifier
                     .width(360.dp)
                     .height(400.dp),
+                specialItems = specialItems
+            )
+        }*/
+        item(
+            span = {GridItemSpan(2)}
+        ){
+            AutomaticPager(
+                modifier = Modifier
+                    .width(360.dp)
+                    .height(400.dp)
+                    .defaultMinSize(minWidth = 360.dp,minHeight = 400.dp),
+
                 specialItems = specialItems
             )
         }
@@ -510,7 +525,7 @@ fun GridView(
     list: List<SellingItem> = listOf(
         SellingItem(
             0,
-            (drawable.coffee_animation),
+            (R.drawable.coffee_animation),
             description = "1",
             title = "One",
             price = 1.99,
@@ -518,7 +533,7 @@ fun GridView(
         ),
         SellingItem(
             1,
-            (drawable.coffee_animation),
+            (R.drawable.coffee_animation),
             description = "2",
             title = "Two",
             price = 2.99,
@@ -526,7 +541,7 @@ fun GridView(
         ),
         SellingItem(
             2,
-            (drawable.coffee_animation),
+            (R.drawable.coffee_animation),
             description = "3",
             title = "Three",
             price = 3.99,
@@ -534,7 +549,7 @@ fun GridView(
         ),
         SellingItem(
             3,
-            (drawable.coffee_animation),
+            (R.drawable.coffee_animation),
             description = "4",
             title = "Four",
             price = 4.99,
@@ -542,7 +557,7 @@ fun GridView(
         ),
         SellingItem(
             4,
-            (drawable.coffee_animation),
+            (R.drawable.coffee_animation),
             description = "5",
             title = "Five",
             price = 5.99,
@@ -550,7 +565,7 @@ fun GridView(
         ),
         SellingItem(
             5,
-            (drawable.coffee_animation),
+            (R.drawable.coffee_animation),
             description = "6",
             title = "Six",
             price = 6.99,
@@ -558,7 +573,7 @@ fun GridView(
         ),
         SellingItem(
             6,
-            (drawable.coffee_animation),
+            (R.drawable.coffee_animation),
             description = "7",
             title = "Seven",
             price = 7.99,
@@ -608,11 +623,11 @@ fun GridView(
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun SpecialSection(
-    modifier: Modifier = Modifier.size(200.dp),
+    modifier: Modifier = Modifier,
     specialItems: List<SpecialItem> = listOf(
         SpecialItem(
             id = 0,
-            image = drawable.coffee_animation,
+            image = R.drawable.coffee_animation,
             description = "1",
             title = "first",
             start_date = "",
@@ -620,7 +635,7 @@ fun SpecialSection(
         ),
         SpecialItem(
             id = 1,
-            image = drawable.coffee_animation,
+            image = R.drawable.coffee_animation,
             description = "2",
             title = "second",
             start_date = "",
@@ -628,7 +643,7 @@ fun SpecialSection(
         ),
         SpecialItem(
             id = 2,
-            image = drawable.coffee_animation,
+            image = R.drawable.coffee_animation,
             description = "3",
             title = "third",
             start_date = "",
@@ -695,14 +710,12 @@ fun SpecialSection(
 @Composable
 fun EachItem(
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier.size(128.dp),
-    painter: Painter = painterResource(drawable.coffee_animation),
+    painter: Painter = painterResource(R.drawable.coffee_animation),
     contentDescription: String = "null",
     text: String = "Title of Item",
-    screenHeight: Dp = 400.dp,
-    screenWidth: Dp = 360.dp
+    onTouch:()->Unit ={},
 ) {
     val radius = 10.dp
-
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(radius),
@@ -714,43 +727,37 @@ fun EachItem(
             Image(
                 modifier = Modifier
                     .padding(8.dp)
-                    //.fillMaxWidth()
-                    //.fillMaxSize()
-
-                    .weight(8f),
-                contentScale = ContentScale.FillBounds,
+                    .fillMaxWidth()
+                    .weight(0.8f),
+                contentScale = ContentScale.Crop,
                 painter = painter,
                 contentDescription = contentDescription
             )
             Text(
                 text = text,
                 modifier = Modifier
-                    .weight(2f)
+                    .weight(0.2f)
                     .padding(start = 8.dp, end = 8.dp)
+                    .align(alignment = Alignment.CenterHorizontally)
                     .fillMaxWidth()
                     .background(ShoppingColors.LightColors.primary)
             )
         }
     }
-
-
 }
 @Composable
 fun EachItemTwo(
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier.size(128.dp),
-    painter: Painter = painterResource(drawable.coffee_animation),
+    modifier: Modifier,
+    painter: Painter = painterResource(R.drawable.coffee_animation),
     contentDescription: String = "null",
     text: String = "Title of Item",
-    screenHeight: Dp = 400.dp,
-    screenWidth: Dp = 360.dp,
 ) {
     val radius = 10.dp
-
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(radius),
         elevation = 8.dp
-    ) {
+    ){
         Box {
             ConstraintLayout(
             ) {
@@ -785,8 +792,5 @@ fun EachItemTwo(
                 )
             }
         }
-
     }
-
-
 }
