@@ -49,10 +49,7 @@ import com.example.portfolio.feature_shopping.domain.model.SpecialItem
 import com.example.portfolio.feature_shopping.domain.use_case.*
 import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
 import com.example.portfolio.feature_shopping.presentation.main.*
-import com.example.portfolio.feature_shopping.presentation.utils.AutomaticPager
-import com.example.portfolio.feature_shopping.presentation.utils.MyDivider
-import com.example.portfolio.feature_shopping.presentation.utils.Screens
-import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
+import com.example.portfolio.feature_shopping.presentation.utils.*
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -462,14 +459,21 @@ fun BodyContent(
         item(
             span = {GridItemSpan(2)}
         ){
-            AutomaticPager(
+            horizontalPagerTester(
+                modifier = Modifier
+                    .width(360.dp)
+                    .height(400.dp)
+                    .defaultMinSize(minWidth = 360.dp,minHeight = 400.dp),
+                specialItems = specialItems
+            )
+/*            AutomaticPager(
                 modifier = Modifier
                     .width(360.dp)
                     .height(400.dp)
                     .defaultMinSize(minWidth = 360.dp,minHeight = 400.dp),
 
                 specialItems = specialItems
-            )
+            )*/
         }
 
         //Section Item

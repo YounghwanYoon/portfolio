@@ -1,8 +1,12 @@
 package com.example.portfolio.feature_shopping.presentation.utils
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -20,17 +24,111 @@ import coil.request.ImageRequest
 import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
 import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
-import java.util.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.concurrent.timer
 
 @Preview
 @Composable
 fun PagerAndButtonTester(){
-    AutomaticPager()
+    horizontalPagerTester()
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun horizontalPagerTester (
+    modifier:Modifier = Modifier,
+    specialItems: List<SpecialItem> = listOf(
+                               SpecialItem(
+                                   id = 0,
+                                   image = R.drawable.coffee_animation,
+                                   description = "1",
+                                   title = "first",
+                                   start_date = "",
+                                   end_date = ""
+                               ),
+                               SpecialItem(
+                                   id = 1,
+                                   image = R.drawable.coffee_steam_,
+                                   description = "2",
+                                   title = "second",
+                                   start_date = "",
+                                   end_date = ""
+                               ),
+                               SpecialItem(
+                                   id = 2,
+                                   image = R.drawable.coffee_steam_bean,
+                                   description = "3",
+                                   title = "third",
+                                   start_date = "",
+                                   end_date = ""
+                               )
+                           ),
+){
+    val pagerState = rememberPagerState()
+    val pauseState = remember{mutableStateOf(false)}
+    var onTouchState by remember{ mutableStateOf(false) }
+
+    Column(modifier = modifier){
+        Card(){
+            HorizontalPager(pageCount = specialItems.size, state = pagerState) {page->
+                SubcomposeAsyncImage(
+                    model = specialItems[page].imageUrl,//request,
+                    //loading = CircularProgressIndicator(),
+                    contentDescription = specialItems[page].description,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable { onTouchState = true}
+                        .weight(0.8f)
+                ) {
+                    val state = painter.state
+
+                    if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
+                        CircularProgressIndicator()
+                    } else {
+                        SubcomposeAsyncImageContent()
+                    }
+                }
+                Text(
+                    text = specialItems[page].description,
+                    modifier = Modifier.weight(0.2f)
+                )
+            }
+        }
+
+        if(specialItems !=null){
+            val coroutineScope = rememberCoroutineScope()
+            val initalDelay = 3000L
+            val period = 5000L
+
+            LaunchedEffect(key1 = true){
+                timer(initialDelay = initalDelay, period = period){
+                    coroutineScope.launch {
+                        if(!pauseState.value){
+                            when{
+                                onTouchState ->{
+                                    delay(5000L)
+                                    onTouchState = false
+                                }
+                                pagerState.currentPage < specialItems!!.size-1 ->{
+                                    pagerState.animateScrollToPage(page = pagerState.currentPage +1)
+                                }
+                                pagerState.currentPage == specialItems!!.size-1 ->{
+                                    pagerState.animateScrollToPage(page = 0)
+                                }
+                            }
+                        }else{
+                            //Do pause
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun AutomaticPager(
     modifier: Modifier = Modifier,
@@ -47,7 +145,7 @@ fun AutomaticPager(
         ),
         SpecialItem(
                 id = 1,
-                image = R.drawable.coffee_animation,
+                image = R.drawable.coffee_steam_,
                 description = "2",
                 title = "second",
                 start_date = "",
@@ -55,7 +153,7 @@ fun AutomaticPager(
         ),
         SpecialItem(
                 id = 2,
-                image = R.drawable.coffee_animation,
+                image = R.drawable.coffee_steam_bean,
                 description = "3",
                 title = "third",
                 start_date = "",
@@ -72,7 +170,7 @@ fun AutomaticPager(
     val itemHeight = (itemWidth.value * 0.80).dp //300.dp
     val contentPadding = PaddingValues(start = padding, end = padding)// (screenWidth - itemWidth + horizontalPadding))
 
-    val pagerState = rememberPagerState()
+    val pagerState = androidx.compose.foundation.pager.rememberPagerState()//rememberPagerState()
     val items by remember{mutableStateOf(specialItems)}
 
     val pauseState = remember{mutableStateOf(false)}
@@ -81,9 +179,9 @@ fun AutomaticPager(
     Column(modifier = modifier.background(color= Color.White)){
         HorizontalPager(
             //modifier = Modifier.size(width= itemWidth, height = itemHeight),
-            count = items?.size ?: 0,
+            pageCount = items?.size ?: 0,
             state = pagerState,
-            itemSpacing = 1.dp,
+            pageSpacing = 1.dp,
             contentPadding = contentPadding //PaddingValues( start = 24.dp, end = 24.dp),
         ) { page ->
                 val request: ImageRequest
@@ -98,10 +196,10 @@ fun AutomaticPager(
                     }
                     //https://coil-kt.github.io/coil/compose/
                     SubcomposeAsyncImage(
-                        model = curItem.imageUrl,//request,
+                        model = curItem.image,//request,
                         //loading = CircularProgressIndicator(),
                         contentDescription = curItem.description,
-                        contentScale = ContentScale.Crop,
+                        //contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     ) {
                         val state = painter.state
@@ -135,38 +233,35 @@ fun AutomaticPager(
                     onTouch = { userPressed = true }
                 )*/
             }
-        }
-        if(items !=null){
+    }
+    if(items !=null){
+        val coroutineScope = rememberCoroutineScope()
+        val initalDelay = 3000L
+        val period = 5000L
 
-            val coroutineScope = rememberCoroutineScope()
-
-            val initalDelay = 3000L
-            val period = 5000L
-
-            /*LaunchedEffect(key1 = true){
-                timer(initialDelay = initalDelay, period = period){
-                    coroutineScope.launch {
-                        if(!pauseState.value){
-                            when{
-                                userPressed ->{
-                                    delay(5000L)
-                                    userPressed = false
-                                }
-                                pagerState.currentPage < items!!.size-1 ->{
-                                    pagerState.animateScrollToPage(page = pagerState.currentPage +1)
-                                }
-                                pagerState.currentPage == items!!.size-1 ->{
-                                    pagerState.animateScrollToPage(page = 0)
-                                }
+        LaunchedEffect(key1 = true){
+            timer(initialDelay = initalDelay, period = period){
+                coroutineScope.launch {
+                    if(!pauseState.value){
+                        when{
+                            userPressed ->{
+                                delay(5000L)
+                                userPressed = false
                             }
-                        }else{
-                            //Do pause
+                            pagerState.currentPage < items!!.size-1 ->{
+                                pagerState.animateScrollToPage(page = pagerState.currentPage +1)
+                            }
+                            pagerState.currentPage == items!!.size-1 ->{
+                                pagerState.animateScrollToPage(page = 0)
+                            }
                         }
+                    }else{
+                        //Do pause
                     }
                 }
             }
-        }*/
         }
+    }
 }/*
 @OptIn(ExperimentalPagerApi::class)
 @Composable

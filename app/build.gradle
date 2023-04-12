@@ -154,10 +154,10 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core:$compose_version_material")
 
     // Optional - Add window size utils
-    implementation("androidx.compose.material3:material3-window-size-class:1.1.0-alpha06")
+    implementation("androidx.compose.material3:material3-window-size-class:1.1.0-beta02")
 
     // Optional - Integration with activities
-    implementation("androidx.activity:activity-compose:1.6.1")
+    implementation("androidx.activity:activity-compose:1.7.0")
     // Optional - Integration with ViewModels
 
     def lifecycle_version = "2.6.0-beta01"
