@@ -49,9 +49,7 @@ fun CustomViewPager(
 ){
     //val slideContent = remember { mutableStateOf(Text("Slide")) }
     val state = rememberPagerState(initialPage = 0)
-
     val lastPage = remember{contentList.size -1}
-
 
     println("current Page is ${state.currentPage}")
     if(state.currentPage == lastPage){

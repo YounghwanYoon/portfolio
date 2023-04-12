@@ -7,23 +7,22 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
+import coil.request.ImageRequest
 import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
-import com.example.portfolio.feature_shopping.presentation.main.EachItem
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.concurrent.timer
-import kotlin.math.absoluteValue
 
 @Preview
 @Composable
@@ -64,6 +63,145 @@ fun AutomaticPager(
             )
         ),
 ){
+
+    println("Pager")
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    val padding = 24.dp
+    val itemWidth = 360.dp
+    val itemHeight = (itemWidth.value * 0.80).dp //300.dp
+    val contentPadding = PaddingValues(start = padding, end = padding)// (screenWidth - itemWidth + horizontalPadding))
+
+    val pagerState = rememberPagerState()
+    val items by remember{mutableStateOf(specialItems)}
+
+    val pauseState = remember{mutableStateOf(false)}
+    var userPressed by remember{mutableStateOf(isUserPressing)}
+
+    Column(modifier = modifier.background(color= Color.White)){
+        HorizontalPager(
+            //modifier = Modifier.size(width= itemWidth, height = itemHeight),
+            count = items?.size ?: 0,
+            state = pagerState,
+            itemSpacing = 1.dp,
+            contentPadding = contentPadding //PaddingValues( start = 24.dp, end = 24.dp),
+        ) { page ->
+                val request: ImageRequest
+                if(items != null) {
+                    val curItem = items!![pagerState.currentPage]
+                    with(density) {
+                        request = ImageRequest.Builder(context)
+                            .data(curItem.imageUrl)
+                            .size(width = itemWidth.value.toInt(), height = itemHeight.value.toInt())
+                            .crossfade(true)
+                            .build()
+                    }
+                    //https://coil-kt.github.io/coil/compose/
+                    SubcomposeAsyncImage(
+                        model = curItem.imageUrl,//request,
+                        //loading = CircularProgressIndicator(),
+                        contentDescription = curItem.description,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        val state = painter.state
+
+                        if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
+                            CircularProgressIndicator()
+                        } else {
+                            SubcomposeAsyncImageContent()
+                        }
+                    }
+                }
+/*                // Our page content
+                EachItem(
+                    modifier = Modifier.graphicsLayer {
+                        val pageOffset =
+                            ((pagerState.currentPage - page) + pagerState.currentPageOffset).absoluteValue
+                        // We animate the alpha, between 50% and 100%
+                        alpha = androidx.ui.lerp(
+                            start = 0.5f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                        )
+                    },
+                    painter =
+                    //Image data from Server
+                    if (curItem.imageUrl != "") rememberAsyncImagePainter(curItem.imageUrl)
+                    //Image for local use for design
+                    else painterResource(curItem.image),
+                    contentDescription = curItem.description,
+                    text = curItem.description,
+                    onTouch = { userPressed = true }
+                )*/
+            }
+        }
+        if(items !=null){
+
+            val coroutineScope = rememberCoroutineScope()
+
+            val initalDelay = 3000L
+            val period = 5000L
+
+            /*LaunchedEffect(key1 = true){
+                timer(initialDelay = initalDelay, period = period){
+                    coroutineScope.launch {
+                        if(!pauseState.value){
+                            when{
+                                userPressed ->{
+                                    delay(5000L)
+                                    userPressed = false
+                                }
+                                pagerState.currentPage < items!!.size-1 ->{
+                                    pagerState.animateScrollToPage(page = pagerState.currentPage +1)
+                                }
+                                pagerState.currentPage == items!!.size-1 ->{
+                                    pagerState.animateScrollToPage(page = 0)
+                                }
+                            }
+                        }else{
+                            //Do pause
+                        }
+                    }
+                }
+            }
+        }*/
+        }
+}/*
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun AutomaticPager(
+    modifier: Modifier = Modifier,
+    isUserPressing:Boolean = false,
+    action:()->Unit = {},
+    specialItems: List<SpecialItem>? = listOf(
+        SpecialItem(
+            id = 0,
+            image = R.drawable.coffee_animation,
+            description = "1",
+            title = "first",
+            start_date = "",
+            end_date = ""
+        ),
+        SpecialItem(
+                id = 1,
+                image = R.drawable.coffee_animation,
+                description = "2",
+                title = "second",
+                start_date = "",
+                end_date = ""
+        ),
+        SpecialItem(
+                id = 2,
+                image = R.drawable.coffee_animation,
+                description = "3",
+                title = "third",
+                start_date = "",
+                end_date = ""
+            )
+        ),
+){
+    val context = LocalContext.current
     val padding = 24.dp
     val itemWidth = 360.dp
     val itemHeight = (itemWidth.value * 0.80).dp //300.dp
@@ -78,11 +216,11 @@ fun AutomaticPager(
 
     Column(modifier = modifier.background(color= Color.White)){
         HorizontalPager(
-            modifier = Modifier.size(width= itemWidth, height = itemWidth),
+            modifier = Modifier.size(width= itemWidth, height = itemHeight),
             count = items?.size ?: 0,
             state = pagerState,
             itemSpacing = 1.dp,
-            contentPadding = contentPadding //PaddingValues( start = 24.dp, end = 24.dp)
+            contentPadding = contentPadding //PaddingValues( start = 24.dp, end = 24.dp),
         ) { page ->
 
             if(items == null){
@@ -93,15 +231,13 @@ fun AutomaticPager(
                 EachItem(
                     modifier = Modifier.graphicsLayer {
                         val pageOffset =
-                            ((pagerState.currentPage - page) + pagerState.currentPageOffset)
-                                .absoluteValue
+                            ((pagerState.currentPage - page) + pagerState.currentPageOffset).absoluteValue
                         // We animate the alpha, between 50% and 100%
                         alpha = androidx.ui.lerp(
                             start = 0.5f,
                             stop = 1f,
                             fraction = 1f - pageOffset.coerceIn(0f, 1f)
                         )
-
                     },
                     painter =
                     //Image data from Server
@@ -146,7 +282,7 @@ fun AutomaticPager(
             }
         }
     }
-}
+}*/
 
 @Composable
 fun PagerPlayButtons(
@@ -199,5 +335,13 @@ fun PagerPlayButtons(
                 contentDescription = "next_btn_image",
             )
         }
+    }
+}
+
+@Composable
+fun preLoad(){
+    val context = LocalContext.current
+    LaunchedEffect(Unit){
+
     }
 }
