@@ -5,12 +5,12 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class SellingItem(
-    var id:Int,
+    var id:Int = 0,
     var image: Int = 0,
     var imageUrl:String = "",
-    var title:String,
+    var title:String = "",
     var description:String = "null ",
-    var price:Double,
+    var price:Double = 0.00,
     var quantity:Int = 0
 ):Parcelable{
 

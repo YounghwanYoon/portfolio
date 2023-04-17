@@ -4,13 +4,17 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -27,16 +31,18 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.concurrent.timer
+import kotlin.math.absoluteValue
+import kotlin.time.Duration.Companion.seconds
 
 @Preview
 @Composable
 fun PagerAndButtonTester(){
-    horizontalPagerTester()
+    AutomaticPager()
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun horizontalPagerTester (
+fun AutomaticPager (
     modifier:Modifier = Modifier,
     specialItems: List<SpecialItem> = listOf(
                                SpecialItem(
@@ -67,35 +73,61 @@ fun horizontalPagerTester (
 ){
     val pagerState = rememberPagerState()
     val pauseState = remember{mutableStateOf(false)}
-    var onTouchState by remember{ mutableStateOf(false) }
+    var onPressState by remember{ mutableStateOf(false) }
+    val padding = 16.dp
+    val contentPadding = PaddingValues(start = padding, end = padding)// (screenWidth - itemWidth + horizontalPadding))
 
     Column(modifier = modifier){
-        Card(){
-            HorizontalPager(pageCount = specialItems.size, state = pagerState) {page->
-                SubcomposeAsyncImage(
-                    model = specialItems[page].imageUrl,//request,
-                    //loading = CircularProgressIndicator(),
-                    contentDescription = specialItems[page].description,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clickable { onTouchState = true}
-                        .weight(0.8f)
-                ) {
-                    val state = painter.state
+            HorizontalPager(
+                pageCount = specialItems.size,
+                state = pagerState,
+                contentPadding = contentPadding,
+                pageSpacing = 16.dp,
+            ) {page->
+                Column(
+                    modifier
+                        .align(alignment = Alignment.CenterHorizontally)
+                ){
+                    SubcomposeAsyncImage(
+                        model = specialItems[page].imageUrl,//request,
+                        //loading = CircularProgressIndicator(),
+                        contentDescription = specialItems[page].description,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable { }
+                            .weight(0.8f)
+                            .graphicsLayer {
+                                val pageOffset =
+                                    ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
+                                // We animate the alpha, between 50% and 100%
+                                alpha = androidx.ui.lerp(
+                                    start = 0.5f,
+                                    stop = 1f,
+                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                )
+                            }
+                            .pointerInput(Unit){
+                                detectTapGestures(
+                                    onPress = {onPressState = true}
+                                )
+                            }
+                    ) {
+                        val state = painter.state
 
-                    if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
-                        CircularProgressIndicator()
-                    } else {
-                        SubcomposeAsyncImageContent()
+                        if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
+                            CircularProgressIndicator()
+                        } else {
+                            SubcomposeAsyncImageContent()
+                        }
                     }
+                    Text(
+                        text = specialItems[page].description,
+                        modifier = Modifier.weight(0.1f)
+                    )
                 }
-                Text(
-                    text = specialItems[page].description,
-                    modifier = Modifier.weight(0.2f)
-                )
             }
-        }
+
 
         if(specialItems !=null){
             val coroutineScope = rememberCoroutineScope()
@@ -107,14 +139,14 @@ fun horizontalPagerTester (
                     coroutineScope.launch {
                         if(!pauseState.value){
                             when{
-                                onTouchState ->{
-                                    delay(5000L)
-                                    onTouchState = false
+                                onPressState ->{
+                                    delay(3.seconds)
+                                    onPressState = false
                                 }
-                                pagerState.currentPage < specialItems!!.size-1 ->{
+                                pagerState.currentPage < specialItems.size-1 ->{
                                     pagerState.animateScrollToPage(page = pagerState.currentPage +1)
                                 }
-                                pagerState.currentPage == specialItems!!.size-1 ->{
+                                pagerState.currentPage == specialItems.size-1 ->{
                                     pagerState.animateScrollToPage(page = 0)
                                 }
                             }
@@ -130,7 +162,7 @@ fun horizontalPagerTester (
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun AutomaticPager(
+fun AutomaticPager_old(
     modifier: Modifier = Modifier,
     isUserPressing:Boolean = false,
     action:()->Unit = {},
@@ -262,39 +294,15 @@ fun AutomaticPager(
             }
         }
     }
-}/*
+}
+/*
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun AutomaticPager(
     modifier: Modifier = Modifier,
     isUserPressing:Boolean = false,
     action:()->Unit = {},
-    specialItems: List<SpecialItem>? = listOf(
-        SpecialItem(
-            id = 0,
-            image = R.drawable.coffee_animation,
-            description = "1",
-            title = "first",
-            start_date = "",
-            end_date = ""
-        ),
-        SpecialItem(
-                id = 1,
-                image = R.drawable.coffee_animation,
-                description = "2",
-                title = "second",
-                start_date = "",
-                end_date = ""
-        ),
-        SpecialItem(
-                id = 2,
-                image = R.drawable.coffee_animation,
-                description = "3",
-                title = "third",
-                start_date = "",
-                end_date = ""
-            )
-        ),
+    specialItems: List<SpecialItem>
 ){
     val context = LocalContext.current
     val padding = 24.dp

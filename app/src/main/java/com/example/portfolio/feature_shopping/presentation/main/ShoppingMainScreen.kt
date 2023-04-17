@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -422,13 +423,38 @@ fun BodyContent(
     navController: NavController,
     itemStateVM: ShoppingItemStateViewModel
 ) {
+    val config = LocalConfiguration.current
+    val deviceWidth = config.screenWidthDp.dp
+    val deviceHeight = config.screenHeightDp.dp
+
+    println("current width & height $deviceWidth, $deviceHeight ")
+    val itemWidth:Dp
+    val itemHeight:Dp
+    val span:GridItemSpan
+    val cells:Int
+    //when rotated or tablet
+    when(deviceWidth > deviceHeight || deviceWidth > 415.dp){
+        false ->{
+            itemWidth = (deviceWidth.value * 0.95f).dp
+            itemHeight = (deviceHeight.value * 0.40f).dp
+            cells = 2
+            span = GridItemSpan(cells)
+
+        }
+        true ->{
+            itemWidth = (deviceWidth.value * 0.60f).dp
+            itemHeight = (deviceHeight.value * 0.70f).dp
+            cells = 3
+            span = GridItemSpan(cells)
+        }
+    }
 
     LazyVerticalGrid(
         modifier = modifier,
         //This asking into how many cells do you want to divide and control for grid view
         // In this case, it is divided into two, so width is controlled by two cells.
         columns = GridCells
-            .Fixed(2),
+            .Fixed(cells),
 
         // content padding
         contentPadding = PaddingValues(
@@ -441,29 +467,24 @@ fun BodyContent(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
 
         ) {
-        //Span mean it how many spot will it take.
-        //since it is fixed with 2 counts == 2 spans.
 
-        // First Section with title and LazyRow
-        // It takes two span to override
-/*        item(
-            span = { GridItemSpan(2) }
-        ) {
-            SpecialSection(
-                modifier = Modifier
-                    .width(360.dp)
-                    .height(400.dp),
-                specialItems = specialItems
+        item(span = {span}){
+            Text(
+                text = "Season Special",
+                fontStyle = FontStyle.Italic,
+                fontWeight = FontWeight.SemiBold,
             )
-        }*/
+        }
+
+
+
         item(
-            span = {GridItemSpan(2)}
+            span = {span}
         ){
-            horizontalPagerTester(
+            AutomaticPager(
                 modifier = Modifier
-                    .width(360.dp)
-                    .height(400.dp)
-                    .defaultMinSize(minWidth = 360.dp,minHeight = 400.dp),
+                    .width(itemWidth)
+                    .height(itemHeight),
                 specialItems = specialItems
             )
 /*            AutomaticPager(
@@ -479,7 +500,7 @@ fun BodyContent(
         //Section Item
         //Start with title
         item(
-            span = { GridItemSpan(2) }
+            span = {span}
         ) {
             Text(
                 text = "Regular Items",
