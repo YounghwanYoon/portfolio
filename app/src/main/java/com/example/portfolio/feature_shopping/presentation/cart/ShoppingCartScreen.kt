@@ -34,12 +34,12 @@ import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.model.CartItem
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
-import com.example.portfolio.feature_shopping.presentation.detail.ImageFrame
 import com.example.portfolio.feature_shopping.presentation.payment.PaymentDialogScreen
 import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_300
 import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
 import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
 import com.example.portfolio.feature_shopping.presentation.utils.Helper.nonScaledSp
+import com.example.portfolio.feature_shopping.presentation.utils.ImageFrame
 import com.example.portfolio.feature_shopping.presentation.utils.Screens
 
 @Composable

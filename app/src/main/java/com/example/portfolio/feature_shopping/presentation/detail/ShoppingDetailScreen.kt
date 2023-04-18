@@ -11,6 +11,8 @@ import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -40,8 +43,10 @@ import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
 import com.example.portfolio.feature_shopping.presentation.main.ShoppingItemStateViewModel
+import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingDetailScreen (
     modifier: Modifier = Modifier,
@@ -57,96 +62,42 @@ fun ShoppingDetailScreen (
     println("ShoppingItemStateVM - $itemStateVM")
     val selectedItem = itemStateVM.getSelectedItem(selectedItemId.toInt())
 
-    Scaffold(){
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                title = {/*Text(text= "app bar title")*/},
+                navigationIcon = {
+                    if(navController.previousBackStackEntry != null){
+                        IconButton(onClick = {navController.navigateUp()}){
+                            Icon(
+                                imageVector =  Icons.Filled.ArrowBack,
+                                contentDescription = "Back to previous page"
+                            )
+                        }
+                    }else{
+                        println("back button got some issue")
+                    }
+                }
+            )
+        }
+
+    ){
         Column(
-            modifier= modifier.background(color = MaterialTheme.colorScheme.background)
+            modifier= modifier
         ){
             //com.example.portfolio.feature_shopping.presentation.main.Header() // Skip in this section
-            if (selectedItem != null) {
+            selectedItem?.let{
                 BodyContent(
                     modifier = Modifier
-                        .background(color = Color.Black),
+                        .fillMaxSize(),
                     selectedItem = selectedItem,
                     addToCart = cartStateViewModel::addItem
                 )
             }
-/*            Footer(
-                modifier = when(isTablet){
-                    false->{
-                        Modifier
-                            .weight(0.08f)
-                            .defaultMinSize(minHeight = 50.dp)
-                        //.fillMaxWidth()
-
-                    }
-                    true ->{
-                        Modifier
-                            .weight(0.10f)
-                            .defaultMinSize(minHeight = 50.dp)
-                    }
-                },
-                navController = navController
-            )*/
         }
     }
 }
-
-/*
-@Composable
-fun ShoppingDetailScreen_old (
-    modifier: Modifier = Modifier,
-    screenHeight:Dp = 640.dp,
-    screenWidth: Dp = 360.dp,
-    window: Window ? = null,
-    navController:NavController,
-    selectedItemId:String,
-    itemStateVM:ShoppingItemStateViewModel,
-    cartStateViewModel: CartStateViewModel,
-    isTablet:Boolean
-){
-    println("ShoppingItemStateVM - $itemStateVM")
-    val selectedItem = itemStateVM.getSelectedItem(selectedItemId.toInt())
-
-*/
-/*
-    WindowCompat.setDecorFitsSystemWindows(window, false)
-    window.setFlags(
-        WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-        WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-    )*//*
-    Column(
-        modifier= modifier.background(color = MaterialTheme.colorScheme.background)
-    ){
-        //com.example.portfolio.feature_shopping.presentation.main.Header() // Skip in this section
-        if (selectedItem != null) {
-            Detail_Body(
-                modifier = Modifier.weight(0.9f),
-                screenHeight = screenHeight,
-                screenWidth = screenWidth,
-                selectedItem = selectedItem,
-                itemStateVM = itemStateVM,
-                cartStateVM = cartStateViewModel
-            )
-        }
-        Footer(
-            modifier = when(isTablet){
-                false->{
-                    Modifier.weight(0.08f)
-                        .defaultMinSize(minHeight = 50.dp)
-                    //.fillMaxWidth()
-
-                }
-                true ->{
-                    Modifier.weight(0.10f)
-                        .defaultMinSize(minHeight = 50.dp)
-                }
-            },
-            navController = navController
-        )
-    }
-}
-*/
-
 
 @Preview
 @Composable
@@ -165,8 +116,8 @@ fun BodyContent(
         //image
         Card(
             modifier = Modifier
-                .constrainAs(image){
-                    top.linkTo(parent.top, margin = 16.dp)
+                .constrainAs(image) {
+                    top.linkTo(parent.top, margin = 32.dp)
                     start.linkTo(parent.absoluteLeft, margin = 16.dp)
                     end.linkTo(parent.absoluteRight, margin = 16.dp)
                 }
@@ -189,8 +140,7 @@ fun BodyContent(
         }
 
         //image title
-        Text(
-            modifier = Modifier
+        Text(modifier = Modifier
                 .constrainAs(imageTitle){
                     top.linkTo(image.bottom, margin = 32.dp)
                     start.linkTo(parent.absoluteLeft, margin = 16.dp)
@@ -203,36 +153,34 @@ fun BodyContent(
             fontSize = 32.sp,
             textDecoration = null,
             softWrap = false,
-            maxLines = 1,
+            maxLines = 2,
         )
 
         ItemDescriptionCards(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
                 .height(150.dp)
-                .constrainAs(keyDescription){
-                    top.linkTo(imageTitle.bottom,margin = 100.dp)
-                    start.linkTo(parent.absoluteLeft,margin = 4.dp)
-                    end.linkTo(parent.absoluteRight,margin = 4.dp)
+                .constrainAs(keyDescription) {
+                    top.linkTo(imageTitle.bottom, margin = 100.dp)
+                    start.linkTo(parent.absoluteLeft, margin = 4.dp)
+                    end.linkTo(parent.absoluteRight, margin = 4.dp)
                 }
                 .padding(16.dp)
         )
-/*
+
         ItemPriceAndCart(
             modifier = Modifier
-                .constrainAs(controlCard){
+                .constrainAs(controlCard) {
                     bottom.linkTo(parent.bottom, margin = 4.dp)
-                    start.linkTo(parent.absoluteLeft,margin = 4.dp)
-                    end.linkTo(parent.absoluteRight,margin = 4.dp)
-                    top.linkTo(keyDescription)
+                    start.linkTo(parent.absoluteLeft, margin = 4.dp)
+                    end.linkTo(parent.absoluteRight, margin = 4.dp)
                 }
                 .fillMaxWidth(0.95f)
-                .padding(all = 12.dp)
-            ,
+                .padding(all = 12.dp),
             price = "$${selectedItem.price}",
             selectedItem = selectedItem,
             addToCart = addToCart
-        )*/
+        )
     }
 }
 
@@ -316,56 +264,68 @@ fun ItemPriceAndCart(
     addToCart:(item:SellingItem) -> Unit = {} //from cartviewmodel.add
 ) {
     val quantity = remember{mutableStateOf(1)}
-    val selectedItem = remember{mutableStateOf(selectedItem)}
+    var _selectedItem = remember{mutableStateOf(selectedItem)}
 
-    Card(modifier = modifier){
-        Column{
-
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        elevation = 4.dp
+    ){
+        Column(modifier= Modifier.padding(8.dp)){
             Row{
                 Column(){
                     Text(
                         text = "Coffee Bean By Christoph",
-                        fontSize = 24.sp,
+                        fontSize = 18.sp,
                         fontWeight= FontWeight.SemiBold
                     )
                     Text(
                         text= "Size: 16 fl oz/ 1 lb",
-                        fontSize = 16.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.ExtraLight
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(50.dp))
-            Row{
+            Spacer(modifier = Modifier.height(25.dp))
+            Row(
+                modifier = Modifier,
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ){
                 Text(
-                    text = "$$price",
+                    text = "$price",
                     fontSize = 32.sp,
-                    fontWeight= FontWeight.Bold
+                    fontWeight= FontWeight.Bold,
+                    modifier= Modifier.weight(0.30f)
                 )
-                Spacer(modifier = Modifier.width(50.dp))
                 QuantityControlButton(
                     quantity = quantity.value,
-                    modifier = Modifier,
+                    modifier = Modifier
+                        .weight(0.30f)
+                        .height(25.dp),
                     removeAction = {
-                        if(selectedItem.value.quantity > 1) selectedItem.value.quantity--
+                        //TO DO:: Need to update with VM
+                        if(_selectedItem.value.quantity > 1) _selectedItem.value.quantity--
                     },
                     addAction = {
-                        if(selectedItem.value.quantity <99) selectedItem.value.quantity++
+                        if(_selectedItem.value.quantity <99) _selectedItem.value.quantity++
                     }
                 )
-                Spacer(modifier = Modifier.width(24.dp))
+                Spacer(modifier = Modifier.width(16.dp))
                 Button(
-                    onClick = {addToCart(selectedItem.value)}
+                    shape = CircleShape,
+                    modifier = Modifier.weight(0.20f),
+                    onClick = {addToCart(_selectedItem.value)},
+                    colors = ButtonDefaults.buttonColors(containerColor = ShoppingColors.Brown_700)
                 ){
                     Text(
-                        text = "Cart"
+                        text = "Cart",
+                        color = Color.White,
+                        fontSize = 18.sp
                     )
                 }
             }
         }
-
-
     }
 }
 
@@ -380,262 +340,70 @@ fun QuantityControlButton(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(width = 4.dp, color = Color.Gray)
+        border = BorderStroke(width = 4.dp, color = Color.Gray),
     ){
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .defaultMinSize(minWidth = 100.dp)
+                .defaultMinSize(minWidth = 75.dp)
         ){
-            Button(
+            IconButton(
+                //shape = RectangleShape,
                 onClick = {
                     removeAction()
                     if(currentQuantity.value > 1) currentQuantity.value --
                 },
+                //colors = ButtonDefaults.buttonColors(Color.Transparent),
                 modifier = Modifier
-                    .defaultMinSize(minWidth = 25.dp)
-                    .background(color = Color.Transparent)
+                    .weight(0.30f)
+                    .border(width = 4.dp, color = Color.Gray)
+                    .padding(4.dp)
 
             ){
                 Icon(
-                    painter = painterResource(id = R.drawable.baseline_remove_24),
+                    imageVector = Icons.Filled.Remove,
+                    //painter = painterResource(id = R.drawable.baseline_remove_24),
                     contentDescription = "remove",
                     modifier = Modifier
-                        .background(color = Color.Transparent)
+                        .defaultMinSize(minWidth = 25.dp, minHeight = 25.dp)
+                        //.background(color = Color.Transparent)
                 )
             }
             Text(
                 text = "${currentQuantity.value}",
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .border(width = 4.dp, color= Color.Gray)
+                    .weight(0.50f)
                 ,
             )
 
-            Button(
+            IconButton(
+                //colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                //shape = RectangleShape,
                 onClick = {
                     addAction()
-                    if(currentQuantity.value < 99) currentQuantity.value++
+                    if (currentQuantity.value < 99) currentQuantity.value++
                 },
                 modifier = Modifier
-                    .defaultMinSize(minWidth = 25.dp)
-                    .background(color = Color.Transparent)
-                ,
-                ){
+                    .weight(0.30f)
+                    .border(width = 4.dp, color = Color.Gray, shape = RectangleShape)
+                    .padding(4.dp)
+
+            ){
                 Icon(
-                    painter = painterResource(id = R.drawable.baseline_add_24),
+                    imageVector = Icons.Filled.Add,
+                    //painter = painterResource(id = R.drawable.baseline_add_24),
                     contentDescription = "remove",
                     modifier = Modifier
-                        .background(color = Color.Transparent)
-
+                        .defaultMinSize(minWidth = 25.dp, minHeight = 25.dp)
+                        .background(color = Color.Transparent),
                 )
             }
         }
-
     }
-
 }
 
-
-/*
-@Composable
-fun Detail_Body_old(
-    modifier:Modifier = Modifier.padding(16.dp),
-    painter: Painter = painterResource(R.drawable.coffee_animation),
-    screenHeight: Dp,
-    screenWidth: Dp,
-    context:Context = LocalContext.current,
-    selectedItem:SellingItem,
-    itemStateVM:ShoppingItemStateViewModel, //= hiltViewModel<ShoppingItemStateViewModel>()
-    cartStateVM:CartStateViewModel
-) {
-        ImageFrame(modifier
-            .fillMaxSize()
-            .fillMaxHeight()
-            .background(color = MaterialTheme.colorScheme.background)
-            .padding(0.dp),
-            bodyContent = {
-                Column(modifier.fillMaxSize()){
-                    selectedItem.let{
-                        Detail_ImageAndTitle(
-                            modifier.weight(5f).padding(top = 0.dp, bottom= 0.dp),
-                            modelUrl = it.imageUrl,
-                            description = it.description,
-                            itemTitle = it.title,
-                        )
-                    } ?: Detail_ImageAndTitle(
-                        modifier.weight(5f).padding(top = 0.dp, bottom= 0.dp),
-                    )
-                    Detail_ProductInfo(
-                        modifier
-                            .weight(5f)
-                            .padding(start = 18.dp, end = 18.dp,top = 16.dp, bottom= 8.dp)
-                            .verticalScroll(rememberScrollState())
-                    )
-                }
-            },
-            bodyBotContent = {
-                Detail_AddItemFloatBtn(
-                    modifier = Modifier,
-                    selectedItem = selectedItem,
-                    cartStateVM = cartStateVM
-                )
-            }
-        )
-}*/
-
-/**
- * Simply
- */
-
-//@Preview(widthDp = 360, heightDp = 640)
-@Composable
-fun ImageFrame(
-    modifier:Modifier = Modifier.background(color = MaterialTheme.colorScheme.background),
-    painter:Painter = painterResource(R.drawable.coffee_mug_cup_frame),
-    bodyContent: @Composable () -> Unit = {Text("TestLazyColumn Section")},
-    bodyBotContent: @Composable () -> Unit = {Text("Bottom Calculation Section")},
-){
-    Surface(
-        modifier = modifier,
-        //modifier.background(color = MaterialTheme.colorScheme.background),
-        //color= MaterialTheme.colorScheme.background
-    ){
-        Card (
-            //modifier = Modifier.fillMaxSize(),//.background(color = MaterialTheme.colorScheme.background),
-            elevation = 8.dp,
-        ){
-            Image(
-                modifier= Modifier
-                    .background(color = MaterialTheme.colorScheme.background)
-                    .fillMaxHeight()
-                    .fillMaxWidth(),
-                painter = painter,
-                contentDescription = "Mug Cup ImageFrame",
-
-            )
-            Box(
-                modifier = Modifier
-                    .padding(end = 8.dp)
-                    .fillMaxWidth(1.0f)
-                    .fillMaxHeight(0.70f)
-                    .clip(shape = RoundedCornerShape(8.dp)),
-                contentAlignment = Alignment.Center
-            ){
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth(0.90f)
-                        .fillMaxHeight(0.85f)
-                        .clip(shape = RoundedCornerShape(8.dp))
-                    //.padding(top = 2.dp, bottom= 8.dp, start = 8.dp, end = 18.dp),
-                ){
-                    Box(
-                        modifier = Modifier
-                            .weight(9.3f)
-                            .fillMaxHeight()
-                            .fillMaxWidth()
-
-                    ){
-                        bodyContent()
-                    }
-
-                    //com.example.portfolio.feature_shopping.presentation.main.MyDivider(height = 0.dp)
-
-                    Row(modifier = Modifier
-                        .weight(0.70f)
-                        .fillMaxWidth()
-                        .padding(top = 4.dp, bottom = 4.dp)
-                    ){
-                        bodyBotContent()
-                    }/*
-                    Box(modifier = Modifier.weight(0.85f).padding(top = 18.dp, bottom = 0.dp)){
-                        bodyBotContent()
-                    }
-                    */
-                }
-            }
-        }
-    }
-
-
-}
-
-/*
-@Preview(widthDp = 360, heightDp = 640)
-@Composable
-fun ImageFrame_old(
-    modifier:Modifier = Modifier.background(color = MaterialTheme.colorScheme.background),
-    painter:Painter = painterResource(R.drawable.coffee_mug_cup_frame),
-    bodyContent: @Composable () -> Unit = {Text("TestLazyColumn Section")},
-    bodyBotContent: @Composable () -> Unit = {Text("Bottom Calculation Section")},
-){
-    Surface(
-        modifier = modifier,
-        //modifier.background(color = MaterialTheme.colorScheme.background),
-        //color= MaterialTheme.colorScheme.background
-    ){
-        Card (
-            //modifier = Modifier.fillMaxSize(),//.background(color = MaterialTheme.colorScheme.background),
-            elevation = 8.dp,
-        ){
-            Image(
-                modifier= Modifier
-                    .background(color = MaterialTheme.colorScheme.background)
-                    .fillMaxHeight()
-                    .fillMaxWidth(),
-                painter = painter,
-                contentDescription = "Mug Cup ImageFrame",
-
-            )
-            Box(
-                modifier = Modifier
-                    .padding(end = 8.dp)
-                    .fillMaxWidth(1.0f)
-                    .fillMaxHeight(0.70f)
-                    .clip(shape = RoundedCornerShape(8.dp)),
-                contentAlignment = Alignment.Center
-            ){
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth(0.90f)
-                        .fillMaxHeight(0.85f)
-                        .clip(shape = RoundedCornerShape(8.dp))
-                    //.padding(top = 2.dp, bottom= 8.dp, start = 8.dp, end = 18.dp),
-                ){
-                    Box(
-                        modifier = Modifier
-                            .weight(9.3f)
-                            .fillMaxHeight()
-                            .fillMaxWidth()
-
-                    ){
-                        bodyContent()
-                    }
-
-                    //com.example.portfolio.feature_shopping.presentation.main.MyDivider(height = 0.dp)
-
-                    Row(modifier = Modifier
-                        .weight(0.70f)
-                        .fillMaxWidth()
-                        .padding(top = 4.dp, bottom = 4.dp)
-                    ){
-                        bodyBotContent()
-                    }*/
-/*
-                    Box(modifier = Modifier.weight(0.85f).padding(top = 18.dp, bottom = 0.dp)){
-                        bodyBotContent()
-                    }
-                    *//*
-
-                }
-            }
-        }
-    }
-
-
-}
-*/
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -703,55 +471,6 @@ fun Detail_ImageAndTitle(
 
     }
 }
-
-/*
-
-@Composable
-fun Detail_ImageAndTitle(
-    modifier:Modifier = Modifier,
-    painter:Painter = painterResource(R.drawable.coffee_animation),
-    description:String = "Coffee Image",
-    itemTitle:String = "American Coffee"
-){
-    Box(modifier = modifier){
-            Column(
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(16.dp)
-            ){
-                Card(
-                    elevation = 8.dp,
-                    modifier = Modifier
-                        .weight(7f)
-                        .border(
-                            width = 2.dp,
-                            color = MaterialTheme.colorScheme.onTertiary,
-                            shape = RoundedCornerShape(6.dp)
-                        )
-                ){
-                    Image(
-                        painter =painter,
-                        contentDescription = description,
-                        contentScale = ContentScale.FillBounds,
-                        modifier = Modifier
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1f))
-
-                Text(
-                    text = itemTitle,
-                    modifier = Modifier.weight(1f),
-                    style = TextStyle(
-                        fontSize = 22.sp,
-                        fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Bold,
-                    )
-                )
-            }
-
-    }
-}
-*/
 
 @Composable
 fun Detail_ProductInfo(modifier:Modifier = Modifier.verticalScroll(rememberScrollState()), data: SelectedData = SelectedData(1)){
@@ -830,17 +549,3 @@ data class SelectedData(
 enum class BeanType{
     Espresso, Dark, Medium, Light
 }
-/*
-@Composable
-fun BorderImage(modifier:Modifier = Modifier, painter:Painter = painterResource(R.drawable.coffee_animation)){
-    Card(
-        modifier = modifier,
-        border = BorderStroke(width= 2.dp, color = MaterialTheme.colorScheme.onTertiary)
-    ){
-        Image(
-            painter = painter,
-            contentDescription = "Image with Border",
-            contentScale = ContentScale.Fit
-        )
-    }
-}*/

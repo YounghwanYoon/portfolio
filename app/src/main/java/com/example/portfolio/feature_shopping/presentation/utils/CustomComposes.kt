@@ -1,9 +1,13 @@
 package com.example.portfolio.feature_shopping.presentation.utils
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,8 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.portfolio.R
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -32,7 +39,76 @@ fun MyDivider(modifier: Modifier = Modifier, height: Dp = 2.dp, shadowElevation:
         )
     }
 }
+@Composable
+fun ImageFrame(
+    modifier:Modifier = Modifier.background(color = MaterialTheme.colorScheme.background),
+    painter: Painter = painterResource(R.drawable.coffee_mug_cup_frame),
+    bodyContent: @Composable () -> Unit = {Text("TestLazyColumn Section")},
+    bodyBotContent: @Composable () -> Unit = {Text("Bottom Calculation Section")},
+){
+    Surface(
+        modifier = modifier,
+        //modifier.background(color = MaterialTheme.colorScheme.background),
+        //color= MaterialTheme.colorScheme.background
+    ){
+        Card (
+            //modifier = Modifier.fillMaxSize(),//.background(color = MaterialTheme.colorScheme.background),
+            elevation = 8.dp,
+        ){
+            Image(
+                modifier= Modifier
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .fillMaxHeight()
+                    .fillMaxWidth(),
+                painter = painter,
+                contentDescription = "Mug Cup ImageFrame",
 
+                )
+            Box(
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .fillMaxWidth(1.0f)
+                    .fillMaxHeight(0.70f)
+                    .clip(shape = RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ){
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(0.90f)
+                        .fillMaxHeight(0.85f)
+                        .clip(shape = RoundedCornerShape(8.dp))
+                    //.padding(top = 2.dp, bottom= 8.dp, start = 8.dp, end = 18.dp),
+                ){
+                    Box(
+                        modifier = Modifier
+                            .weight(9.3f)
+                            .fillMaxHeight()
+                            .fillMaxWidth()
+
+                    ){
+                        bodyContent()
+                    }
+
+                    //com.example.portfolio.feature_shopping.presentation.main.MyDivider(height = 0.dp)
+
+                    Row(modifier = Modifier
+                        .weight(0.70f)
+                        .fillMaxWidth()
+                        .padding(top = 4.dp, bottom = 4.dp)
+                    ){
+                        bodyBotContent()
+                    }/*
+                    Box(modifier = Modifier.weight(0.85f).padding(top = 18.dp, bottom = 0.dp)){
+                        bodyBotContent()
+                    }
+                    */
+                }
+            }
+        }
+    }
+
+
+}
 
 //reference : https://medium.com/@prashantappdeveloper/viewpager-in-jetpack-compose-with-dot-indicators-within-minutes-a2779970534e
 @OptIn(ExperimentalPagerApi::class)
