@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,7 +32,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -81,7 +81,6 @@ fun ShoppingDetailScreen (
                 }
             )
         }
-
     ){
         Column(
             modifier= modifier
@@ -92,23 +91,29 @@ fun ShoppingDetailScreen (
                     modifier = Modifier
                         .fillMaxSize(),
                     selectedItem = selectedItem,
-                    addToCart = cartStateViewModel::addItem
+                    addToCart = cartStateViewModel::addItem,
+                    onCompletion = {
+                        navController.navigateUp()
+                    }
                 )
             }
         }
     }
 }
 
-@Preview
+
 @Composable
 fun BodyContent(
     modifier:Modifier = Modifier,
     painter: Painter = painterResource(R.drawable.coffee_animation),
     context:Context = LocalContext.current,
     selectedItem:SellingItem = SellingItem(title = "Image title"),
-    addToCart:(item:SellingItem) ->Unit = { }
+    addToCart:(item:SellingItem, quantity:Int) -> Unit,
+    onCompletion: () -> Unit
 ) {
     //val webImage= rememberAsyncImagePainter(model = selectedItem.imageUrl)
+
+    var quanity: MutableState<Int> = remember{ mutableStateOf(1) }
     ConstraintLayout(modifier = modifier){
 
         val (image, imageTitle, keyDescription, controlCard) = createRefs()
@@ -179,7 +184,8 @@ fun BodyContent(
                 .padding(all = 12.dp),
             price = "$${selectedItem.price}",
             selectedItem = selectedItem,
-            addToCart = addToCart
+            addToCart = addToCart,
+            onCompletion = onCompletion
         )
     }
 }
@@ -255,15 +261,15 @@ fun BoxDescriptionItem(
 }
 
 
-@Preview
 @Composable
 fun ItemPriceAndCart(
     modifier: Modifier = Modifier,
     price:String = "7.99",
     selectedItem: SellingItem = SellingItem(),
-    addToCart:(item:SellingItem) -> Unit = {} //from cartviewmodel.add
+    addToCart:(item:SellingItem,quantity:Int) -> Unit, //from cartviewmodel.add
+    onCompletion: () -> Unit
 ) {
-    val quantity = remember{mutableStateOf(1)}
+    val _quantity = remember{mutableStateOf(1)}
     var _selectedItem = remember{mutableStateOf(selectedItem)}
 
     Card(
@@ -299,23 +305,27 @@ fun ItemPriceAndCart(
                     modifier= Modifier.weight(0.30f)
                 )
                 QuantityControlButton(
-                    quantity = quantity.value,
+                    quantity = _quantity.value,
                     modifier = Modifier
                         .weight(0.30f)
                         .height(25.dp),
                     removeAction = {
                         //TO DO:: Need to update with VM
-                        if(_selectedItem.value.quantity > 1) _selectedItem.value.quantity--
+                        if(_quantity.value > 1) _quantity.value--
                     },
                     addAction = {
-                        if(_selectedItem.value.quantity <99) _selectedItem.value.quantity++
+                        if(_quantity.value < 99) _quantity.value++
                     }
                 )
                 Spacer(modifier = Modifier.width(16.dp))
+                //add to cart button
                 Button(
                     shape = CircleShape,
                     modifier = Modifier.weight(0.20f),
-                    onClick = {addToCart(_selectedItem.value)},
+                    onClick = {
+                        addToCart(selectedItem, _quantity.value)
+                        onCompletion()
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = ShoppingColors.Brown_700)
                 ){
                     Text(

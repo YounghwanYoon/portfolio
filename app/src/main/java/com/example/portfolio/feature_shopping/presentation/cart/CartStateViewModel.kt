@@ -31,23 +31,23 @@ class CartStateViewModel @Inject constructor(
     var subTotal by mutableStateOf<Double>(cartUIState.subTotal)
         private set
 
-    fun addItem(selectedItem: SellingItem){
+    fun addItem(selectedItem: SellingItem, quantity:Int = 1){
         cartUIState.let{
             if(isContain(selectedItem,it)){
-                it.items[selectedItem] = it.items[selectedItem]!! + 1
-                it.totalQuantity += 1
-                it.subTotal = formatHelper( subTotal + selectedItem.price)
+                it.items[selectedItem] = it.items[selectedItem]!! + quantity
+                it.totalQuantity += quantity
+                it.subTotal = formatHelper( subTotal + selectedItem.price*quantity)
                 subTotal = it.subTotal
             }else{
-                it.items[selectedItem] = 1
-                it.totalQuantity += 1
-                it.subTotal = formatHelper( subTotal + selectedItem.price)
+                it.items[selectedItem] = quantity
+                it.totalQuantity += quantity
+                it.subTotal = formatHelper( subTotal + selectedItem.price*quantity)
                 subTotal = it.subTotal
             }
-            updateCart()
+            updateCart(cartUIState)
         }
     }
-    fun reduceItem(selectedItem:SellingItem):Boolean{
+    fun reduceItem(selectedItem:SellingItem, quantity:Int = 1):Boolean{
         Log.d(TAG, "removeItem: isCalled")
         cartUIState.let{cart ->
             when(cart.items[selectedItem]){
@@ -60,14 +60,14 @@ class CartStateViewModel @Inject constructor(
                 }
                 else -> { //greater than 1
                     cart.let{
-                        it.items[selectedItem] = it.items[selectedItem]!! - 1
-                        it.totalQuantity -= 1
-                        it.subTotal = formatHelper(it.subTotal- selectedItem.price)
+                        it.items[selectedItem] = it.items[selectedItem]!! - quantity
+                        it.totalQuantity -= quantity
+                        it.subTotal = formatHelper(it.subTotal- selectedItem.price*quantity)
                         subTotal = it.subTotal
                     }
                 }
             }
-            updateCart()
+            updateCart(cartUIState)
             return true
         }
         //return false
@@ -78,7 +78,7 @@ class CartStateViewModel @Inject constructor(
             it.subTotal = formatHelper(it.subTotal - (selectedItem.price * it.items[selectedItem]!!))
             subTotal = it.subTotal
             it.items.remove(selectedItem)
-            updateCart()
+            updateCart(cartUIState)
             return true
         }
         //return false
@@ -89,7 +89,7 @@ class CartStateViewModel @Inject constructor(
         subTotal = 0.00
         //savedStateHandle[SAVEDSTATEKEYS.CART] = cartUIState
     }
-    private fun updateCart() {
+    private fun updateCart(newCartState:Cart) {
         savedStateHandle[ConstKeys.CART] = cartUIState
     }
     private fun formatHelper(value:Double):Double{
