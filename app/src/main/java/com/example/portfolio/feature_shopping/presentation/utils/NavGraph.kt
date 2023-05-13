@@ -1,10 +1,8 @@
 package com.example.portfolio.feature_shopping.presentation.utils
 
-import android.app.Activity
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -62,7 +60,10 @@ fun setNavGraph(navController: NavHostController, isTablet:Boolean){
            // val viewModel:ShoppingItemStateViewModel = hiltViewModel(navController.previousBackStackEntry!!)
             ShoppingCartScreen(
                 navController = navController,
-                cartStateViewModel = cartStateViewModel,
+                cartVM = cartStateViewModel,
+                cartUIState = cartStateViewModel.cartUIState,
+                //totalQuantity = cartStateViewModel.totalQuantity,
+                onEventChange = cartStateViewModel::setCartUIEvent,
                 isTablet = isTablet
             )
             println("Cart Button Clicked - from Nav Controller")
@@ -86,6 +87,7 @@ fun setNavGraph(navController: NavHostController, isTablet:Boolean){
                 selectedItemId = navBackStackEntry.arguments?.getString("id").toString(),
                 itemStateVM = itemStateViewModel,
                 cartStateViewModel = cartStateViewModel,
+                cartUIClicked = cartStateViewModel::setCartUIEvent,
                 isTablet = isTablet
             )
         }

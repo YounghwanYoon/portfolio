@@ -98,7 +98,7 @@ fun ShoppingMainScreen(
             modifier =
                 when(isTablet){
                     false ->{
-                        Modifier.weight(0.9f)
+                        Modifier.weight(0.8f)
                     }
                     true ->{
                         Modifier.weight(0.7f)
@@ -122,7 +122,7 @@ fun ShoppingMainScreen(
                 }
             },
             navController = navController,
-            totalQuantity = totalQuantity
+            cartState = cartStateVM.cartUIState
         )
     }
 }

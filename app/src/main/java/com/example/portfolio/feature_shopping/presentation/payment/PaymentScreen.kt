@@ -40,7 +40,7 @@ fun PaymentDialogScreen(
     shouldOpenDialog: Boolean,
     title:String ="Order Summary",
     onDismissedCalled: () -> Unit,
-    cartData: Cart,
+    cartUIState : Cart,
     paymentViewModel: PaymentViewModel = hiltViewModel(),
     removeItems: () ->Unit,
     onComplete: () ->Unit,
@@ -75,8 +75,14 @@ fun PaymentDialogScreen(
                 bodyContent = {
                     CustomViewPager(
                         contentList = listOf(
-                            {ShippingAndPayment_Page()},
-                            {OrderSummary_Page(cartData = cartData)}
+                            {ShippingAndPayment_Page(
+                                cartState = cartUIState
+                            )},
+                            {
+                                OrderSummary_Page(
+                                    cartUIState = cartUIState,
+                                )
+                            }
                         ),
                         onLastPage = {
                             shouldChangeButtonColor = true
@@ -173,7 +179,7 @@ fun DialogContent(
 fun ShippingAndPayment_Page(
     modifier:Modifier = Modifier,
     user: User = User(),
-    cart: Cart = Cart(),
+    cartState: Cart = Cart(),
     paymentInfos:List<PaymentInfo> = user.paymentInfo,
     title:String = "Payment Summary"
 ){
@@ -184,7 +190,7 @@ fun ShippingAndPayment_Page(
         TitleSection(modifier = Modifier.weight(0.05f), title = title)
         ShippingAddress(modifier = Modifier.weight(0.20f),user = user)
         PaymentMethods(modifier = Modifier.weight(0.15f),paymentInfos = paymentInfos)
-        TotalPrice(modifier = Modifier.weight(0.30f),givenSubTotal = cart.subTotal)
+        TotalPrice(modifier = Modifier.weight(0.30f),givenSubTotal = cartState.subTotal)
     }
 
 }
@@ -197,12 +203,12 @@ fun ShippingAndPayment_Page(
 @Composable
 fun OrderSummary_Page(
     modifier:Modifier = Modifier,
-    cartData:Cart = Cart(),
+    cartUIState:Cart = Cart(),
     title:String = "Order Summary",
 ){
 
-    var cartItems by remember {
-        mutableStateOf(cartData.items.toList())
+    val cartItems by remember {
+        mutableStateOf(cartUIState.items.toList())
     }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -246,7 +252,7 @@ fun OrderSummary_Page(
 
         }
         MyDivider()
-        Text("Total Quantity - ${cartData.totalQuantity}")
+        Text("Total Quantity - ${cartUIState.totalQuantity}")
     }
 }
 
@@ -388,11 +394,11 @@ fun PaymentMethods(
 }
 
 @Composable
-fun TotalPrice(modifier:Modifier = Modifier, givenSubTotal:Double = 7.99){
+fun TotalPrice(modifier:Modifier = Modifier, givenSubTotal:String = "7.99"){
     val subTotal by remember{ mutableStateOf(givenSubTotal) }
-    val tax by remember{mutableStateOf(Helper.formatHelper(0.9 * subTotal))}
-    val shipping by remember{if(subTotal < 25.00) mutableStateOf(4.99) else mutableStateOf(0.00) }
-    val total = remember{subTotal + tax + shipping}
+    val tax by remember{mutableStateOf(Helper.formatHelper(0.0825 * subTotal.toDouble()))}
+    val shipping by remember{if(subTotal.toDouble() < 35.00) mutableStateOf(4.99) else mutableStateOf(0.00) }
+    val total = remember{mutableStateOf(Helper.formatHelper(subTotal.toDouble() + tax + shipping)).value}
 
 
     Column(modifier = modifier,){

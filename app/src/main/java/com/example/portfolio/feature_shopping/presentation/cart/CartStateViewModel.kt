@@ -1,19 +1,18 @@
 package com.example.portfolio.feature_shopping.presentation.cart
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.example.portfolio.feature_shopping.domain.model.Cart
-import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.use_case.AddToCart
 import com.example.portfolio.feature_shopping.domain.use_case.GetCart
 import com.example.portfolio.feature_shopping.domain.use_case.RemoveReduceFromCart
 import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
 import com.example.portfolio.utils.ConstKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import javax.inject.Inject
@@ -26,95 +25,64 @@ class CartStateViewModel @Inject constructor(
     private val removeReduceFromCart: RemoveReduceFromCart,
 ): ViewModel() {
     private val TAG = this.javaClass.name
-    var cartUIState by mutableStateOf<Cart>(getCart())//savedStateHandle.get<Cart>(SAVEDSTATEKEYS.CART) ?: Cart())
-        private set
-    var subTotal by mutableStateOf<Double>(cartUIState.subTotal)
+    private var _cartUIState = MutableStateFlow(getCart())
+/*    var cartUIState = _cartUIState.asStateFlow()
+        private set*/
+    var cartUIState by  mutableStateOf<Cart>(getCart())//savedStateHandle.get<Cart>(SAVEDSTATEKEYS.CART) ?: Cart())
         private set
 
-    fun addItem(selectedItem: SellingItem, quantity:Int = 1){
-        cartUIState.let{
-            if(isContain(selectedItem,it)){
-                it.items[selectedItem] = it.items[selectedItem]!! + quantity
-                it.totalQuantity += quantity
-                it.subTotal = formatHelper( subTotal + selectedItem.price*quantity)
-                subTotal = it.subTotal
-            }else{
-                it.items[selectedItem] = quantity
-                it.totalQuantity += quantity
-                it.subTotal = formatHelper( subTotal + selectedItem.price*quantity)
-                subTotal = it.subTotal
-            }
-            updateCart(cartUIState)
-        }
+    var subTotal by mutableStateOf<String>(cartUIState.subTotal)
+        private set
+
+    var totalQuantity by mutableStateOf<Int>(cartUIState.totalQuantity)
+        private set
+
+    private fun updateCart(updatedState:Cart) {
+        savedStateHandle[ConstKeys.CART] = updatedState
     }
-    fun reduceItem(selectedItem:SellingItem, quantity:Int = 1):Boolean{
-        Log.d(TAG, "removeItem: isCalled")
-        cartUIState.let{cart ->
-            when(cart.items[selectedItem]){
-                null ->{
-                    //do nothing
-                    throw Exception("Item should not be in cart. Therefore, this should not be called")
-                }
-                1-> {
-                    removeItem(selectedItem)
-                }
-                else -> { //greater than 1
-                    cart.let{
-                        it.items[selectedItem] = it.items[selectedItem]!! - quantity
-                        it.totalQuantity -= quantity
-                        it.subTotal = formatHelper(it.subTotal- selectedItem.price*quantity)
-                        subTotal = it.subTotal
-                    }
-                }
-            }
-            updateCart(cartUIState)
-            return true
-        }
-        //return false
-    }
-    fun removeItem(selectedItem: SellingItem):Boolean{
-        cartUIState.let{
-            it.totalQuantity -= 1
-            it.subTotal = formatHelper(it.subTotal - (selectedItem.price * it.items[selectedItem]!!))
-            subTotal = it.subTotal
-            it.items.remove(selectedItem)
-            updateCart(cartUIState)
-            return true
-        }
-        //return false
-    }
-    fun removeAllItem(){
-        removeReduceFromCart.removeAllItem()
-        cartUIState = Cart()
-        subTotal = 0.00
-        //savedStateHandle[SAVEDSTATEKEYS.CART] = cartUIState
-    }
-    private fun updateCart(newCartState:Cart) {
-        savedStateHandle[ConstKeys.CART] = cartUIState
-    }
-    private fun formatHelper(value:Double):Double{
+    private fun formatHelper(value:Double):String{
         val decimalFormatter = DecimalFormat("#.##")
         decimalFormatter.roundingMode = RoundingMode.HALF_UP
 
-        return decimalFormatter.format(value).toDouble()
+        return decimalFormatter.format(value)//.toDouble()
     }
-    fun getCurItemPrice(selectItem:SellingItem):Double{
-        //Quantity times price
-        return cartUIState.items[selectItem]!!.times(selectItem.price)
-    }
-    private fun isContain(selectedItem:SellingItem, fromData:Cart):Boolean{
-        return fromData.items.containsKey(selectedItem)
-    }
+
     fun setCartUIEvent(event : CartUIEvent){
         when(event){
             is CartUIEvent.AddToCart -> {
-                addItem(selectedItem = event.selectedItem)
+                println("onAddEvent is triggered")
+                //addItem(item = event.selectedItem, quantity = event.quantity)
+                cartUIState = addToCart(event.selectedItem, event.quantity, this.cartUIState)
+
             }
             is CartUIEvent.ReduceFromCart -> {
-                reduceItem(selectedItem = event.selectedItem)
+
+                println("onReduceEvent is triggered")
+                cartUIState = removeReduceFromCart.reduceItem(
+                    item = event.selectedItem,
+                    reduceAmount = event.quantity,
+                    oldCart = cartUIState
+                )
+                //updateCart(cartUIState)
+                //reduceItem(selectedItem = event.selectedItem, quantity = event.quantity)
             }
             is CartUIEvent.RemoveFromCart -> {
-                removeItem(selectedItem = event.selectedItem)
+                cartUIState = removeReduceFromCart.removeItem(
+                    item = event.selectedItem,
+                    oldCart = cartUIState
+                )
+
+                println("onRemoveEvent is triggered")
+                //removeItem(selectedItem = event.selectedItem)
+            }
+
+            is CartUIEvent.RemoveAllFromCart -> {
+                println("onRemoveAllEvent is triggered")
+                cartUIState = Cart()
+                updateCart(cartUIState)
+            }
+            else -> {
+                println("From CartStateViewModel: this should not be called ")
             }
         }
     }

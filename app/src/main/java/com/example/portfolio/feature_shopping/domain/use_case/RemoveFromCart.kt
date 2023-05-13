@@ -1,17 +1,15 @@
 package com.example.portfolio.feature_shopping.domain.use_case
 
-import androidx.lifecycle.SavedStateHandle
 import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.repository.webservices.ShoppingRepository
-import com.example.portfolio.utils.ConstKeys
-import com.example.portfolio.feature_shopping.presentation.utils.SavedStateHelper
+import com.example.portfolio.feature_shopping.presentation.utils.Helper.formatDoubleToString
+import com.example.portfolio.feature_shopping.presentation.utils.Helper.updateCart
 import com.example.portfolio.feature_shopping.presentation.utils.SavedStateKeys
 import javax.inject.Inject
 
 class RemoveReduceFromCart @Inject constructor(
     private val _repository: ShoppingRepository,
-    //val savedStateHandle: SavedStateHandle,
 ) {
    /* companion object {
         private const val TAG = "RemoveFromCart"
@@ -55,7 +53,7 @@ class RemoveReduceFromCart @Inject constructor(
         }
         //return false
     }*/
-
+/*
     private var _cartData: Cart =  SavedStateHandle().get<Cart>(ConstKeys.CART) ?: Cart()
 
     fun removeAllItem(){
@@ -66,7 +64,7 @@ class RemoveReduceFromCart @Inject constructor(
         println( "reduceItem: is called")
         _cartData.apply{
             this.totalQuantity -= 1
-            this.subTotal = 0.00
+            this.subTotal = "0.00"
             this.items.remove(selectedItem)
             return true
         }
@@ -87,7 +85,7 @@ class RemoveReduceFromCart @Inject constructor(
                 else -> { //greater than 1
                     cart.items[selectedItem] = cart.items[selectedItem]!! - 1
                     cart.totalQuantity -= 1
-                    cart.subTotal -= selectedItem.price
+                    cart.subTotal = (cart.subTotal.toDouble() - selectedItem.price).toString()
                 }
             }
             updateCart()
@@ -95,10 +93,76 @@ class RemoveReduceFromCart @Inject constructor(
         }
         //return false
     }
-
     private fun updateCart(){
         SavedStateHelper.updateSavedState(SavedStateKeys.Cart(), _cartData)
         //SavedStateHandle()[(SAVEDSTATEKEYS.CART)] = _cartData
+    }*/
+    fun removeAllItem():Cart{
+        val updatedCart = Cart()
+        updateCart(updatedCart, SavedStateKeys.Cart())
+
+        return updatedCart
     }
+    fun removeItem(item: SellingItem, oldCart: Cart):Cart{
+        println( "reduceItem: is called")
+/*
+        val newCart = oldCart.apply{
+            this.totalQuantity -= 1
+            this.subTotal = "0.00"
+            this.items.remove(item)
+        }
+*/
+        val updatedCart  = oldCart.copy(
+            totalQuantity = (oldCart.totalQuantity - item.quantity),
+            subTotal =  formatDoubleToString(oldCart.subTotal.toDouble() - (item.quantity * item.price)),
+            items = oldCart.items.apply{
+                this.remove(item)
+            }
+        )
+
+        updateCart(updatedCart, SavedStateKeys.Cart())
+        return updatedCart
+    }
+
+    fun reduceItem(item: SellingItem, reduceAmount:Int = 1, oldCart: Cart):Cart{
+        println( "reduceItem: is called")
+
+        var updatedCart:Cart
+        oldCart.apply{
+            updatedCart = when{
+                (item.quantity > 1) -> {
+                    oldCart.copy(
+                        items = this.items.apply{
+                            this[item] = this[item]!!.minus(reduceAmount)
+                        },
+                        totalQuantity = (this.totalQuantity - reduceAmount),
+                        subTotal = formatDoubleToString(this.subTotal.toDouble() - item.price * reduceAmount)
+                    )
+                }
+
+                else -> {
+                    println("reduceItem() is called and this suppose not to be called")
+
+                    oldCart
+                }
+            }
+            updateCart(updatedCart, SavedStateKeys.Cart())
+        }
+/*
+        if(item.quantity > 2){
+            val updatedCart = oldCart.copy(
+                totalQuantity = (oldCart.totalQuantity - item.quantity),
+                subTotal =  Helper.formatDoubleToString(oldCart.subTotal.toDouble() - (item.quantity * item.price)),
+                items = oldCart.items.mapValues {   (key, value) ->
+                   value-reduceAmount
+                }.toMutableMap()
+            )
+            updateCart(updatedCart, SavedStateKeys.Cart() )
+            return updatedCart
+        }*/
+        return updatedCart
+        //if smaller than 2 : 1 or 0 ignore since there is remove button to actually delete from the cart.
+    }
+
 
 }

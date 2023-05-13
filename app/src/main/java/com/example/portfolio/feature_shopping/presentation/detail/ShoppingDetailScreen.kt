@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -43,6 +45,7 @@ import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
 import com.example.portfolio.feature_shopping.presentation.main.ShoppingItemStateViewModel
+import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
 import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
 
 
@@ -57,10 +60,15 @@ fun ShoppingDetailScreen (
     selectedItemId:String,
     itemStateVM:ShoppingItemStateViewModel,
     cartStateViewModel: CartStateViewModel,
+    cartUIClicked: (CartUIEvent) -> Unit = {},
     isTablet:Boolean
 ){
     println("ShoppingItemStateVM - $itemStateVM")
     val selectedItem = itemStateVM.getSelectedItem(selectedItemId.toInt())
+
+    val size = remember{mutableStateOf(IntSize.Zero)}
+    println("height is ${size.value.height}")
+    println("width is ${size.value.width}")
 
     Scaffold(
         topBar = {
@@ -83,7 +91,10 @@ fun ShoppingDetailScreen (
         }
     ){
         Column(
-            modifier= modifier
+            modifier= modifier.onSizeChanged {
+                println("current size is ${size.value.height}")
+                println("current size is ${size.value.width}")
+            }
         ){
             //com.example.portfolio.feature_shopping.presentation.main.Header() // Skip in this section
             selectedItem?.let{
@@ -91,10 +102,11 @@ fun ShoppingDetailScreen (
                     modifier = Modifier
                         .fillMaxSize(),
                     selectedItem = selectedItem,
-                    addToCart = cartStateViewModel::addItem,
+                    onAddClicked = cartUIClicked,//cartStateViewModel::addItem,
                     onCompletion = {
                         navController.navigateUp()
-                    }
+                    },
+                    isTablet = isTablet
                 )
             }
         }
@@ -108,85 +120,169 @@ fun BodyContent(
     painter: Painter = painterResource(R.drawable.coffee_animation),
     context:Context = LocalContext.current,
     selectedItem:SellingItem = SellingItem(title = "Image title"),
-    addToCart:(item:SellingItem, quantity:Int) -> Unit,
-    onCompletion: () -> Unit
+    onAddClicked:(CartUIEvent)->Unit = {},//(item: CartUIEvent, quantity:Int) -> Unit,
+    onCompletion: () -> Unit = {},
+    isTablet:Boolean = false
 ) {
     //val webImage= rememberAsyncImagePainter(model = selectedItem.imageUrl)
-
     var quanity: MutableState<Int> = remember{ mutableStateOf(1) }
-    ConstraintLayout(modifier = modifier){
+    val isTabletMode = remember{mutableStateOf(isTablet)}
 
-        val (image, imageTitle, keyDescription, controlCard) = createRefs()
+    if(!isTabletMode.value){
+        ConstraintLayout(modifier = modifier){
+            val (image, imageTitle, keyDescription, controlCard) = createRefs()
 
-        //image
-        Card(
-            modifier = Modifier
-                .constrainAs(image) {
-                    top.linkTo(parent.top, margin = 32.dp)
-                    start.linkTo(parent.absoluteLeft, margin = 16.dp)
-                    end.linkTo(parent.absoluteRight, margin = 16.dp)
-                }
-                .background(color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
-                .border(4.dp, color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
-                .clip(shape = ShapeDefaults.ExtraLarge)
-                .fillMaxWidth(0.7f)
-        ){
-            if (selectedItem.imageUrl != ""){
-                SubcomposeAsyncImage(
-                    model = selectedItem.imageUrl,
-                    contentDescription = selectedItem.description,
-                    loading = {CircularProgressIndicator()},
+            //image
+            Card(
+                modifier = Modifier
+                    .constrainAs(image) {
+                        top.linkTo(parent.top, margin = 32.dp)
+                        start.linkTo(parent.absoluteLeft, margin = 16.dp)
+                        end.linkTo(parent.absoluteRight, margin = 16.dp)
+                    }
+                    .background(color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
+                    .border(4.dp, color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
+                    .clip(shape = ShapeDefaults.ExtraLarge)
+                    .fillMaxWidth(0.7f)
+            ){
+                if (selectedItem.imageUrl != ""){
+                    SubcomposeAsyncImage(
+                        model = selectedItem.imageUrl,
+                        contentDescription = selectedItem.description,
+                        loading = {CircularProgressIndicator()},
+                    )
+                } else Image(
+                    painter = painter,
+                    contentDescription = null
                 )
-            } else Image(
-                painter = painter,
-                contentDescription = null
-            )
 
-        }
+            }
 
-        //image title
-        Text(modifier = Modifier
+            //image title
+            Text(modifier = Modifier
                 .constrainAs(imageTitle){
                     top.linkTo(image.bottom, margin = 32.dp)
                     start.linkTo(parent.absoluteLeft, margin = 16.dp)
                     end.linkTo(parent.absoluteRight, margin = 16.dp)
                 },
-            text = selectedItem.title,
-            fontFamily = FontFamily.Cursive,
-            fontStyle = FontStyle.Italic,
-            fontWeight = FontWeight.Bold,
-            fontSize = 32.sp,
-            textDecoration = null,
-            softWrap = false,
-            maxLines = 2,
-        )
+                text = selectedItem.title,
+                fontFamily = FontFamily.Cursive,
+                fontStyle = FontStyle.Italic,
+                fontWeight = FontWeight.Bold,
+                fontSize = 32.sp,
+                textDecoration = null,
+                softWrap = false,
+                maxLines = 2,
+            )
 
-        ItemDescriptionCards(
-            modifier = Modifier
-                .fillMaxWidth(0.95f)
-                .height(150.dp)
-                .constrainAs(keyDescription) {
-                    top.linkTo(imageTitle.bottom, margin = 100.dp)
-                    start.linkTo(parent.absoluteLeft, margin = 4.dp)
-                    end.linkTo(parent.absoluteRight, margin = 4.dp)
-                }
-                .padding(16.dp)
-        )
+            ItemDescriptionCards(
+                modifier = Modifier
+                    .fillMaxWidth(0.95f)
+                    .height(150.dp)
+                    .constrainAs(keyDescription) {
+                        bottom.linkTo(controlCard.top, margin = 8.dp)
+                        start.linkTo(parent.absoluteLeft, margin = 4.dp)
+                        end.linkTo(parent.absoluteRight, margin = 4.dp)
+                    }
+                    .padding(8.dp)
+            )
 
-        ItemPriceAndCart(
-            modifier = Modifier
-                .constrainAs(controlCard) {
-                    bottom.linkTo(parent.bottom, margin = 4.dp)
-                    start.linkTo(parent.absoluteLeft, margin = 4.dp)
-                    end.linkTo(parent.absoluteRight, margin = 4.dp)
-                }
-                .fillMaxWidth(0.95f)
-                .padding(all = 12.dp),
-            price = "$${selectedItem.price}",
-            selectedItem = selectedItem,
-            addToCart = addToCart,
-            onCompletion = onCompletion
-        )
+            ItemPriceAndCart(
+                modifier = Modifier
+                    .constrainAs(controlCard) {
+                        bottom.linkTo(parent.bottom, margin = 4.dp)
+                        start.linkTo(parent.absoluteLeft, margin = 4.dp)
+                        end.linkTo(parent.absoluteRight, margin = 4.dp)
+                    }
+                    .fillMaxWidth(0.95f)
+                    .padding(all = 12.dp),
+                price = "$${selectedItem.price}",
+                selectedItem = selectedItem,
+                onAddClicked = onAddClicked,
+                onCompletion = onCompletion
+            )
+        }
+    }else{
+        ConstraintLayout(modifier = modifier){
+            val (image, imageTitle, keyDescription, controlCard) = createRefs()
+
+            //image
+            Card(
+                modifier = Modifier
+                    .constrainAs(image) {
+                        top.linkTo(parent.top, margin = 50.dp)
+                        start.linkTo(parent.absoluteLeft, margin = 4.dp)
+                    }
+                    .background(color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
+                    .border(4.dp, color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
+                    .clip(shape = ShapeDefaults.ExtraLarge)
+                    .padding(0.dp)
+                    .fillMaxHeight(0.65f)
+                    .fillMaxWidth(0.5f)
+            ){
+                if (selectedItem.imageUrl != ""){
+                    SubcomposeAsyncImage(
+                        contentScale = ContentScale.FillBounds,
+                        model = selectedItem.imageUrl,
+                        contentDescription = selectedItem.description,
+                        loading = {CircularProgressIndicator()},
+                    )
+                } else Image(
+                    contentScale = ContentScale.FillBounds,
+                    painter = painter,
+                    contentDescription = null
+                )
+
+            }
+
+            //image title
+            Text(modifier = Modifier
+                .constrainAs(imageTitle){
+                    top.linkTo(image.bottom, margin = 8.dp)
+                    bottom.linkTo(parent.bottom, margin = 8.dp)
+                    start.linkTo(parent.absoluteLeft, margin =8.dp)
+                    end.linkTo(image.absoluteRight, margin = 8.dp)
+                },
+                text = selectedItem.title,
+                fontFamily = FontFamily.Cursive,
+                fontStyle = FontStyle.Italic,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                textDecoration = null,
+                softWrap = false,
+                maxLines = 3,
+            )
+
+            ItemDescriptionCards(
+                modifier = Modifier
+                    .fillMaxWidth(0.50f)
+                    .fillMaxHeight(0.50f)
+                    .height(150.dp)
+                    .constrainAs(keyDescription) {
+                        top.linkTo(parent.top, margin = 16.dp)
+                        start.linkTo(image.absoluteRight, margin = 4.dp)
+                        end.linkTo(parent.absoluteRight, margin = 4.dp)
+                    }
+                    .padding(8.dp)
+            )
+
+            ItemPriceAndCart(
+                modifier = Modifier
+                    .constrainAs(controlCard) {
+                        top.linkTo(keyDescription.bottom,margin = 4.dp)
+                        bottom.linkTo(parent.bottom, margin = 4.dp)
+                        start.linkTo(keyDescription.start, margin = 4.dp)
+                        end.linkTo(parent.absoluteRight, margin = 4.dp)
+                    }
+                    .fillMaxWidth(0.50f)
+                    .padding(all = 16.dp),
+                price = "$${selectedItem.price}",
+                selectedItem = selectedItem,
+                onAddClicked = onAddClicked,
+                onCompletion = onCompletion
+            )
+        }
+
     }
 }
 
@@ -266,11 +362,11 @@ fun ItemPriceAndCart(
     modifier: Modifier = Modifier,
     price:String = "7.99",
     selectedItem: SellingItem = SellingItem(),
-    addToCart:(item:SellingItem,quantity:Int) -> Unit, //from cartviewmodel.add
+    onAddClicked:(CartUIEvent) -> Unit,//(item:SellingItem,quantity:Int) -> Unit,
     onCompletion: () -> Unit
 ) {
     val _quantity = remember{mutableStateOf(1)}
-    var _selectedItem = remember{mutableStateOf(selectedItem)}
+    val _selectedItem = remember{mutableStateOf(selectedItem)}
 
     Card(
         modifier = modifier,
@@ -281,9 +377,10 @@ fun ItemPriceAndCart(
             Row{
                 Column(){
                     Text(
-                        text = "Coffee Bean By Christoph",
+                        text = _selectedItem.value.title,
                         fontSize = 18.sp,
-                        fontWeight= FontWeight.SemiBold
+                        fontWeight= FontWeight.SemiBold,
+                        maxLines = 3
                     )
                     Text(
                         text= "Size: 16 fl oz/ 1 lb",
@@ -299,7 +396,7 @@ fun ItemPriceAndCart(
                 horizontalArrangement = Arrangement.SpaceEvenly,
             ){
                 Text(
-                    text = "$price",
+                    text = price,
                     fontSize = 32.sp,
                     fontWeight= FontWeight.Bold,
                     modifier= Modifier.weight(0.30f)
@@ -323,7 +420,7 @@ fun ItemPriceAndCart(
                     shape = CircleShape,
                     modifier = Modifier.weight(0.20f),
                     onClick = {
-                        addToCart(selectedItem, _quantity.value)
+                        onAddClicked(CartUIEvent.AddToCart(_selectedItem.value, _quantity.value))//onAddClicked(selectedItem, _quantity.value)
                         onCompletion()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = ShoppingColors.Brown_700)
@@ -483,7 +580,10 @@ fun Detail_ImageAndTitle(
 }
 
 @Composable
-fun Detail_ProductInfo(modifier:Modifier = Modifier.verticalScroll(rememberScrollState()), data: SelectedData = SelectedData(1)){
+fun Detail_ProductInfo(
+    modifier:Modifier = Modifier.verticalScroll(rememberScrollState()),
+    data: SelectedData = SelectedData(1)
+){
 
     Column(
         modifier = modifier,
@@ -510,7 +610,8 @@ fun Detail_ProductInfo(modifier:Modifier = Modifier.verticalScroll(rememberScrol
 fun Detail_AddItemFloatBtn(
     modifier:Modifier = Modifier,
     selectedItem: SellingItem,
-    cartStateVM: CartStateViewModel //= hiltViewModel<CartStateViewModel>()
+    onClick: (CartUIEvent) -> Unit,
+    //cartStateVM: CartStateViewModel //= hiltViewModel<CartStateViewModel>()
 
 ){
      Row(
@@ -526,7 +627,8 @@ fun Detail_AddItemFloatBtn(
         ){
             Shopping_FloatBtn(
                 onClick = {
-                    cartStateVM.addItem(selectedItem)
+                    //cartStateVM.addItem(selectedItem)
+                    onClick(CartUIEvent.AddToCart(selectedItem))
                 }
             )
         }

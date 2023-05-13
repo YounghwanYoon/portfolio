@@ -1,10 +1,11 @@
+
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -12,7 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -22,21 +24,36 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavController
 import com.example.portfolio.R
+import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.presentation.utils.Screens
+import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
 
 @Preview
 @Composable
 fun Footer(
     modifier: Modifier = Modifier,
     navController: NavController = NavController(LocalContext.current),
-    totalQuantity:Int = 3,
+    cartState: Cart = Cart(),
+    //totalQuantity: Int = 0,
 ) {
 
-    Row(modifier = modifier){
-        Row(
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.Bottom
+    ){
+        ConstraintLayout(
             modifier = Modifier
-                //.padding(top=4.dp, bottom = 4.dp)
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 50.dp)
                 .fillMaxSize()
+                .graphicsLayer {
+                    shape = RoundedCornerShape(
+                        topStart = 20.dp,
+                        topEnd = 20.dp,
+                    )
+                    clip = true
+                }
                 .background(
                     color = MaterialTheme.colorScheme.primary,
                     shape = MaterialTheme.shapes.small
@@ -44,14 +61,84 @@ fun Footer(
                 .border(
                     width = 2.dp,
                     color = MaterialTheme.colorScheme.onTertiary,
-                    shape = RoundedCornerShape(2.dp)
+                    shape = RoundedCornerShape(
+                        topStart = 20.dp,
+                        topEnd = 20.dp,
+                    )
                 )
-                .clip(shape = RoundedCornerShape(2.dp)),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
+            /*.clip(shape = RoundedCornerShape(2.dp))*/,
         ) {
-            fastImageButton(
-                modifier = Modifier.weight(.3f),
+            val (home, cart, divider, counter) = createRefs()
+
+            Icon(
+                painter = painterResource(R.drawable.coffee_home_btn),
+                contentDescription = null,
+                modifier = Modifier
+                    .background(Color.Transparent)
+                    //.weight(0.50f)
+                    .defaultMinSize(minHeight = 35.dp)
+                    .clickable {
+                        navController.navigate(Screens.Main.rout) {
+                            popUpTo(Screens.Main.rout)
+                        }
+                    }.constrainAs(home){
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(divider.start)
+                    }
+            )
+            Divider(
+                modifier = Modifier
+                    .background(color = Color.Transparent)
+                    .constrainAs(divider){
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }.size(1.dp)
+
+            )
+
+            Icon(
+                painter = painterResource(R.drawable.coffee_cart_btn),
+                contentDescription = null,
+                modifier = Modifier
+                    .background(Color.Transparent)
+                    //.weight(0.50f)
+                    .defaultMinSize(minHeight = 40.dp)
+                    .clickable {
+                        navController.navigate(Screens.Cart.rout) {
+                            popUpTo(Screens.Cart.rout)
+                        }
+                    }.constrainAs(cart){
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(divider.end)
+                        end.linkTo(parent.end)
+                    }
+            )
+
+            Box(
+                modifier = Modifier.constrainAs(counter){
+                    top.linkTo(cart.top, margin = 4.dp)
+                    bottom.linkTo(cart.bottom)
+                    start.linkTo(cart.start)
+                    end.linkTo(cart.end)
+                }
+            ){
+                Text(
+                    text = "${cartState.totalQuantity}",//"$totalQuantity",
+                    color = ShoppingColors.Brown_300
+                )
+            }
+
+
+
+
+
+            /*fastImageButton(
+                modifier = Modifier.weight(.33f),
                 onClick = {
                     navController
                     println("First Image Clicked TO THE PROFILE")
@@ -59,7 +146,7 @@ fun Footer(
                 painter = painterResource(R.drawable.coffee_menu_btn)
             )
             fastImageButton(
-                modifier = Modifier.weight(.3f),
+                modifier = Modifier.weight(.33f),
                 onClick = {
                     navController.navigate(Screens.Main.rout) {
                         popUpTo(Screens.Main.rout)
@@ -71,8 +158,8 @@ fun Footer(
             )
             fastImageButton(
                 modifier = Modifier
-                    .weight(.3f)
-                    .defaultMinSize(50.dp),
+                    .weight(.33f),
+                    //.defaultMinSize(50.dp),
                 onClick = {
                     navController.navigate(Screens.Cart.rout) {
                         popUpTo(Screens.Cart.rout)
@@ -93,6 +180,9 @@ fun Footer(
                             color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
+                    totalQuantity == 0 ->{
+
+                    }
                     else -> {
                         Text(
                             text = "$totalQuantity",
@@ -104,7 +194,7 @@ fun Footer(
                         )
                     }
                 }
-            }
+            }*/
         }
     }
 }
@@ -114,7 +204,7 @@ fun Footer(
 fun fastImageButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
-    painter: Painter,
+    painter: Painter = painterResource(R.drawable.coffee_home_btn),
     content: @Composable () -> Unit = {}
 ) {
     Box(
@@ -130,16 +220,10 @@ fun fastImageButton(
             Box(modifier = Modifier
                 .constrainAs(Counter) {
                     top.linkTo(parent.top)
-                    bottom.linkTo(IconBtn.top)
+                    bottom.linkTo(parent.bottom)
                     absoluteRight.linkTo(parent.absoluteRight)
-                    //absoluteLeft.linkTo(IconBtn.absoluteRight)
-
-
-                    //linkTo( IconBtn.absoluteLeft, parent.absoluteRight, startMargin = 8.dp, bias = 1f)
                     width = Dimension.fillToConstraints
                 }
-                //.background(color = MaterialTheme.colorScheme.secondary, shape = CircleShape),
-
             ) {
                 content()
             }

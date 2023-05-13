@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.portfolio.R
@@ -46,33 +45,44 @@ import com.example.portfolio.feature_shopping.presentation.utils.Screens
 fun ShoppingCartScreen(
     modifier:Modifier = Modifier,
     navController:NavController,
-    cartStateViewModel: CartStateViewModel,
-    isTablet:Boolean
+    cartVM: CartStateViewModel,
+    cartUIState: Cart = Cart(),
+    //totalQuantity: Int,
+    onEventChange:(CartUIEvent)->Unit,
+    isTablet:Boolean,
 ){
     println("ShoppingCartScreen")
 
+    val totalQuantity = remember{ mutableStateOf(cartUIState.totalQuantity)}
     ShoppingTheme{
         Column(){
             ShoppingCartBody(
                 modifier = Modifier.weight(0.9f),
-                cartStateVM = cartStateViewModel,
-                isTablet = isTablet
+                cartUIState = cartVM.cartUIState,
+                onEventChange = cartVM::setCartUIEvent,
+                isTablet = isTablet,
             )
 
             Footer(
                 modifier = when(isTablet){
                     false->{
-                        Modifier.weight(0.08f)
+                        Modifier
+                            .weight(0.08f)
                             .defaultMinSize(minHeight = 50.dp)
                         //.fillMaxWidth()
 
                     }
                     true ->{
-                        Modifier.weight(0.10f)
+                        Modifier
+                            .weight(0.10f)
                             .defaultMinSize(minHeight = 50.dp)
                     }
                 },
-                navController = navController)
+                cartState = cartVM.cartUIState,
+                navController = navController
+                //cartVM.cartUIState.totalQuantity//cartVM.totalQuantity
+            )
+
         }
         BackHandler() {
             navController.navigate(Screens.Main.rout)
@@ -83,15 +93,15 @@ fun ShoppingCartScreen(
 @Composable
 fun ShoppingCartBody(
     modifier:Modifier = Modifier,
-    cartStateVM: CartStateViewModel,
-    subTotal: Double = cartStateVM.subTotal,/*cartStateVM.subTotal.collectAsStateWithLifecycle(
-        lifecycle = LocalLifecycleOwner.current.lifecycle,
-        minActiveState = Lifecycle.State.STARTED
-    )*/
-    isTablet: Boolean
-) {
+    //cartStateVM: CartStateViewModel,
+    cartUIState: Cart,
+    onEventChange:(CartUIEvent)->Unit,
+    subTotal: String = cartUIState.subTotal,
+    isTablet: Boolean,
 
-    var cartVM by remember {mutableStateOf(cartStateVM)}
+    ) {
+
+    //var cartVM by remember {mutableStateOf(cartStateVM)}
 
     Surface(
         modifier = modifier,
@@ -118,7 +128,9 @@ fun ShoppingCartBody(
                             }
                     ){
                         CartListAndSubTotal(
-                            cartVM = cartStateVM,
+                            cartUIState = cartUIState,
+                            onEventChange= onEventChange,
+                            //cartVM = cartStateVM,
                         )
                     }
 
@@ -153,7 +165,8 @@ fun ShoppingCartBody(
             ) {
                 Box() {
                     OrderButton(
-                        cartVM = cartStateVM,
+                        cartUIState = cartUIState,
+                        onClick = onEventChange,
                         isTablet = isTablet
                     )
                 }
@@ -170,7 +183,8 @@ fun OrderButton(
         .fillMaxWidth()
         .padding(start = 8.dp, end = 8.dp),
     text:String = "Place Order",
-    cartVM:CartStateViewModel,
+    cartUIState: Cart,
+    onClick: (CartUIEvent)->Unit = {},
     isTablet:Boolean
 ){
     var openDialog by remember{ mutableStateOf(false) }
@@ -208,8 +222,10 @@ fun OrderButton(
 
                         },
                         //cartStateViewModel = cartVM,
-                        cartData  = cartVM.cartUIState,
-                        removeItems = {cartVM.removeAllItem()},
+                        cartUIState = cartUIState, //cartData  = cartVM.cartUIState,
+                        removeItems = {
+                            onClick(CartUIEvent.RemoveAllFromCart)
+                        },// {cartVM.removeAllItem()},
                         onComplete = {openDialog = !openDialog},
                         isTablet = isTablet
                     )
@@ -223,12 +239,16 @@ fun OrderButton(
 @Composable
 fun CartListAndSubTotal(
     modifier:Modifier = Modifier,
-    cartVM:CartStateViewModel = hiltViewModel(),
-    cart: Cart = cartVM.cartUIState,
-    items: MutableMap<SellingItem, Int> = cart.items,
-    totalQuantity:Int = cart.totalQuantity,
-    subTotal:Double = cartVM.subTotal,
-    list:List<Pair<SellingItem, Int>> = cart.items.toList(),
+    //cartVM:CartStateViewModel = hiltViewModel(),
+    cartUIState: Cart, //cart:Cart
+    items: MutableMap<SellingItem, Int> = cartUIState.items,
+    totalQuantity:Int = cartUIState.totalQuantity,
+    subTotal:String = cartUIState.subTotal,
+    onEventChange: (CartUIEvent) -> Unit,
+/*    removeListener: (CartUIEvent) ->Unit = {},
+    addListener: (CartUIEvent) ->Unit = {},
+    reduceListener: (CartUIEvent) ->Unit = {},*/
+    list:List<Pair<SellingItem, Int>> = cartUIState.items.toList(),
     /*cartVM
         .cart
         .collectAsStateWithLifecycle(
@@ -265,17 +285,18 @@ fun CartListAndSubTotal(
                     removeListener = {}
                 )
             }*/
-            items(cart.items.toList()){(SellingItem, Quantity)->
+            items(items.toList() /*cartUIState.items.toList()*/){(SellingItem, Quantity)->
                 CartEachItem(
                     modifier = Modifier.padding(bottom = 16.dp),
                     curQuantity = Quantity,//SellingItem.quantity,
-                    cartVM = cartVM,
+                    //cartVM = cartVM,
+                    cartUIState = cartUIState,
                     selectedItem = SellingItem,
                     itemTotal =  SellingItem.price,
                     productTitle = SellingItem.title,
-                    removeListener = {cartVM.setCartUIEvent(CartUIEvent.RemoveFromCart(SellingItem))},
-                    addListener = {cartVM.setCartUIEvent(CartUIEvent.AddToCart(SellingItem))},
-                    reduceListener = {cartVM.setCartUIEvent(CartUIEvent.ReduceFromCart(SellingItem))}
+                    removeListener = {onEventChange(CartUIEvent.RemoveFromCart(SellingItem))},
+                    addListener = {onEventChange(CartUIEvent.AddToCart(SellingItem))},
+                    reduceListener = {onEventChange(CartUIEvent.ReduceFromCart(SellingItem))},
                 )
             }
         }
@@ -288,7 +309,8 @@ fun CartListAndSubTotal(
 fun CartEachItem(
     modifier:Modifier = Modifier,
     painter: Painter = painterResource(R.drawable.coffee_animation),
-    cartVM:CartStateViewModel,
+    //cartVM:CartStateViewModel,
+    cartUIState: Cart,
     selectedItem: SellingItem? = null,
     curQuantity:Int = 1,
     itemTotal:Double = 6.99,
@@ -432,7 +454,9 @@ fun CartEachItem(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "${selectedItem?.let { cartVM.getCurItemPrice(it) }}",
+                    text ="${selectedItem?.let {
+                        cartUIState.items[it]!!.times(it.price)
+                    }}", //"${selectedItem?.let { cartVM.getCurItemPrice(it) }}",
                     fontSize = itemTotalTextSize
                 )
             }
