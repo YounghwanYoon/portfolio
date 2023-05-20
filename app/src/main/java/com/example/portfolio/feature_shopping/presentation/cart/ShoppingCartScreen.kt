@@ -53,9 +53,9 @@ fun ShoppingCartScreen(
 ){
     println("ShoppingCartScreen")
 
-    val totalQuantity = remember{ mutableStateOf(cartUIState.totalQuantity)}
+    //val totalQuantity = remember{ mutableStateOf(cartUIState.totalQuantity)}
     ShoppingTheme{
-        Column(){
+        Column{
             ShoppingCartBody(
                 modifier = Modifier.weight(0.9f),
                 cartUIState = cartVM.cartUIState,
@@ -64,7 +64,8 @@ fun ShoppingCartScreen(
             )
 
             Footer(
-                modifier = when(isTablet){
+                modifier = when(isTablet)
+                {
                     false->{
                         Modifier
                             .weight(0.08f)
@@ -128,7 +129,7 @@ fun ShoppingCartBody(
                             }
                     ){
                         CartListAndSubTotal(
-                            cartUIState = cartUIState,
+                            cartState = cartUIState,
                             onEventChange= onEventChange,
                             //cartVM = cartStateVM,
                         )
@@ -222,7 +223,7 @@ fun OrderButton(
 
                         },
                         //cartStateViewModel = cartVM,
-                        cartUIState = cartUIState, //cartData  = cartVM.cartUIState,
+                        cartState = cartUIState, //cartData  = cartVM.cartUIState,
                         removeItems = {
                             onClick(CartUIEvent.RemoveAllFromCart)
                         },// {cartVM.removeAllItem()},
@@ -240,15 +241,15 @@ fun OrderButton(
 fun CartListAndSubTotal(
     modifier:Modifier = Modifier,
     //cartVM:CartStateViewModel = hiltViewModel(),
-    cartUIState: Cart, //cart:Cart
-    items: MutableMap<SellingItem, Int> = cartUIState.items,
-    totalQuantity:Int = cartUIState.totalQuantity,
-    subTotal:String = cartUIState.subTotal,
+    cartState: Cart, //cart:Cart
+    items: MutableMap<SellingItem, Int> = cartState.items,
+    totalQuantity:Int = cartState.totalQuantity,
+    subTotal:String = cartState.subTotal,
     onEventChange: (CartUIEvent) -> Unit,
 /*    removeListener: (CartUIEvent) ->Unit = {},
     addListener: (CartUIEvent) ->Unit = {},
     reduceListener: (CartUIEvent) ->Unit = {},*/
-    list:List<Pair<SellingItem, Int>> = cartUIState.items.toList(),
+    list:List<Pair<SellingItem, Int>> = cartState.items.toList(),
     /*cartVM
         .cart
         .collectAsStateWithLifecycle(
@@ -285,22 +286,20 @@ fun CartListAndSubTotal(
                     removeListener = {}
                 )
             }*/
-            items(items.toList() /*cartUIState.items.toList()*/){(SellingItem, Quantity)->
+            items(items.toList() /*cartState.items.toList()*/){(SellingItem, Quantity)->
+
                 CartEachItem(
                     modifier = Modifier.padding(bottom = 16.dp),
                     curQuantity = Quantity,//SellingItem.quantity,
                     //cartVM = cartVM,
-                    cartUIState = cartUIState,
+                    cartState = cartState,
                     selectedItem = SellingItem,
-                    itemTotal =  SellingItem.price,
-                    productTitle = SellingItem.title,
                     removeListener = {onEventChange(CartUIEvent.RemoveFromCart(SellingItem))},
                     addListener = {onEventChange(CartUIEvent.AddToCart(SellingItem))},
                     reduceListener = {onEventChange(CartUIEvent.ReduceFromCart(SellingItem))},
                 )
             }
         }
-
     }
 
 }
@@ -310,10 +309,10 @@ fun CartEachItem(
     modifier:Modifier = Modifier,
     painter: Painter = painterResource(R.drawable.coffee_animation),
     //cartVM:CartStateViewModel,
-    cartUIState: Cart,
-    selectedItem: SellingItem? = null,
-    curQuantity:Int = 1,
-    itemTotal:Double = 6.99,
+    cartState: Cart = Cart(),
+    selectedItem: SellingItem  = SellingItem(),//? = null,
+    curQuantity:Int = selectedItem.quantityInCart,//= 1,
+    itemTotal:Double = selectedItem.itemTotal,//6.99,
     itemTotalTextSize: TextUnit = 28.sp,
     productTitle:String = "I am the title",
     removeListener: () -> Unit = {},
@@ -454,9 +453,9 @@ fun CartEachItem(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text ="${selectedItem?.let {
-                        cartUIState.items[it]!!.times(it.price)
-                    }}", //"${selectedItem?.let { cartVM.getCurItemPrice(it) }}",
+                    text = "${selectedItem?.let {
+                        cartState.items[it]?.times(it.price) ?: it.itemTotal              //!!.times(it.price)
+                    }}", //${selectedItem?.let { cartVM.getCurItemPrice(it) }}",
                     fontSize = itemTotalTextSize
                 )
             }

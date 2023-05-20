@@ -15,7 +15,7 @@ object Helper {
 
         return decimalFormatter.format(value).toDouble()
     }
-    fun formatDoubleToString(value:Double):String{
+    fun  formatDoubleToString(value:Double):String{
         val decimalFormatter = DecimalFormat("#.##")
         decimalFormatter.roundingMode = RoundingMode.HALF_UP
 

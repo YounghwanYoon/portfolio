@@ -554,7 +554,7 @@ fun GridView(
             description = "1",
             title = "One",
             price = 1.99,
-            quantity = 10,
+            supplyQty = 10,
         ),
         SellingItem(
             1,
@@ -562,7 +562,7 @@ fun GridView(
             description = "2",
             title = "Two",
             price = 2.99,
-            quantity = 10,
+            supplyQty = 10,
         ),
         SellingItem(
             2,
@@ -570,7 +570,7 @@ fun GridView(
             description = "3",
             title = "Three",
             price = 3.99,
-            quantity = 10,
+            supplyQty = 10,
         ),
         SellingItem(
             3,
@@ -578,7 +578,7 @@ fun GridView(
             description = "4",
             title = "Four",
             price = 4.99,
-            quantity = 10,
+            supplyQty = 10,
         ),
         SellingItem(
             4,
@@ -586,7 +586,7 @@ fun GridView(
             description = "5",
             title = "Five",
             price = 5.99,
-            quantity = 10,
+            supplyQty = 10,
         ),
         SellingItem(
             5,
@@ -594,7 +594,7 @@ fun GridView(
             description = "6",
             title = "Six",
             price = 6.99,
-            quantity = 10,
+            supplyQty = 10,
         ),
         SellingItem(
             6,
@@ -602,7 +602,7 @@ fun GridView(
             description = "7",
             title = "Seven",
             price = 7.99,
-            quantity = 10,
+            supplyQty = 10,
         ),
     )
 ) {

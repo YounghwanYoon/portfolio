@@ -11,7 +11,9 @@ data class SellingItem(
     var title:String = "",
     var description:String = "null ",
     var price:Double = 0.00,
-    var quantity:Int = 0
+    var supplyQty:Int = 0,
+    var quantityInCart:Int = 0,
+    var itemTotal:Double = price.times(quantityInCart)
 ):Parcelable{
 
     fun doesMatchSearchQuery(query: String): Boolean {

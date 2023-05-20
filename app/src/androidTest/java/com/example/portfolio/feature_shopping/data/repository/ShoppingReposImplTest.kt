@@ -89,7 +89,7 @@ class ShoppingReposImplTest constructor(){
                 title = "test",
                 description = "test",
                 price = 1.99,
-                quantity = 99
+                supplyQty = 99
             )
         val resultItem:SellingItem?
         runBlocking{

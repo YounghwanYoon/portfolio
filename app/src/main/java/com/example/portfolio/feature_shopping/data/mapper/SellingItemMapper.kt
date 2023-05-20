@@ -15,7 +15,7 @@ class SellingItemMapperLocal @Inject constructor(): EntityMapper<SellingItem,Sel
             title = data.title,
             description = data.description,
             price = data.price,
-            quantity = data.quantity
+            quantity = data.supplyQty
         )
     }
     override fun mapFromListOf(listData: List<SellingItem>): List<SellingItemEntity> {
@@ -32,7 +32,7 @@ class SellingItemMapperLocal @Inject constructor(): EntityMapper<SellingItem,Sel
             title = data.title,
             description = data.description,
             price = data.price,
-            quantity = data.quantity
+            supplyQty = data.quantity
         )
     }
     fun mapToListOf(listData: List<SellingItemEntity>): List<SellingItem> {

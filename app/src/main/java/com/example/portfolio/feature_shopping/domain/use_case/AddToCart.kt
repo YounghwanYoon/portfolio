@@ -13,92 +13,47 @@ class AddToCart @Inject constructor(
 ) {
 
     operator fun invoke(item: SellingItem, quantity:Int = 1, oldCart:Cart): Cart {
+        println("addCart (): Current Item: $item, \n adding quantity: $quantity")
 
-        var updatedCart:Cart
-        oldCart.apply{
-            updatedCart = when{
-                isContain(item,oldCart) -> {
-                    println("add Invoke called and item is already contained ")
-                    oldCart.copy(
-                        items = this.items.apply{
-                            this[item] = (this[item]?.plus(quantity)) ?: quantity
-                        },
-                        totalQuantity = this.totalQuantity + quantity,
-                        subTotal = formatDoubleToString( this.subTotal.toDouble() + item.price*quantity)
-                    )
-                }
-                !isContain(item,oldCart) -> {
-                    println("add Invoke called and item is not contained ")
+        val updatedCart:Cart = oldCart.copy(
+            items = oldCart.items.apply{
+                this.put(item, oldCart.items.get(item)?.plus(quantity) ?: quantity/**/)
+            },
 
-                    oldCart.copy(
-                        items = this.items.apply{
-                            this[item] = quantity
-                        },
-                        totalQuantity = this.totalQuantity + quantity,
-                        subTotal = formatDoubleToString( this.subTotal.toDouble() + item.price*quantity)
-                    )
-                }
-                else -> {
-                    println("add Invoke called and this suppose not to be called")
+            /*mapValues {
+                    (item.quantity + quantity)
+            }.toMutableMap(),*/
+            totalQuantity = oldCart.totalQuantity?.plus(quantity) ?: quantity,
+            subTotal = formatDoubleToString( oldCart.subTotal.toDouble() + item.price*quantity)
+        )
 
-                    oldCart
-                }
-            }
-            updateCart(updatedCart, SavedStateKeys.Cart())
+        println("After adding item cart: ${updatedCart}\n" +
+                "item: ${updatedCart.items}\n" +
+                "total Quantity: ${updatedCart.totalQuantity}" +
+                "selectedItem: ${updatedCart.items[item]}"
+        )
 
-/*
-            when{
-                isContain(item,oldCart) -> {
-                    this.totalQuantity = totalQuantity + quantity
-                    this.subTotal = formatDoubleToString( this.subTotal.toDouble() + item.price*quantity)
-                    this.items.apply{
-                        this[item] = (this[item]?.plus(quantity)) ?: quantity
-                    }
-                }
-                !isContain(item,oldCart) -> {
-                    this.totalQuantity = totalQuantity + quantity
-                    this.subTotal = formatDoubleToString( this.subTotal.toDouble() + item.price*quantity)
-                    this.items.apply{
-                        this[item] = quantity
-                    }
-                }
-            }
-*/
-
-        }
-/*        if(isContain(item, oldCart)) {
-            updatedCart = oldCart.copy(
-                items = oldCart.items.apply{
-
-                },
-                totalQuantity = oldCart.totalQuantity + quantity,
-                subTotal = formatDoubleToString( oldCart.subTotal.toDouble() + item.price*quantity)
-            )
-
-        }else{
-            updatedCart =  oldCart.copy(
-                items = oldCart.items.apply{
-                    this[item] = quantity
-                },
-                totalQuantity = quantity,
-                subTotal = formatDoubleToString( oldCart.subTotal.toDouble() + item.price*quantity)
-            )
-        }*/
+        updateCart(updatedCart, SavedStateKeys.Cart())
         return updatedCart
 
     }
     fun addToCart(item: SellingItem, quantity:Int = 1, oldCart:Cart): Cart {
 
         val updatedCart:Cart
+
         if(isContain(item, oldCart)) {
             updatedCart = oldCart.copy(
-                items = oldCart.items.mapValues {
-                        (item.quantity + quantity)
-                }.toMutableMap(),
-                totalQuantity = oldCart.totalQuantity + quantity,
-                subTotal = formatDoubleToString( oldCart.subTotal.toDouble() + item.price*quantity)
-            )
+                items = oldCart.items.apply{
+                    this.put(item, oldCart.items.get(item)?.plus(quantity) ?: quantity/**/)
+                },
 
+                /*mapValues {
+                        (item.quantity + quantity)
+                }.toMutableMap(),*/
+                totalQuantity = oldCart.totalQuantity?.plus(quantity) ?: quantity,
+                subTotal = formatDoubleToString( oldCart.subTotal.toDouble() + item.price*quantity)
+            )/*
+            map.put(key, map.get(key) + 1);*/
         }else{
             updatedCart =  oldCart.copy(
                 items = oldCart.items.mapValues {
@@ -114,7 +69,7 @@ class AddToCart @Inject constructor(
     }
 
     private fun isContain(selectedItem:SellingItem, fromData:Cart):Boolean{
-        return fromData.items.containsKey(selectedItem)
+        return fromData.items.contains(selectedItem)
     }
 
 /*    private var _cart

@@ -112,25 +112,59 @@ class RemoveReduceFromCart @Inject constructor(
             this.items.remove(item)
         }
 */
+
+        println("removeItem(): Current totalQuantity = ${oldCart.totalQuantity}\n" +
+                "subtotal ${oldCart.subTotal}\n" +
+                "item is ${item}")
+
+        val newTotalQuantity = oldCart.totalQuantity - oldCart.items[item]!!
+        val newSubTotal = formatDoubleToString((oldCart.subTotal.toDouble() - (item.price * oldCart.items[item]!!)))
+        oldCart.items.remove(item)
+        val newItems =oldCart.items
+
         val updatedCart  = oldCart.copy(
-            totalQuantity = (oldCart.totalQuantity - item.quantity),
-            subTotal =  formatDoubleToString(oldCart.subTotal.toDouble() - (item.quantity * item.price)),
-            items = oldCart.items.apply{
-                this.remove(item)
-            }
+            totalQuantity = newTotalQuantity,//(curTotalQuantity - itemQuantity),
+            subTotal =  newSubTotal,
+            items = newItems
         )
 
+/*        val updatedCart  = oldCart.copy(
+            totalQuantity = oldCart.totalQuantity,//(curTotalQuantity - itemQuantity),
+            subTotal =  formatDoubleToString(oldCart.subTotal.toDouble() - (item.itemTotal)),
+            items = oldCart.items.apply{
+                remove(item)
+            }
+        ).also{
+            it.totalQuantity = (curTotalQuantity - itemQuantity)
+        }*/
+
+/*        oldCart.let {
+            it.totalQuantity = oldCart.totalQuantity//(curTotalQuantity - itemQuantity),
+            it.subTotal = formatDoubleToString(oldCart.subTotal.toDouble() - (item.itemTotal))
+            it.items.remove(item)
+
+        }*/
+        println("After removeItem(): Current totalQuantity = ${oldCart.totalQuantity}\n" +
+                "subtotal ${oldCart.subTotal}\n" +
+                "item is ${item}")
+
         updateCart(updatedCart, SavedStateKeys.Cart())
+        //updateCart(oldCart, SavedStateKeys.Cart())
         return updatedCart
     }
 
     fun reduceItem(item: SellingItem, reduceAmount:Int = 1, oldCart: Cart):Cart{
         println( "reduceItem: is called")
 
+        val itemQuantity = oldCart.items[item]!!
+        if(itemQuantity <= reduceAmount) return oldCart
+
         var updatedCart:Cart
         oldCart.apply{
             updatedCart = when{
-                (item.quantity > 1) -> {
+                (this.items[item]!! > 1) -> {
+                    println( "reducing")
+
                     oldCart.copy(
                         items = this.items.apply{
                             this[item] = this[item]!!.minus(reduceAmount)

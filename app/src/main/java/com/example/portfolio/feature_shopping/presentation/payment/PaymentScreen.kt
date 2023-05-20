@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -38,9 +39,9 @@ import java.util.*
 @Composable
 fun PaymentDialogScreen(
     shouldOpenDialog: Boolean,
-    title:String ="Order Summary",
+    title:String = stringResource(R.string.payment_diaglog_title),
     onDismissedCalled: () -> Unit,
-    cartUIState : Cart,
+    cartState : Cart = Cart(),
     paymentViewModel: PaymentViewModel = hiltViewModel(),
     removeItems: () ->Unit,
     onComplete: () ->Unit,
@@ -76,11 +77,11 @@ fun PaymentDialogScreen(
                     CustomViewPager(
                         contentList = listOf(
                             {ShippingAndPayment_Page(
-                                cartState = cartUIState
+                                cartState = cartState
                             )},
                             {
                                 OrderSummary_Page(
-                                    cartUIState = cartUIState,
+                                    cartUIState = cartState,
                                 )
                             }
                         ),

@@ -198,7 +198,7 @@ fun BodyContent(
                     .padding(all = 12.dp),
                 price = "$${selectedItem.price}",
                 selectedItem = selectedItem,
-                onAddClicked = onAddClicked,
+                eventListener = onAddClicked,
                 onCompletion = onCompletion
             )
         }
@@ -278,7 +278,7 @@ fun BodyContent(
                     .padding(all = 16.dp),
                 price = "$${selectedItem.price}",
                 selectedItem = selectedItem,
-                onAddClicked = onAddClicked,
+                eventListener = onAddClicked,
                 onCompletion = onCompletion
             )
         }
@@ -362,7 +362,7 @@ fun ItemPriceAndCart(
     modifier: Modifier = Modifier,
     price:String = "7.99",
     selectedItem: SellingItem = SellingItem(),
-    onAddClicked:(CartUIEvent) -> Unit,//(item:SellingItem,quantity:Int) -> Unit,
+    eventListener:(CartUIEvent) -> Unit,//(item:SellingItem,quantity:Int) -> Unit,
     onCompletion: () -> Unit
 ) {
     val _quantity = remember{mutableStateOf(1)}
@@ -406,11 +406,13 @@ fun ItemPriceAndCart(
                     modifier = Modifier
                         .weight(0.30f)
                         .height(25.dp),
-                    removeAction = {
+                    reduceQuantity = {
+                         eventListener(CartUIEvent.ReduceFromCart(selectedItem))
                         //TO DO:: Need to update with VM
-                        if(_quantity.value > 1) _quantity.value--
+
+                        //if(_quantity.value > 1) _quantity.value--
                     },
-                    addAction = {
+                    addQuantity = {
                         if(_quantity.value < 99) _quantity.value++
                     }
                 )
@@ -420,7 +422,7 @@ fun ItemPriceAndCart(
                     shape = CircleShape,
                     modifier = Modifier.weight(0.20f),
                     onClick = {
-                        onAddClicked(CartUIEvent.AddToCart(_selectedItem.value, _quantity.value))//onAddClicked(selectedItem, _quantity.value)
+                        eventListener(CartUIEvent.AddToCart(_selectedItem.value, _quantity.value))//onAddClicked(selectedItem, _quantity.value)
                         onCompletion()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = ShoppingColors.Brown_700)
@@ -440,8 +442,8 @@ fun ItemPriceAndCart(
 fun QuantityControlButton(
     quantity:Int = 0,
     modifier:Modifier = Modifier,
-    removeAction:()->Unit ={},
-    addAction:()->Unit ={}
+    reduceQuantity:()->Unit ={},
+    addQuantity:()->Unit ={}
 ) {
     val currentQuantity = remember{ mutableStateOf(quantity)}
     Card(
@@ -458,7 +460,7 @@ fun QuantityControlButton(
             IconButton(
                 //shape = RectangleShape,
                 onClick = {
-                    removeAction()
+                    reduceQuantity()
                     if(currentQuantity.value > 1) currentQuantity.value --
                 },
                 //colors = ButtonDefaults.buttonColors(Color.Transparent),
@@ -489,7 +491,7 @@ fun QuantityControlButton(
                 //colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 //shape = RectangleShape,
                 onClick = {
-                    addAction()
+                    addQuantity()
                     if (currentQuantity.value < 99) currentQuantity.value++
                 },
                 modifier = Modifier
