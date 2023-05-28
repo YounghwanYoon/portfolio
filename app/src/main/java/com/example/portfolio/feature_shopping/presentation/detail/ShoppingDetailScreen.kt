@@ -110,6 +110,7 @@ fun ShoppingDetailScreen (
                 )
             }
         }
+
     }
 }
 
@@ -124,6 +125,7 @@ fun BodyContent(
     onCompletion: () -> Unit = {},
     isTablet:Boolean = false
 ) {
+
     //val webImage= rememberAsyncImagePainter(model = selectedItem.imageUrl)
     var quanity: MutableState<Int> = remember{ mutableStateOf(1) }
     val isTabletMode = remember{mutableStateOf(isTablet)}
@@ -269,7 +271,7 @@ fun BodyContent(
             ItemPriceAndCart(
                 modifier = Modifier
                     .constrainAs(controlCard) {
-                        top.linkTo(keyDescription.bottom,margin = 4.dp)
+                        top.linkTo(keyDescription.bottom, margin = 4.dp)
                         bottom.linkTo(parent.bottom, margin = 4.dp)
                         start.linkTo(keyDescription.start, margin = 4.dp)
                         end.linkTo(parent.absoluteRight, margin = 4.dp)
