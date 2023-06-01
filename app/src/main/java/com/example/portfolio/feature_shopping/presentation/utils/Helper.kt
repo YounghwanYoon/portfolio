@@ -7,6 +7,8 @@ import androidx.compose.ui.unit.sp
 import com.example.portfolio.feature_shopping.domain.model.Cart
 import java.math.RoundingMode
 import java.text.DecimalFormat
+import java.util.Locale
+import kotlin.math.roundToInt
 
 object Helper {
 
@@ -20,10 +22,16 @@ object Helper {
         return decimalFormatter.format(value).toDouble()
     }
     fun  formatDoubleToString(value:Double):String{
-        val decimalFormatter = DecimalFormat("#.##")
+/*        val decimalFormatter = DecimalFormat("#.##")
         decimalFormatter.roundingMode = RoundingMode.HALF_UP
+        return decimalFormatter.format(value)*/
 
-        return decimalFormatter.format(value)
+        return String.format(Locale.US, "%.2f", value)
+    }
+
+    fun formatToTwoDecimal(value:Double):Double{
+        return (value * 100.0).roundToInt()/100.0
+
     }
 
     val Int.nonScaledSp

@@ -271,10 +271,12 @@ fun ShippingAndPayment_Page(
                     title = title
                 )
                 Row{
-                    Column(modifier = Modifier.weight(0.60f).fillMaxHeight()){
-                        ShippingAddress(modifier = Modifier.weight(0.55f),user = user)
-                        PaymentMethods(modifier = Modifier.weight(0.45f),paymentInfos = paymentInfos)
+                    Column(modifier = Modifier.weight(0.50f).fillMaxHeight()){
+                        ShippingAddress(modifier = Modifier.weight(0.60f),user = user)
+
+                        PaymentMethods(modifier = Modifier.weight(0.30f),paymentInfos = paymentInfos)
                     }
+                    Spacer(modifier = Modifier.weight(0.10f))
                     Column(modifier = Modifier.weight(0.40f).fillMaxHeight()){
                         TotalPrice(modifier = Modifier.fillMaxSize(),givenSubTotal = cartState.subTotal)
                     }
@@ -453,9 +455,12 @@ fun PaymentMethods(
                     Card(
                         modifier = modifier
                             .defaultMinSize(minWidth = 150.dp, minHeight = 50.dp)
-                            .background(color = Color.Transparent, shape = RoundedCornerShape(8.dp)),
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(8.dp))
                     ){
-                        Row(verticalAlignment = Alignment.CenterVertically ){
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ){
                             Spacer(modifier = Modifier.padding(4.dp))
                             Text(text = "xxx-${paymentInfos[index].lastFourDigit}")
                         }
@@ -499,68 +504,150 @@ fun TotalPrice(modifier:Modifier = Modifier.fillMaxWidth(), givenSubTotal:String
     val shipping by remember{if(subTotal.toDouble() < 35.00) mutableStateOf(4.99) else mutableStateOf(0.00) }
     val total = remember{mutableStateOf(Helper.formatHelper(subTotal.toDouble() + tax + shipping)).value}
 
+    var isRotatedOrTablet:Boolean by remember{mutableStateOf(false)}
+    isRotatedOrTablet = when(Helper.isRoated()){
+        true->{
+            true
+        }
+        false -> {
+            booleanResource(R.bool.is_tablet)
+        }
+    }
 
-        Column(
-            modifier = modifier,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly
-        ){
-            MyDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-                    .background(color = Color.Transparent),
-                height = 2.dp
-            )
-            Spacer(modifier=Modifier.padding(4.dp))
-            Row(Modifier.fillMaxWidth(0.75f), verticalAlignment = Alignment.CenterVertically){
-                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
-                    Text("subTotal:")
-                }
-                Spacer(Modifier.weight(0.1f))
+    when(isRotatedOrTablet){
+        true -> {
+            Column(
+                modifier = modifier,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly
+            ){
+                MyDivider(
+                    modifier = Modifier
+                        .fillMaxWidth(0.95f)
+                        .align(Alignment.CenterHorizontally)
+                        .background(color = Color.Transparent),
+                    height = 2.dp
+                )
+                Spacer(modifier=Modifier.padding(4.dp))
+                Row(Modifier.fillMaxWidth(0.85f), verticalAlignment = Alignment.CenterVertically){
+                    Spacer(Modifier.weight(0.05f))
 
-                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
-                    Text("$${subTotal}")
-                }
-            }
-            Row(Modifier.fillMaxWidth(0.75f), verticalAlignment = Alignment.CenterVertically){
-                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
-                    Text("tax:")
-                }
-                Spacer(Modifier.weight(0.1f))
+                    Box(Modifier.weight(0.4f), contentAlignment = Alignment.TopStart){
+                        Text("subTotal:")
+                    }
+                    Spacer(Modifier.weight(0.1f))
 
-                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
-                    Text("$$tax")
+                    Box(Modifier.weight(0.45f), contentAlignment = Alignment.TopStart){
+                        Text("$${subTotal}")
+                    }
                 }
-            }
-            Row(Modifier.fillMaxWidth(0.75f), verticalAlignment = Alignment.CenterVertically){
-                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
-                    Text("shipping:")
-                }
-                Spacer(Modifier.weight(0.1f))
-                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
-                    Text("$$shipping")
-                }
-            }
-            //Spacer(modifier=Modifier.padding(4.dp))
-            MyDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-                    .background(color = Color.Transparent),
-                height = 2.dp
-            )
-            Spacer(modifier=Modifier.padding(4.dp))
-            Row(Modifier.fillMaxWidth(0.75f), verticalAlignment = Alignment.CenterVertically){
-                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
-                    Text("Total:")
-                }
-                Spacer(Modifier.weight(0.1f))
+                Row(Modifier.fillMaxWidth(0.85f), verticalAlignment = Alignment.CenterVertically){
+                    Spacer(Modifier.weight(0.05f))
 
-                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
-                    Text("$$total")
+                    Box(Modifier.weight(0.4f), contentAlignment = Alignment.TopStart){
+                        Text("tax:")
+                    }
+                    Spacer(Modifier.weight(0.1f))
+
+                    Box(Modifier.weight(0.45f), contentAlignment = Alignment.TopStart){
+                        Text("$$tax")
+                    }
+                }
+                Row(Modifier.fillMaxWidth(0.85f), verticalAlignment = Alignment.CenterVertically){
+                    Spacer(Modifier.weight(0.05f))
+                    Box(Modifier.weight(0.4f), contentAlignment = Alignment.TopStart){
+                        Text("shipping:")
+                    }
+                    Spacer(Modifier.weight(0.1f))
+                    Box(Modifier.weight(0.45f), contentAlignment = Alignment.TopStart){
+                        Text("$$shipping")
+                    }
+                }
+                //Spacer(modifier=Modifier.padding(4.dp))
+                MyDivider(
+                    modifier = Modifier
+                        .fillMaxWidth(0.95f)
+                        .align(Alignment.CenterHorizontally)
+                        .background(color = Color.Transparent),
+                    height = 2.dp
+                )
+                Spacer(modifier=Modifier.padding(4.dp))
+                Row(Modifier.fillMaxWidth(0.85f), verticalAlignment = Alignment.CenterVertically){
+                    Spacer(Modifier.weight(0.05f))
+                    Box(Modifier.weight(0.4f), contentAlignment = Alignment.TopStart){
+                        Text("Total:")
+                    }
+                    Spacer(Modifier.weight(0.1f))
+                    Box(Modifier.weight(0.45f), contentAlignment = Alignment.TopStart){
+                        Text("$$total")
+                    }
                 }
             }
         }
+        false ->{
+            Column(
+                modifier = modifier,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly
+            ){
+                MyDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+                        .background(color = Color.Transparent),
+                    height = 2.dp
+                )
+                Spacer(modifier=Modifier.padding(4.dp))
+                Row(Modifier.fillMaxWidth(0.85f), verticalAlignment = Alignment.CenterVertically){
+                    Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+                        Text("subTotal:")
+                    }
+                    Spacer(Modifier.weight(0.1f))
+
+                    Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+                        Text("$${subTotal}")
+                    }
+                }
+                Row(Modifier.fillMaxWidth(0.85f), verticalAlignment = Alignment.CenterVertically){
+                    Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+                        Text("tax:")
+                    }
+                    Spacer(Modifier.weight(0.1f))
+
+                    Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+                        Text("$$tax")
+                    }
+                }
+                Row(Modifier.fillMaxWidth(0.85f), verticalAlignment = Alignment.CenterVertically){
+                    Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+                        Text("shipping:")
+                    }
+                    Spacer(Modifier.weight(0.1f))
+                    Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+                        Text("$$shipping")
+                    }
+                }
+                //Spacer(modifier=Modifier.padding(4.dp))
+                MyDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+                        .background(color = Color.Transparent),
+                    height = 2.dp
+                )
+                Spacer(modifier=Modifier.padding(4.dp))
+                Row(Modifier.fillMaxWidth(0.85f), verticalAlignment = Alignment.CenterVertically){
+                    Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+                        Text("Total:")
+                    }
+                    Spacer(Modifier.weight(0.1f))
+
+                    Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+                        Text("$$total")
+                    }
+                }
+            }
+        }
+    }
 
 }

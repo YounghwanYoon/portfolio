@@ -66,6 +66,7 @@ import com.example.portfolio.feature_shopping.presentation.payment.PaymentDialog
 import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_300
 import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
 import com.example.portfolio.feature_shopping.presentation.utils.Helper
+import com.example.portfolio.feature_shopping.presentation.utils.Helper.formatDoubleToString
 import com.example.portfolio.feature_shopping.presentation.utils.Helper.nonScaledSp
 import com.example.portfolio.feature_shopping.presentation.utils.MyDivider
 import com.example.portfolio.feature_shopping.presentation.utils.Screens
@@ -147,7 +148,7 @@ fun ShoppingCartBody(
     //cartStateVM: CartStateViewModel,
     cartUIState: Cart = Cart(subTotal = "$6.99"),
     onEventChange:(CartUIEvent)-> Unit = {},
-    subTotal: String = cartUIState.subTotal,
+    subTotal: String = Helper.formatDoubleToString(cartUIState.subTotal.toDouble()),
     isTablet: Boolean = false,
 ) {
     //val isTablet =  if(Helper.isRoated()) true else booleanResource(id = R.bool.is_tablet)
@@ -293,7 +294,7 @@ fun CartListAndSubTotal(
     cartState: Cart = Cart(),
     items: MutableMap<SellingItem, Int> = cartState.items,
     totalQuantity:Int = cartState.totalQuantity,
-    subTotal:String = cartState.subTotal,
+    subTotal:String = Helper.formatDoubleToString(cartState.subTotal.toDouble()),
     onEventChange: (CartUIEvent) -> Unit = {},
     list:List<Pair<SellingItem, Int>> = cartState.items.toList(),
     //For test use
@@ -341,7 +342,7 @@ fun CartEachItem(
     cartState: Cart = Cart(),
     selectedItem: SellingItem  = SellingItem(),//? = null,
     curQuantity:Int = selectedItem.quantityInCart,//= 1,
-    itemTotal:Double = selectedItem.itemTotal,//6.99,
+    itemTotal:String = formatDoubleToString(selectedItem.itemTotal),//6.99,
     itemTotalTextSize: TextUnit = 24.sp,
     productTitle:String = "I am the title",
     removeListener: () -> Unit = {},
@@ -614,7 +615,8 @@ fun CartEachItem(
                         ) {
                             Text(
                                 text = "$${selectedItem?.let {
-                                    cartState.items[it]?.times(it.price) ?: it.itemTotal         
+                                    cartState.items[it]?.times(it.price)
+                                        ?.let { it1 -> Helper.formatDoubleToString(it1) }
                                 }}",
                                 fontSize = itemTotalTextSize
                             )
