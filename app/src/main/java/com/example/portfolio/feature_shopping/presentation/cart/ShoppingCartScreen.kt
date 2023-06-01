@@ -70,22 +70,17 @@ import com.example.portfolio.feature_shopping.presentation.utils.Helper.nonScale
 import com.example.portfolio.feature_shopping.presentation.utils.MyDivider
 import com.example.portfolio.feature_shopping.presentation.utils.Screens
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingCartScreen(
     modifier:Modifier = Modifier,
     navController:NavController,
     cartVM: CartStateViewModel,
     cartUIState: Cart = Cart(),
-    //totalQuantity: Int,
     onEventChange:(CartUIEvent)->Unit,
     isTablet:Boolean,
 ){
     println("ShoppingCartScreen")
-
-    //val totalQuantity = remember{ mutableStateOf(cartUIState.totalQuantity)}
     Scaffold(
-
     ){
         topBarContent(navController = navController)
         ShoppingCartBody(

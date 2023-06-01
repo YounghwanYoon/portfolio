@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -138,9 +139,11 @@ fun BodyContent(
             Card(
                 modifier = Modifier
                     .constrainAs(image) {
-                        top.linkTo(parent.top, margin = 32.dp)
+                        top.linkTo(parent.top, margin = 16.dp)
                         start.linkTo(parent.absoluteLeft, margin = 16.dp)
                         end.linkTo(parent.absoluteRight, margin = 16.dp)
+                        linkTo(top = parent.top, bottom = parent.bottom, bias = 0.20f)
+
                     }
                     .background(color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
                     .border(4.dp, color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
@@ -173,8 +176,11 @@ fun BodyContent(
                 fontWeight = FontWeight.Bold,
                 fontSize = 32.sp,
                 textDecoration = null,
-                softWrap = false,
+                softWrap = true,
                 maxLines = 2,
+                overflow= TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                //letterSpacing = 8.sp
             )
 
             ItemDescriptionCards(
@@ -182,7 +188,7 @@ fun BodyContent(
                     .fillMaxWidth(0.95f)
                     .height(150.dp)
                     .constrainAs(keyDescription) {
-                        bottom.linkTo(controlCard.top, margin = 8.dp)
+                        bottom.linkTo(controlCard.top, margin = 16.dp)
                         start.linkTo(parent.absoluteLeft, margin = 4.dp)
                         end.linkTo(parent.absoluteRight, margin = 4.dp)
                     }
@@ -192,7 +198,7 @@ fun BodyContent(
             ItemPriceAndCart(
                 modifier = Modifier
                     .constrainAs(controlCard) {
-                        bottom.linkTo(parent.bottom, margin = 4.dp)
+                        bottom.linkTo(parent.bottom, margin = 16.dp)
                         start.linkTo(parent.absoluteLeft, margin = 4.dp)
                         end.linkTo(parent.absoluteRight, margin = 4.dp)
                     }
@@ -382,7 +388,9 @@ fun ItemPriceAndCart(
                         text = _selectedItem.value.title,
                         fontSize = 18.sp,
                         fontWeight= FontWeight.SemiBold,
-                        maxLines = 3
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         text= "Size: 16 fl oz/ 1 lb",

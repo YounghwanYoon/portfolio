@@ -55,7 +55,7 @@
             android:name=".feature_secondactivity.presentation.SecondActivity"
             android:exported="true" />
         <activity
-            android:name=".feature_shopping.presentation.main.ShoppingMain"
+            android:name=".feature_shopping.presentation.ShoppingActivity"
             android:exported="true"
             android:theme="@style/Theme.Portfolio">
             <intent-filter>

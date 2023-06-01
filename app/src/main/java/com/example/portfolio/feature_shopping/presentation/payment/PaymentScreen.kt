@@ -2,100 +2,166 @@ package com.example.portfolio.feature_shopping.presentation.payment
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.domain.model.Cart
 import com.example.portfolio.feature_shopping.domain.model.PaymentInfo
 import com.example.portfolio.feature_shopping.domain.model.User
-import com.example.portfolio.feature_shopping.presentation.utils.*
+import com.example.portfolio.feature_shopping.presentation.utils.ConfirmNotificationService
+import com.example.portfolio.feature_shopping.presentation.utils.CustomViewPager
+import com.example.portfolio.feature_shopping.presentation.utils.Helper
 import com.example.portfolio.feature_shopping.presentation.utils.Helper.nonScaledSp
-import java.util.*
+import com.example.portfolio.feature_shopping.presentation.utils.MyDivider
+import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
+import java.util.Locale
 
 //https://stackoverflow.com/questions/68852110/show-custom-alert-dialog-in-jetpack-compose
+@Preview
 @Composable
 fun PaymentDialogScreen(
-    shouldOpenDialog: Boolean,
+    shouldOpenDialog: Boolean = true,
     title:String = stringResource(R.string.payment_diaglog_title),
-    onDismissedCalled: () -> Unit,
+    onDismissedCalled: () -> Unit = {},
     cartState : Cart = Cart(),
-    paymentViewModel: PaymentViewModel = hiltViewModel(),
-    removeItems: () ->Unit,
-    onComplete: () ->Unit,
+    //paymentViewModel: PaymentViewModel = hiltViewModel(),
+    removeItems: () ->Unit = {},
+    onComplete: () ->Unit = {},
     confirmNotificationService:ConfirmNotificationService = ConfirmNotificationService(LocalContext.current),
-    isTablet:Boolean
+    isTablet:Boolean = true
 ){
     var openDialog by remember{ mutableStateOf(shouldOpenDialog)}
     var shouldChangeButtonColor by remember{ mutableStateOf(false) }
+    val isTablet by remember{ mutableStateOf(isTablet)}
 
-    println("from Payment Dialog, openDialog $openDialog")
-    println("shouldChnageButton Color $shouldChangeButtonColor")
     if(openDialog){
-        CustomDialog(
-            onDismissRequest = {
-                openDialog = !openDialog
-                onDismissedCalled()
-            },
-            width = 0.9f
-        ){
-            DialogContent(
-                modifier =  Modifier.background(color = Color.White),
-                changeButtonColor = if(shouldChangeButtonColor) true else false,
-                onCompleted = {
-                    //paymentViewModel.removeAllItems()
-                    //cartStateViewModel.removeAllItem()
-                    removeItems()
-                    onComplete()
-                    openDialog= false
-                    confirmNotificationService.showNotification(123456)
+        if(!isTablet){
+            CustomDialog(
+                onDismissRequest = {
+                    openDialog = !openDialog
+                    onDismissedCalled()
                 },
-                //openDialogCustom = openDialogState,
-                bodyContent = {
-                    CustomViewPager(
-                        contentList = listOf(
-                            {ShippingAndPayment_Page(
-                                cartState = cartState
-                            )},
-                            {
-                                OrderSummary_Page(
-                                    cartUIState = cartState,
-                                )
+                width = 0.9f
+            ){
+                DialogContent(
+                    modifier =  Modifier.background(color = Color.White),
+                    changeButtonColor = if(shouldChangeButtonColor) true else false,
+                    onCompleted = {
+                        removeItems()
+                        onComplete()
+                        openDialog= false
+                        confirmNotificationService.showNotification(123456)
+                    },
+                    bodyContent = {
+                        CustomViewPager(
+                            contentList = listOf(
+                                {ShippingAndPayment_Page(
+                                    cartState = cartState
+                                )},
+                                {
+                                    OrderSummary_Page(
+                                        cartUIState = cartState,
+                                    )
+                                }
+                            ),
+                            onLastPage = {
+                                shouldChangeButtonColor = true
                             }
-                        ),
-                        onLastPage = {
-                            shouldChangeButtonColor = true
+                        )
+                    }
+                )
+            }
+        }
+        else {
+            Column(
+                modifier= Modifier.verticalScroll(state = rememberScrollState())
+            ) {
+
+                CustomDialog(
+                    onDismissRequest = {
+                        openDialog = !openDialog
+                        onDismissedCalled()
+                    },
+                    width = 0.9f
+                ){
+                    DialogContent(
+                        modifier =  Modifier.background(color = Color.White),
+                        changeButtonColor = if(shouldChangeButtonColor) true else false,
+                        onCompleted = {
+                            removeItems()
+                            onComplete()
+                            openDialog= false
+                            confirmNotificationService.showNotification(123456)
+                        },
+                        bodyContent = {
+                            CustomViewPager(
+                                contentList = listOf(
+                                    {ShippingAndPayment_Page(
+                                        cartState = cartState
+                                    )},
+                                    {
+                                        OrderSummary_Page(
+                                            cartUIState = cartState,
+                                        )
+                                    }
+                                ),
+                                onLastPage = {
+                                    shouldChangeButtonColor = true
+                                }
+                            )
                         }
                     )
                 }
-            )
+            }
+
         }
+
     }
 }
-
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CustomDialog(
     onDismissRequest: () -> Unit,
@@ -176,31 +242,62 @@ fun DialogContent(
         }
     }
 }
+
+@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
 @Composable
 fun ShippingAndPayment_Page(
     modifier:Modifier = Modifier,
     user: User = User(),
     cartState: Cart = Cart(),
     paymentInfos:List<PaymentInfo> = user.paymentInfo,
-    title:String = "Payment Summary"
+    title:String = stringResource(R.string.payment_summary)
 ){
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier=Modifier.background(color = MaterialTheme.colorScheme.background)
-    ){
-        TitleSection(modifier = Modifier.weight(0.05f), title = title)
-        ShippingAddress(modifier = Modifier.weight(0.20f),user = user)
-        PaymentMethods(modifier = Modifier.weight(0.15f),paymentInfos = paymentInfos)
-        TotalPrice(modifier = Modifier.weight(0.30f),givenSubTotal = cartState.subTotal)
+    var isRotatedOrTablet:Boolean by remember{mutableStateOf(true)}
+
+    isRotatedOrTablet = when(Helper.isRoated()){
+        true->{
+            true
+        }
+        false -> {
+            booleanResource(R.bool.is_tablet)
+        }
     }
 
+    when(isRotatedOrTablet){
+        true -> {
+            Column{
+                TitleSection(
+                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                    title = title
+                )
+                Row{
+                    Column(modifier = Modifier.weight(0.60f).fillMaxHeight()){
+                        ShippingAddress(modifier = Modifier.weight(0.55f),user = user)
+                        PaymentMethods(modifier = Modifier.weight(0.45f),paymentInfos = paymentInfos)
+                    }
+                    Column(modifier = Modifier.weight(0.40f).fillMaxHeight()){
+                        TotalPrice(modifier = Modifier.fillMaxSize(),givenSubTotal = cartState.subTotal)
+                    }
+
+                }
+            }
+
+        }
+        false -> {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier=Modifier.background(color = MaterialTheme.colorScheme.background)
+            ){
+                TitleSection(modifier = Modifier.weight(0.05f), title = title)
+                ShippingAddress(modifier = Modifier.weight(0.20f),user = user)
+                PaymentMethods(modifier = Modifier.weight(0.15f),paymentInfos = paymentInfos)
+                TotalPrice(modifier = Modifier.weight(0.30f),givenSubTotal = cartState.subTotal)
+            }
+        }
+    }
 }
 
-@Preview(
-    name = "OrderSummary",
-    widthDp = 360,
-    heightDp = 640,
-)
+
 @Composable
 fun OrderSummary_Page(
     modifier:Modifier = Modifier,
@@ -333,7 +430,7 @@ fun ShippingAddress(modifier:Modifier = Modifier, user:User = User()){
 @Composable
 fun PaymentMethods(
     modifier:Modifier = Modifier,
-    paymentInfos: List<PaymentInfo> /*= mutableStateListOf(PaymentInfo())*/,
+    paymentInfos: List<PaymentInfo>,
     addPayment: ()->Unit = {}
 ){
     Column(modifier = modifier){
@@ -394,17 +491,17 @@ fun PaymentMethods(
     }
 }
 
+@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
 @Composable
-fun TotalPrice(modifier:Modifier = Modifier, givenSubTotal:String = "7.99"){
+fun TotalPrice(modifier:Modifier = Modifier.fillMaxWidth(), givenSubTotal:String = "7.99"){
     val subTotal by remember{ mutableStateOf(givenSubTotal) }
     val tax by remember{mutableStateOf(Helper.formatHelper(0.0825 * subTotal.toDouble()))}
     val shipping by remember{if(subTotal.toDouble() < 35.00) mutableStateOf(4.99) else mutableStateOf(0.00) }
     val total = remember{mutableStateOf(Helper.formatHelper(subTotal.toDouble() + tax + shipping)).value}
 
 
-    Column(modifier = modifier,){
         Column(
-            modifier = Modifier.padding(12.dp),
+            modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ){
@@ -416,32 +513,32 @@ fun TotalPrice(modifier:Modifier = Modifier, givenSubTotal:String = "7.99"){
                 height = 2.dp
             )
             Spacer(modifier=Modifier.padding(4.dp))
-            Row(modifier.fillMaxWidth(0.75f), verticalAlignment = Alignment.CenterVertically){
-                Box(modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+            Row(Modifier.fillMaxWidth(0.75f), verticalAlignment = Alignment.CenterVertically){
+                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
                     Text("subTotal:")
                 }
                 Spacer(Modifier.weight(0.1f))
 
-                Box(modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
                     Text("$${subTotal}")
                 }
             }
-            Row(modifier.fillMaxWidth(0.75f), verticalAlignment = Alignment.CenterVertically){
-                Box(modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+            Row(Modifier.fillMaxWidth(0.75f), verticalAlignment = Alignment.CenterVertically){
+                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
                     Text("tax:")
                 }
                 Spacer(Modifier.weight(0.1f))
 
-                Box(modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
                     Text("$$tax")
                 }
             }
-            Row(modifier.fillMaxWidth(0.75f), verticalAlignment = Alignment.CenterVertically){
-                Box(modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+            Row(Modifier.fillMaxWidth(0.75f), verticalAlignment = Alignment.CenterVertically){
+                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
                     Text("shipping:")
                 }
                 Spacer(Modifier.weight(0.1f))
-                Box(modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
                     Text("$$shipping")
                 }
             }
@@ -454,16 +551,16 @@ fun TotalPrice(modifier:Modifier = Modifier, givenSubTotal:String = "7.99"){
                 height = 2.dp
             )
             Spacer(modifier=Modifier.padding(4.dp))
-            Row(modifier.fillMaxWidth(0.75f), verticalAlignment = Alignment.CenterVertically){
-                Box(modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+            Row(Modifier.fillMaxWidth(0.75f), verticalAlignment = Alignment.CenterVertically){
+                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
                     Text("Total:")
                 }
                 Spacer(Modifier.weight(0.1f))
 
-                Box(modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
+                Box(Modifier.weight(0.5f), contentAlignment = Alignment.TopStart){
                     Text("$$total")
                 }
             }
         }
-    }
+
 }

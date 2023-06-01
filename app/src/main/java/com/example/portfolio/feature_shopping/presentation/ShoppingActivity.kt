@@ -1,4 +1,4 @@
-package com.example.portfolio.feature_shopping.presentation.main
+package com.example.portfolio.feature_shopping.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,7 +13,7 @@ import com.example.portfolio.feature_shopping.presentation.utils.setNavGraph
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ShoppingMain : ComponentActivity() {
+class ShoppingActivity : ComponentActivity() {
     private val TAG = "ShoppingMain.kt"
 
     override fun onCreate(savedInstanceState: Bundle?) {

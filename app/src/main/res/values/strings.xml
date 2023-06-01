@@ -37,6 +37,7 @@
     <string name="searchview_text">Search Your Bean…</string>
     <string name="payment_diaglog_title">Order Summary</string>
     <string name="cart_title">Shopping Cart</string>
+    <string name="payment_summary">Payment Summary</string>
 
 
 </resources>

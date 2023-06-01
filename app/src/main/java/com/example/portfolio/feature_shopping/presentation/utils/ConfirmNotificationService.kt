@@ -8,7 +8,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.portfolio.R
-import com.example.portfolio.feature_shopping.presentation.main.ShoppingMain
+import com.example.portfolio.feature_shopping.presentation.ShoppingActivity
 
 class ConfirmNotificationService(
     private val context: Context
@@ -19,7 +19,7 @@ class ConfirmNotificationService(
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     fun showNotification(confirmationNumber:Int){
-        val activityIntent = Intent(context, ShoppingMain::class.java)
+        val activityIntent = Intent(context, ShoppingActivity::class.java)
         val activityPendingIntent = PendingIntent.getActivity(
             context,
             1,

@@ -8,8 +8,8 @@ import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.model.ShoppingUIEvent
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
 import com.example.portfolio.feature_shopping.domain.use_case.ShoppingUseCases
-import com.example.portfolio.utils.Resource
 import com.example.portfolio.utils.ConstKeys
+import com.example.portfolio.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ShoppingItemStateViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val shoppingUseCases:ShoppingUseCases
+    private val shoppingUseCases:ShoppingUseCases,
+
     /*=
         ShoppingUseCases(
             getSpecial = GetSpecialItem(
