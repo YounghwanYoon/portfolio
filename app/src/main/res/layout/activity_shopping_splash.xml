@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_weight="10"
+    android:background="@color/brown_700"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".feature_shopping.presentation.ShoppingSplashActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="7"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/splash_view_with_coffee_image"
+        android:paddingEnd="45dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/coffee_bean_falling" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/roasting_coffee_bean"
+        android:textSize="32sp" />
+
+    <ProgressBar
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:progressDrawable="@drawable/gradient_progress"
+        tools:progress="60" />
+
+</LinearLayout>

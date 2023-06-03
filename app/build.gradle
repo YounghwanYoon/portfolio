@@ -5,29 +5,57 @@ plugins {
 //    id 'com.android.library'
 //    id 'com.android.instantapp'
     id 'kotlin-android'
-    id 'kotlin-android-extensions'
+    //deprecated
+//    id 'kotlin-android-extensions'
+    //kotlin("android.extensions")
     id 'kotlin-kapt'
     id "androidx.navigation.safeargs.kotlin"
     id 'dagger.hilt.android.plugin'
+    id 'kotlin-parcelize'
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.portfolio"
         minSdk 26
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file("local.properties").newDataInputStream())
+
+        //read field
+        //type, name of field, and location of value
+        buildConfigField "String", "API_KEY", "\"${properties.getProperty("API_KEY")}\""
+        vectorDrawables {
+            useSupportLibrary true
+        }
+
+
     }
 
     buildTypes {
         release {
+/*
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file("local.properties").newDataInputSteam())
+
+            //type, name of field, and location of value
+            buildConfigField ("String", "API_KEY", "\"${properties.getProperty("API_KEY")}\"")
+            */
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        benchmark {
+            signingConfig signingConfigs.debug
+            matchingFallbacks = ['release']
+            debuggable false
+            proguardFiles("benchmark-rules.pro")
         }
     }
     compileOptions {
@@ -36,7 +64,30 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+
+        //To handle depreated freeCompilerArgs
+        //https://youtrack.jetbrains.com/issue/KT-54888/Add-Gradle-property-to-suppress-kotlinOptions.freeCompilerArgs-modification-on-execution-phase
+        freeCompilerArgs += [
+                "-Xallow-jvm-ir-dependencies",
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true"
+        ]
     }
+    buildToolsVersion '32.1.0-rc1'
+
+    buildFeatures{
+        viewBinding = true
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.0"
+    }
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+
 }
 
 dependencies {
@@ -44,104 +95,237 @@ dependencies {
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.github.barteksc:pdfium-android:1.9.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    //implementation files('libs\\/kotlin-compiler-embeddable-1.6.21.jar')
 
-    // Timber
+    //Animation library
+    //https://github.com/daimajia/AndroidViewAnimations
+    implementation 'com.daimajia.androidanimations:library:2.4@aar'
+    implementation 'androidx.window:window:1.0.0'
+    testImplementation 'junit:junit:4.13.2'
+
+    //Jetpack Compose
+    def composeBom = platform("androidx.compose:compose-bom:2022.10.00")
+    implementation composeBom
+    androidTestImplementation composeBom
+    def nav_version = "2.5.3"
+    //implementation("androidx.navigation:navigation-compose:$nav_version")
+    //implementation("androidx.navigation:navigation-*:2.6.0-alpha04")
+
+    // Jetpack Compose Integration
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+    // Navigation Components
+    // Kotlin
+    implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
+    implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
+    // Hilt Navigation
+    // Use when using Navgation compose
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    //implementation "androidx.navigation:navigation-*:2.6.0-alpha04"
+
+    // Choose one of the following:
+    // Material Design 3
+    implementation("androidx.compose.material3:material3:$compose_version_material3")
+    // or Material Design 2
+    implementation("androidx.compose.material:material")
+    implementation ("androidx.compose.material:material-icons-extended:$compose_version_material")
+    // or skip Material Design and build directly on top of foundational components
+    implementation("androidx.compose.foundation:foundation")
+    // or only import the main APIs for the underlying toolkit systems,
+    // such as input and measurement/layout
+    implementation("androidx.compose.ui:ui: $compose_version_ui")
+
+    //compose - constraintlayout
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
+    implementation ("androidx.ui:ui-framework:0.1.0-dev03")
+
+    // Android Studio Preview support
+    implementation("androidx.compose.ui:ui-tooling-preview:$compose_version_ui")
+    debugImplementation("androidx.compose.ui:ui-tooling:$compose_version_ui")
+
+    // UI Tests
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:$compose_version_ui")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:$compose_version_ui")
+
+    // Optional - Included automatically by material, only add when you need
+    // the icons but not the material library (e.g. when using Material3 or a
+    // custom design system based on Foundation)
+    implementation("androidx.compose.material:material-icons-core:$compose_version_material")
+
+    // Optional - Add window size utils
+    implementation("androidx.compose.material3:material3-window-size-class:1.1.0-beta02")
+
+    // Optional - Integration with activities
+    implementation("androidx.activity:activity-compose:1.7.0")
+    // Optional - Integration with ViewModels
+
+    def lifecycle_version = "2.6.0-beta01"
+    //implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:$lifecycle_version"
+
+
+    // Timber - for Log
     //implementation 'com.jakewharton.timber:timber:4.7.1'
 
     // Local Unit Tests
 
     // (Required) Writing and executing Unit Tests on the JUnit Platform
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.1")
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.8.2')
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.8.2')
+    //mock testing
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
 
     testImplementation  "junit:junit:4.13.2"
-    testImplementation "androidx.test:core:1.4.0" //lower version caused error
-    //testImplementation "org.hamcrest:hamcrest-all:1.3"
+    testImplementation "androidx.test:core:1.5.0"
+    //lower version caused error
+    testImplementation "org.hamcrest:hamcrest-all:1.3"
     testImplementation "androidx.arch.core:core-testing:2.1.0"
-    testImplementation "org.robolectric:robolectric:4.3.1"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0"
+    testImplementation 'org.robolectric:robolectric:4.7.3'
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
     testImplementation "com.google.truth:truth:1.1.3"
-    testImplementation "org.mockito:mockito-core:2.21.0"
+    testImplementation 'org.mockito:mockito-core:4.3.1'
     //Making Flow test easier
     testImplementation "app.cash.turbine:turbine:0.7.0"
+    //Hilt UnitTest
+    testImplementation 'com.google.dagger:hilt-android-testing:2.44'
 
     // Instrumented Unit Tests
     androidTestImplementation "junit:junit:4.13.2"
-    androidTestImplementation "com.linkedin.dexmaker:dexmaker-mockito:2.12.1"
-    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0"
+    androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:2.28.1'
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
     androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
     androidTestImplementation "com.google.truth:truth:1.1.3"
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    androidTestImplementation "org.mockito:mockito-core:2.21.0"
-    androidTestImplementation "com.google.dagger:hilt-android-testing:2.28-alpha"
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'org.mockito:mockito-core:4.3.1'
+    androidTestImplementation 'com.google.dagger:hilt-android-testing:2.44'
     //androidTestImplementation('com.google.dagger:hilt-android-compiler:2.40.1')
-    kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.40.1'
+    // Testing Navigation
+    androidTestImplementation "androidx.navigation:navigation-testing:2.5.3"
+    androidTestImplementation "androidx.room:room-testing:2.4.3"
+
+    androidTestImplementation "androidx.test:runner:$androidXTestVersion"
+    androidTestImplementation "androidx.test:rules:$androidXTestVersion"
+    // Optional -- UI testing with Espresso
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
+    // Optional -- UI testing with UI Automator
+    androidTestImplementation "androidx.test.uiautomator:uiautomator:$uiAutomatorVersion"
+    // Optional -- UI testing with Compose
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
 
 
 
+    kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.44'
+
+    //https://square.github.io/leakcanary/getting_started/
+    //Leakcanary - to detect memory leak for android
+    //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
 
     //https://stackoverflow.com/questions/49956051/warning-kotlin-plugin-version-is-not-the-same-as-library-version-but-it-is
     //implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    // For developers using AndroidX in their applications
+    // Permission
+    implementation 'pub.devrel:easypermissions:3.0.0'
+
 
     // Material Design
-    implementation 'com.google.android.material:material:1.6.0-alpha02'
-
-    // Architectural Components
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1"
+    implementation 'com.google.android.material:material:1.8.0-beta01'
 
     // Lifecycle
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.4.1"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.5.1"
     //implementation "androidx.lifecycle:lifecycle-runtime:2.4.0"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
 
     // Room
-    implementation "androidx.room:room-runtime:2.4.1"
-    kapt  "androidx.room:room-compiler:2.4.1"
+    implementation "androidx.room:room-runtime:2.4.3"
+    kapt  "androidx.room:room-compiler:2.4.3"
 
     // implementation "androidx.room:room-runtime:2.2.5"
 //    kapt  "androidx.room:room-compiler:2.2.5"
     //annotationProcessor  "androidx.room:room-compiler:2.4.1"
 
     // Kotlin Extensions and Coroutines support for Room
-    implementation "androidx.room:room-ktx:2.4.1"
+    implementation "androidx.room:room-ktx:2.4.3"
     //implementation "androidx.room:room-ktx:2.2.5"
 
     // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
+    //okhttp
+    implementation ("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")
+
     // Coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
 
     // Coroutine Lifecycle Scopes
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.1"
+    //implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
+    //implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
 
-    // Navigation Components
-    implementation "androidx.navigation:navigation-fragment-ktx:2.4.1"
-    implementation "androidx.navigation:navigation-ui-ktx:2.4.1"
+    //https://developer.android.com/jetpack/compose/graphics/images/loading
+    //URL Image for Compose- by Coil
+    //implementation("io.coil-kt:coil-compose:1.3.1")
+    implementation("io.coil-kt:coil-compose:2.2.2")
+
+    //URL Image Loader - Glide
+    //https://bumptech.github.io/glide/int/compose.html
+    implementation("com.github.bumptech.glide:compose:1.0.0-alpha.1")
 
     // Glide
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    implementation 'com.github.bumptech.glide:glide:4.13.0'
     //annotationProcessor  'com.github.bumptech.glide:compiler:4.11.0'
-    kapt 'com.github.bumptech.glide:compiler:4.11.0'
+    kapt 'com.github.bumptech.glide:compiler:4.13.0'
     // Activity KTX for viewModels()
-    implementation "androidx.activity:activity-ktx:1.4.0"
+    implementation "androidx.activity:activity-ktx:1.6.1"
+    //For viewmodel in fragment lazy instantiation
+    implementation ("androidx.fragment:fragment-ktx:1.5.5")
 
     //Dagger - Hilt
-    implementation "com.google.dagger:hilt-android:2.40.1"
+    implementation 'com.google.dagger:hilt-android:2.44'
     //annotationProcessor  "com.google.dagger:hilt-android-compiler:2.40.1"
-    kapt "com.google.dagger:hilt-android-compiler:2.40.1"
+    kapt 'com.google.dagger:hilt-android-compiler:2.44'
 
-    implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
+    //No longer needed for newer hilt and causing error- error: ComponentProcessingStep was unable to process 'com.example.portfolio.PortfolioApplication_HiltComponents.SingletonC' because 'dagger.hilt.android.internal.lifecycle.DefaultActivityViewModelFactory' could not be resolved.
+    //implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
    // annotationProcessor  "androidx.hilt:hilt-compiler:1.0.0"
     kapt  "androidx.hilt:hilt-compiler:1.0.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version"
 
+    implementation ("com.google.dagger:dagger:2.44")
+    kapt ("com.google.dagger:dagger-compiler:2.44")
 
+    //pdf viewer - currently not able to download since jcenter is shutdown
+    //https://github.com/barteksc/AndroidPdfViewer
+    //implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
+
+    //following alternative way suggested by
+    //https://github.com/barteksc/AndroidPdfViewer/issues/1067
+    implementation "com.github.mhiew:android-pdf-viewer:3.2.0-beta.1"
+
+    // Permission - Compose
+    //https://github.com/google/accompanist
+    def ComposeUI13 =  "0.28.0"
+    implementation "com.google.accompanist:accompanist-permissions:$ComposeUI13"
+    //Paging in compose
+    implementation "com.google.accompanist:accompanist-pager:0.19.0"
+    //ViewPager with dot for compose 0.22.0-rc
+    implementation "com.google.accompanist:accompanist-pager-indicators:0.19.0"
+
+    //implementation 'com.github.barteksc:AndroidPdfViewer:2.3.0'
+
+    //implementation 'com.github.afreakyelf:Pdf-Viewer:Tag'
+    //implementation 'com.github.barteksc:android-pdf-viewer:3.2.0-beta.1'
+    //implementation 'com.github.barteksc:AndroidPdfViewerV1:1.6.0'
+
+    //benchmark
+    implementation "androidx.profileinstaller:profileinstaller:1.3.0"
 }

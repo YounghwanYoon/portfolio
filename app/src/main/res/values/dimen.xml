@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name ="viewpager_next_visible_px">36dp</dimen>
+    <dimen name ="viewpager_current_horizontal_margin">50dp</dimen>
+</resources>
