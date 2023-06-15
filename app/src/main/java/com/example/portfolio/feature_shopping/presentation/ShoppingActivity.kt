@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.ui.res.booleanResource
 import androidx.compose.ui.res.colorResource
 import androidx.navigation.compose.rememberNavController
+import com.example.portfolio.BuildConfig
 import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
 import com.example.portfolio.feature_shopping.presentation.utils.Helper
@@ -19,6 +20,9 @@ class ShoppingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+
+        val testingHiddenAPI = BuildConfig.TBDM_API_KEY
+        val testingHiddenAPIToken = BuildConfig.TBDM_API_READ_ACCESS_TOKEN
 
         setContent {
             ShoppingTheme {

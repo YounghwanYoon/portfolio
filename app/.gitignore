@@ -1,3 +1,7 @@
 /build
 
 /src/main/java/com/example/portfolio/practice
+
+../gradle.properties
+
+../local.properties

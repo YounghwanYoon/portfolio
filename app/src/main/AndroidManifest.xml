@@ -26,12 +26,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Portfolio"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".feature_pagination.presentation.PaginationActivity"
+            android:exported="false"
+            android:label="@string/title_activity_pagination"
+            android:theme="@style/Theme.Portfolio" />
+
         <profileable
             android:shell="true"
             tools:targetApi="29" />
 
         <activity
-            android:name=".feature_practice.presentation.JetpackComposeActivity"
+            android:name=".feature_template.presentation.JetpackComposeActivity"
             android:exported="true"
             android:label="@string/title_activity_jetpack_compose"
             android:theme="@style/Theme.Portfolio">
