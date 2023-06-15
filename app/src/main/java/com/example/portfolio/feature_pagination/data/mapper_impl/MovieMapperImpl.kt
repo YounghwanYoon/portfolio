@@ -14,10 +14,22 @@ class MovieMapperImpl:MovieMapper {
 
     override suspend fun mapRemoteMovieToDomain(remoteMovie: MovieResponse): Movie {
         return Movie(
-            page = remoteMovie.page,
-            results = remoteMovie.results,
-            total_pages = remoteMovie.total_pages,
-            total_results = remoteMovie.total_results
+            id = 1262,
+            original_language = "eius",
+            original_title = "delenit",
+            overview = "mutat",
+            popularity = 8.9,
+            poster_path = "non",
+            release_date = "idque",
+            title = "ubique",
+            video = false,
+            vote_average = 10.11,
+            vote_count = 6134
+            /*            page = remoteMovie.page,
+                        results = remoteMovie.results,
+                        total_pages = remoteMovie.total_pages,
+                        total_results = remoteMovie.total_results*/
+        
         )
     }
 
@@ -27,10 +39,8 @@ class MovieMapperImpl:MovieMapper {
 
     override suspend fun mapDomainMovieToUi(domainMovie: Movie): MovieUi {
         return MovieUi(
-            page = domainMovie.page,
-            results = domainMovie.results,
-            total_pages = domainMovie.total_pages,
-            total_results = domainMovie.total_results
+            page = 7979, results = listOf(), total_pages = 5633, total_results = 3069
+
         )
     }
 }

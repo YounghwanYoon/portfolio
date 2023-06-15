@@ -21,10 +21,10 @@ import java.io.IOException
 class MoviesPagingSource(
     private val key:String,
     private val movieService: MovieService
-): /*PagingSource<Int, MovieResponse>(), */RemoteMediator<Int,MovieResponse>() {
+): PagingSource<Int, MovieResponse>(){
     /**
      * The refresh key is used for subsequent calls to PagingSource.Load after the initial load.
-     *//*
+     */
     override fun getRefreshKey(state: PagingState<Int, MovieResponse>): Int? {
         // We need to get the previous key (or next key if previous is null) of the page
         // that was closest to the most recently accessed index.
@@ -44,7 +44,7 @@ class MoviesPagingSource(
                 language = "en-US",
                 page = pageIndex
             )
-            val movies: List<MovieResponse> = response.result
+            val movies: List<MovieResponse> = response.results
 
             val nextKey =
                 if(movies.isEmpty()){
@@ -66,37 +66,5 @@ class MoviesPagingSource(
         } catch(exception:HttpException){
             return LoadResult.Error(exception)
         }
-    }*/
-
-    @OptIn(ExperimentalPagingApi::class)
-    override suspend fun load(
-        loadType: LoadType,
-        state: PagingState<Int, MovieEntity>
-    ): RemoteMediator.MediatorResult {
-        return try{
-            val loadKey = when(loadType){
-                LoadType.REFRESH -> 1
-                LoadType.PREPEND -> RemoteMediator.MediatorResult.Success(
-                    endOfPaginationReached = true
-                )
-                LoadType.APPEND -> {
-                    val lastItem = state.lastItemOrNull()
-                    if(lastItem == null){
-                        1
-                    }else{
-                        (lastItem.total_pages/state.config.pageSize) + 1
-                    }
-                }
-            }
-
-            val MovieResponse = movieService.getTopRateMovies(key = key, language = "en-US", page = loadKey)
-
-
-        }catch(e:IOException){
-            return RemoteMediator.MediatorResult.Error(e)
-        }catch(e:HttpException){
-            return RemoteMediator.MediatorResult.Error(e)
-        }
     }
-
 }

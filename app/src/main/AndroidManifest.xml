@@ -28,9 +28,17 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".feature_pagination.presentation.PaginationActivity"
-            android:exported="false"
             android:label="@string/title_activity_pagination"
-            android:theme="@style/Theme.Portfolio" />
+            android:theme="@style/Theme.Portfolio"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
 
         <profileable
             android:shell="true"
@@ -64,11 +72,7 @@
             android:name=".feature_shopping.presentation.ShoppingActivity"
             android:exported="true"
             android:theme="@style/Theme.Portfolio">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
 
             <meta-data
                 android:name="preloaded_fonts"

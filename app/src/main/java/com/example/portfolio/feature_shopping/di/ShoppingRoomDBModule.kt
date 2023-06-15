@@ -23,9 +23,9 @@ object ShoppingRoomDBModule {
         context: Context
     ): ShoppingDataBase {
         return Room.databaseBuilder(
-            context,
-            ShoppingDataBase::class.java,
-            ShoppingDataBase.CARTDB_NAME
+            context = context,
+            klass = ShoppingDataBase::class.java,
+            name = ShoppingDataBase.CARTDB_NAME
         )
         .build()
     }

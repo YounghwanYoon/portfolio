@@ -10,8 +10,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.example.portfolio.feature_pagination.presentation.movie_list.MovieListScreen
+import com.example.portfolio.feature_pagination.presentation.movie_list.viewmodel.MovieListViewModel
 import com.example.portfolio.feature_pagination.presentation.ui.theme.PortfolioTheme
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.HiltAndroidApp
 
+@AndroidEntryPoint
 class PaginationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +29,10 @@ class PaginationActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting3("Android")
+                    val movieVM:MovieListViewModel = hiltViewModel()
+                    MovieListScreen(
+                        movieVM.moviePagingFlow.collectAsLazyPagingItems()
+                    )
                 }
             }
         }
