@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--https://www.raywenderlich.com/3988300-vector-graphics-on-android#toc-anchor-004 !-->
+<!--C2,22, 2,22 2,22"!-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="48dp"
+    android:width="48dp"
+    android:viewportHeight="48.0"
+    android:viewportWidth="48.0">
+    <group
+        android:name="leftEyeGroup">
+        <path
+            android:fillColor="@color/blue"
+            android:pathData="
+            M2,12
+            L22,12
+            C22,22 12,22 12,22
+            C12,22 2,22 2,12
+            Z"
+            android:strokeWidth="1"
+            android:strokeColor="@color/white"
+            />
+    </group>
+    <group
+        android:name="RightEyeGroup">
+        <path
+            android:fillColor="@color/blue"
+            android:pathData="
+            M22,12
+            L44,12
+            C44,22 34,22 34,22
+            C34,22 26,22 26,12
+            Z"
+            android:strokeWidth="1"
+            android:strokeColor="@color/white"
+            />
+    </group>
+    <group
+        android:name="NoseGroup">
+        <path
+            android:fillColor="@color/transparent"
+            android:pathData="
+            M23,13
+            C24,16 36,30 22,30
+            "
+            android:strokeColor="@color/white"
+            android:strokeWidth="1"
+            />
+
+    </group>
+</vector>
+
+<!--
+<shape
+            android:shape ="ring"
+            android:innerRadius="100dp"
+            android:thickness="40dp"
+            android:useLevel="false"
+            >
+            <solid android:color="#00AFFF">
+
+            </solid>
+
+        </shape>
+>

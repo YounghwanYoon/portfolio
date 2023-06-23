@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":app" external.linked.project.path="$MODULE_DIR$/../../../app" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="Portfolio" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="android-gradle" name="Android-Gradle">
+      <configuration>
+        <option name="GRADLE_PROJECT_PATH" value=":app" />
+        <option name="LAST_SUCCESSFUL_SYNC_AGP_VERSION" value="7.3.1" />
+        <option name="LAST_KNOWN_AGP_VERSION" value="7.3.1" />
+      </configuration>
+    </facet>
+    <facet type="android" name="Android">
+      <configuration>
+        <option name="SELECTED_BUILD_VARIANT" value="debug" />
+        <option name="ALLOW_USER_CONFIGURATION" value="false" />
+        <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
+        <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="" />
+        <option name="TEST_RES_FOLDERS_RELATIVE_PATH" value="" />
+        <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/src/main/assets" />
+      </configuration>
+    </facet>
+  </component>
+  <component name="ModuleClassLoaderOverlays">
+    <paths>
+      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay13069351037684778055" />
+      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay4468215790382404833" />
+      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay4514590388546921494" />
+      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay332857713719449997" />
+      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay18076135111084576280" />
+      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay17703008025619350325" />
+      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay8037715708673354727" />
+      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay15910317729752673319" />
+      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay10873827769743879062" />
+      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay6016175182986058592" />
+    </paths>
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+    <output url="file://$MODULE_DIR$/../../../app/build/intermediates/javac/debug/classes" />
+    <output-test url="file://$MODULE_DIR$/../../../app/build/intermediates/javac/debugUnitTest/classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../app">
+      <excludeFolder url="file://$MODULE_DIR$/../../../app/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../app/build" />
+    </content>
+    <orderEntry type="jdk" jdkName="Android API 33, extension level 3 Platform" jdkType="Android SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

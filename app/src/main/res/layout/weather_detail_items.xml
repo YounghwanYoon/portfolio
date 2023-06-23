@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_margin="0dp"
+    android:backgroundTint="@color/see_through"
+    card_view:cardElevation="0dp"
+    app:cardPreventCornerOverlap="false"
+    app:cardBackgroundColor="@color/see_through"
+    app:cardUseCompatPadding="false">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:paddingTop="4dp">
+
+        <TextView
+            android:id="@+id/forecast_hour_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:gravity="center"
+            android:layout_gravity="center"
+            tools:text="11 pm"
+            />
+
+        <ImageView
+            android:id="@+id/forecast_hour_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="70dp"
+            android:minHeight="70dp"
+            android:layout_margin="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/forecast_hour_txt"
+            app:layout_constraintStart_toStartOf="@+id/forecast_hour_txt"
+            app:layout_constraintTop_toBottomOf="@+id/forecast_hour_txt"
+            android:contentDescription="@string/hourly_forecast_weather_image" />
+        <TextView
+            android:id="@+id/forecast_hourly_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="70 oF"
+        />
+
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":benchmark:main" external.linked.project.path="$MODULE_DIR$/../../../benchmark" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.type="sourceSet" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="kotlin-language" name="Kotlin">
+      <configuration version="5" platform="JVM 1.8" allPlatforms="JVM [1.8]" useProjectSettings="false">
+        <compilerSettings>
+          <option name="additionalArguments" value="-Xallow-no-source-files" />
+        </compilerSettings>
+        <compilerArguments>
+          <flagArguments>
+            <flagArg name="noReflect" arg="true" />
+            <flagArg name="noStdlib" arg="true" />
+          </flagArguments>
+          <stringArguments>
+            <stringArg name="classpath">
+              <args>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/424c3048636ed673682b1780f9c77abe/transformed/jetified-kotlin-stdlib-jdk8-1.8.0.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/7c20c9cc4103031d68f8a9d11f1f0180/transformed/espresso-core-3.5.1-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/a73298a907e7839253e5a9b5de0a7a6d/transformed/jetified-benchmark-macro-junit4-1.1.0-beta05-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/b6072d782337e7126ce633cbba1f5eb2/transformed/jetified-benchmark-macro-1.1.0-beta05-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/67f849574fb5c65c8a30a899c6265a4a/transformed/jetified-kotlin-stdlib-jdk7-1.8.0.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/c57fe89015d7c580ca871611f005e41d/transformed/jetified-junit-1.1.5-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/e93f45d66c86f32b6896ae3c952d814b/transformed/jetified-core-1.5.0-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/f4520d62eb55e2085877a19842109390/transformed/jetified-kotlin-stdlib-1.8.0.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/e02091c31274b43e67f1591fa7b8c17d/transformed/jetified-kotlin-stdlib-common-1.8.0.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/64fb8822c3c0c5fb9f890331ef66a349/transformed/jetified-annotations-13.0.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/f8dacc4a654f881e98b20847b425d7de/transformed/runner-1.5.2-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/e5aedb465726d71c6bbcd5335e44222d/transformed/jetified-junit-4.13.2.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/312326ec88f5e358d1effd59de6aa24e/transformed/jetified-hamcrest-integration-1.3.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/f46b8208f6ca142fedbf646b92df3550/transformed/jetified-hamcrest-library-1.3.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/c169b3b6f31871ef9934bc475d704cfd/transformed/jetified-hamcrest-core-1.3.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/6f6786a4caee7bbef1493b1cf62d4ace/transformed/jetified-storage-1.4.2-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/ee0e6f610c8020688243d47825a1df1b/transformed/monitor-1.6.1-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/7dc531fccd31a8a41b0641b12cc0138d/transformed/jetified-annotation-1.0.1-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-common/2.3.1/fc466261d52f4433863642fb40d12441ae274a98/lifecycle-common-2.3.1.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/036da7567e71d23cc2a407b051c7227e/transformed/jetified-concurrent-futures-1.1.0.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/androidx.annotation/annotation/1.2.0/57136ff68ee784c6e19db34ed4a175338fadfde1/annotation-1.2.0.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/52f794a8f121baa47ba54f91a8983294/transformed/jetified-annotation-experimental-1.1.0-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/187ab338ef179d52d0015a0c42fb0e06/transformed/jetified-tracing-1.1.0-beta01-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/a0cd7713e6d177972379953e80352930/transformed/jetified-jsr305-2.0.2.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/3d89a385c5d6f363f44839fb0dc21661/transformed/jetified-listenablefuture-1.0.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/9212df2c36e65fb9c48685c6151ddd4c/transformed/espresso-idling-resource-3.5.1-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/17a857eeb0aa27b94159a5754ee5ba80/transformed/jetified-javawriter-2.1.1.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/8f4c4eed95147f2fd76650df8157a09b/transformed/jetified-javax.inject-1.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/8dc6bb2c9dcd7fec8a63962937c7feb6/transformed/uiautomator-2.2.0-api.jar</arg>
+                <arg>$USER_HOME$/AppData/Local/Android/Sdk/platforms/android-33/android.jar</arg>
+                <arg>$USER_HOME$/AppData/Local/Android/Sdk/build-tools/30.0.3/core-lambda-stubs.jar</arg>
+              </args>
+            </stringArg>
+            <stringArg name="destination" arg="$MODULE_DIR$/../../../benchmark/build/tmp/kotlin-classes/benchmark" />
+            <stringArg name="jvmTarget" arg="1.8" />
+            <stringArg name="moduleName" arg="benchmark_benchmark" />
+            <stringArg name="apiVersion" arg="1.8" />
+            <stringArg name="languageVersion" arg="1.8" />
+          </stringArguments>
+          <arrayArguments>
+            <arrayArg name="friendPaths" />
+            <arrayArg name="pluginClasspaths" />
+            <arrayArg name="pluginOptions" />
+          </arrayArguments>
+        </compilerArguments>
+      </configuration>
+    </facet>
+    <facet type="android" name="Android">
+      <configuration>
+        <option name="SELECTED_BUILD_VARIANT" value="benchmark" />
+        <option name="ALLOW_USER_CONFIGURATION" value="false" />
+        <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
+        <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/../../../benchmark/src/main/res;file://$MODULE_DIR$/../../../benchmark/src/benchmark/res;file://$MODULE_DIR$/../../../benchmark/build/generated/res/rs/benchmark;file://$MODULE_DIR$/../../../benchmark/build/generated/res/resValues/benchmark" />
+        <option name="TEST_RES_FOLDERS_RELATIVE_PATH" value="" />
+        <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/src/main/assets" />
+        <option name="PROJECT_TYPE" value="2" />
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+    <output url="file://$MODULE_DIR$/../../../benchmark/build/intermediates/javac/benchmark/classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../benchmark/build/generated/aidl_source_output_dir/benchmark/out" />
+    <content url="file://$MODULE_DIR$/../../../benchmark/build/generated/ap_generated_sources/benchmark/out">
+      <sourceFolder url="file://$MODULE_DIR$/../../../benchmark/build/generated/ap_generated_sources/benchmark/out" isTestSource="false" generated="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../benchmark/build/generated/renderscript_source_output_dir/benchmark/out" />
+    <content url="file://$MODULE_DIR$/../../../benchmark/build/generated/res/resValues/benchmark">
+      <sourceFolder url="file://$MODULE_DIR$/../../../benchmark/build/generated/res/resValues/benchmark" type="java-resource" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../benchmark/build/generated/res/rs/benchmark" />
+    <content url="file://$MODULE_DIR$/../../../benchmark/build/generated/source/buildConfig/benchmark">
+      <sourceFolder url="file://$MODULE_DIR$/../../../benchmark/build/generated/source/buildConfig/benchmark" isTestSource="false" generated="true" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../benchmark/src">
+      <sourceFolder url="file://$MODULE_DIR$/../../../benchmark/src/main/java" isTestSource="false" />
+    </content>
+    <orderEntry type="jdk" jdkName="Android API 33, extension level 3 Platform" jdkType="Android SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.8.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.8.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0" level="project" />
+    <orderEntry type="library" name="Gradle: junit:junit:4.13.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.annotation:annotation:1.2.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:2.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-common:2.3.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.guava:listenablefuture:1.0" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.concurrent:concurrent-futures:1.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup:javawriter:2.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: javax.inject:javax.inject:1" level="project" />
+    <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-library:1.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-integration:1.3" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.test.ext:junit:1.1.5@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.test:core:1.5.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.test:monitor:1.6.1@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.test:annotation:1.0.1@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.annotation:annotation-experimental:1.1.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.tracing:tracing:1.1.0-beta01@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.test.services:storage:1.4.2@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.test.espresso:espresso-core:3.5.1@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.test:runner:1.5.2@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.test.espresso:espresso-idling-resource:3.5.1@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.test.uiautomator:uiautomator:2.2.0@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.benchmark:benchmark-macro-junit4:1.1.0-beta05@aar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.benchmark:benchmark-macro:1.1.0-beta05@aar" level="project" />
+  </component>
+</module>

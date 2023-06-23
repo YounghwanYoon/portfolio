@@ -1,0 +1,8 @@
+/build
+
+/src/main/java/com/example/portfolio/practice
+
+../gradle.properties
+../local.properties
+
+/src/main/java/com/example/portfolio/jetpackcompose_paginationcaching

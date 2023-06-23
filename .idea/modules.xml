@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Portfolio.iml" filepath="$PROJECT_DIR$/.idea/modules/Portfolio.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Portfolio.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Portfolio.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Portfolio.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Portfolio.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Portfolio.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Portfolio.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Portfolio.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Portfolio.app.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/benchmark/Portfolio.benchmark.iml" filepath="$PROJECT_DIR$/.idea/modules/benchmark/Portfolio.benchmark.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/benchmark/Portfolio.benchmark.main.iml" filepath="$PROJECT_DIR$/.idea/modules/benchmark/Portfolio.benchmark.main.iml" />
+    </modules>
+  </component>
+</project>

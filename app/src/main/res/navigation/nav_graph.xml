@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/shoppingFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.portfolio.feature_myapp.presentation.view.HomeFragment"
+        android:label="@string/homeFrag"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_myAppListFragment"
+            app:destination="@id/myAppListFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_demoApps"
+            app:destination="@id/demoApps" />
+        <action
+            android:id="@+id/action_homeFragment_to_carousel_display_fragment"
+            app:destination="@id/carousel_display_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/myAppListFragment"
+        android:name="com.example.portfolio.feature_myapp.presentation.view.MyAppListFragment"
+        android:label="@string/myAppListFrag"
+        tools:layout="@layout/fragment_my_app_list" >
+        <action
+            android:id="@+id/action_myAppListFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/resumeFragment"
+        android:name="com.example.portfolio.feature_resume.presentation.ResumeFragment"
+        android:label="@string/resumeFrag"
+        tools:layout="@layout/fragment_resume" >
+        <action
+            android:id="@+id/action_resumeFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/demoApps"
+        android:name="com.example.portfolio.feature_myapp.presentation.view.DemoApps"
+        android:label="@string/demoAppFrag"
+        tools:layout="@layout/fragment_demo_apps" />
+    <fragment
+        android:id="@+id/carousel_display_fragment"
+        android:name="com.example.portfolio.feature_myapp.presentation.view.CarouselDisplayFragment"
+        android:label="Carousel_Display_Fragment"
+        tools:layout="@layout/fragment_carousel_display"/>
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.example.portfolio.feature_main_fragment.presentation.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_weatherFragment"
+            app:destination="@id/weatherFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_resumeFragment"
+            app:destination="@id/resumeFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_shoppingFragment"
+            app:destination="@id/shoppingFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/weatherFragment"
+        android:name="com.example.portfolio.feature_weather.presentation.WeatherFragment"
+        android:label="fragment_weather"
+        tools:layout="@layout/fragment_weather" >
+        <action
+            android:id="@+id/action_weatherFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/shoppingFragment"
+        android:name="com.example.portfolio.feature_shopping.presentation.ShoppingDemo"
+        android:label="ShoppingFragment" >
+        <action
+            android:id="@+id/action_shoppingFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+    </fragment>
+</navigation>

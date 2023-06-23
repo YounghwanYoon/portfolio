@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.portfolio">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" / -->
+    <!-- GPS Permission -->
+    <!-- Needed only if your app targets Android 5.0 (API level 21) or higher. -->
+    <uses-feature android:name="android.hardware.location.gps" />
+    <uses-feature android:name="android.hardware.location.network" /> <!-- Permission for weather app -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- For Device Version Q and higher -->
+    <uses-permission android:name="adroid.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <application
+        android:name=".PortfolioApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Portfolio"
+        android:usesCleartextTraffic="true">
+
+        <activity
+            android:name=".feature_pagination.presentation.PaginationActivity"
+            android:label="@string/title_activity_pagination"
+            android:theme="@style/Theme.Portfolio"
+            android:exported="true">
+
+        </activity>
+        <activity
+            android:name=".feature_pagination3.presentation.PaginationThreeActivity"
+            android:label="@string/title_activity_pagination"
+            android:theme="@style/Theme.Portfolio"
+            android:exported="true">
+
+
+
+        </activity>
+
+        <profileable
+            android:shell="true"
+            tools:targetApi="29" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
+        <activity
+            android:name=".feature_secondactivity.presentation.SecondActivity"
+            android:exported="true" />
+        <activity
+            android:name=".feature_shopping.presentation.ShoppingActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Portfolio">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="preloaded_fonts"
+                android:resource="@array/preloaded_fonts" />
+        </activity>
+
+        <receiver android:name=".feature_shopping.presentation.utils.ConfirmationNotificationReceiver" />
+    </application>
+
+</manifest>

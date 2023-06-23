@@ -1,0 +1,54 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    ext {
+        compose_version = '1.1.1'
+        compose_version_material3 = '1.0.1'
+        compose_version_material = '1.4.1'
+        compose_version_ui = '1.4.1'
+    }
+    //ext.kotlin_version ="1.7.20"
+    ext.kotlin_version ="1.8.0"
+    ext.androidXTestVersion = "1.5.0"
+    ext.espressoVersion = "3.5.0"
+    ext.uiAutomatorVersion = "2.3.0-alpha01"
+
+    repositories {
+/*
+        maven { url "http://jcenter.bintray.com";
+            allowInsecureProtocol(true)
+        }
+        maven { url 'https://jitpack.io'
+            allowInsecureProtocol(true)
+        }
+
+        //noinspection JcenterRepositoryObsolete
+        jcenter(){
+            allowInsecureProtocol(true)
+        }
+
+ */
+
+        google()
+        mavenCentral()
+        //gradlePluginPortal()
+
+        //jcenter()
+    }
+    dependencies {
+//        classpath 'com.android.tools.build:gradle:7.1.1'
+        classpath "com.android.tools.build:gradle:7.3.1"
+
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
+        def nav_version = "2.5.3"
+
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
+        classpath "com.google.dagger:hilt-android-gradle-plugin:2.44"
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".feature_myapp.presentation.view.CarouselDisplayFragment"
+    android:background="@color/blue">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:ignore="ScrollViewCount,UselessParent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Demo Apps"
+                    android:textColor="@color/white"
+                    android:textSize="50sp"
+                    android:layout_centerHorizontal="true"
+                    android:id="@+id/title_textview"
+                    android:layout_margin="24dp"
+                    android:fontFamily="@font/black_han_sans_regular"
+                    />
+
+                <ImageView
+                    android:id="@+id/backgroundImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp"
+                    android:layout_below="@+id/title_textview"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="0dp"
+                    android:background="@drawable/round_shape"
+                    android:backgroundTint="@color/blue"
+                    android:src="@drawable/droid_background"
+                    android:cropToPadding="true"
+                    android:scaleType="fitXY"
+                    android:padding="8dp"
+                    />
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:id="@+id/description_session"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/backgroundImage"
+                    android:layout_marginTop="16dp"
+                    android:background="@color/white"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/description_text_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="8dp"
+                        android:background="@drawable/round_shape"
+                        android:backgroundTint="@color/blue"
+                        android:fontFamily="@font/noto_sans_italic"
+                        android:gravity="center_horizontal"
+                        android:padding="10dp"
+                        android:text="Description:"
+                        android:textColor="@color/white" />
+
+                    <TextView
+                        android:id="@+id/description_content_txtview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="8dp"
+                        android:fontFamily="@font/noto_sans_italic"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="Belows are small projects to play around purpose\n Time to time I watch youtube or get some small idea to make fun project.\n Biggest issue is compatibility to keep them all alive and crossing finger that it may still work"
+                        android:textColor="@color/black" />
+
+
+                    <View
+                        android:layout_width="70dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="32dp"
+                        android:background="@drawable/divider" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="25dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_baseline_warning_24" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:fontFamily="@font/noto_sans_bold"
+                            android:gravity="center"
+                            android:text="Warning!" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="16dp"
+                        android:text="Some of them may or may not working \n                due to the compatibility" />
+
+                    <View
+                        android:layout_width="70dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="32dp"
+                        android:background="@drawable/divider" />
+
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+                <androidx.viewpager2.widget.ViewPager2
+                    android:layout_margin="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/carousel_holder_viewpager"
+                    android:layout_below="@+id/description_session"
+                    android:layout_marginTop="16dp"
+                    />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+    <ProgressBar
+        android:id="@+id/progressbar_carousel"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        />
+</FrameLayout>
