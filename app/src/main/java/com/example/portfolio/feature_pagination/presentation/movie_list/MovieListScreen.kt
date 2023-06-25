@@ -45,7 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
@@ -109,6 +109,143 @@ fun MovieListScreen() {
 
     val movies = movieVM.moviePagingFlow.collectAsLazyPagingItems()
 
+    //after Alpha 19 of paging-compose
+    LazyColumn {
+        items(
+            count = movies.itemCount,
+            key = movies.itemKey { it.id }
+        ) { index ->
+            val movie = movies[index]
+            movie?.let {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (movie.poster_path != null) {
+                        var isImageLoading by remember { mutableStateOf(false) }
+
+                        val painter = rememberAsyncImagePainter(
+                            model = "https://image.tmdb.org/t/p/w154" + movie.poster_path,
+                        )
+
+                        isImageLoading = when(painter.state) {
+                            is AsyncImagePainter.State.Loading -> true
+                            else -> false
+                        }
+
+                        Box (
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                modifier = Modifier
+                                    .padding(horizontal = 6.dp, vertical = 3.dp)
+                                    .height(115.dp)
+                                    .width(77.dp)
+                                    .clip(RoundedCornerShape(8.dp)),
+                                painter = painter,
+                                contentDescription = "Poster Image",
+                                contentScale = ContentScale.FillBounds,
+                            )
+
+                            if (isImageLoading) {
+                                androidx.compose.material.CircularProgressIndicator(
+                                    modifier = Modifier
+                                        .padding(horizontal = 6.dp, vertical = 3.dp),
+                                    color = androidx.compose.material.MaterialTheme.colors.primary,
+                                )
+                            }
+                        }
+                    }
+                    Text(
+                        modifier = Modifier
+                            .padding(vertical = 18.dp, horizontal = 8.dp),
+                        text = it.original_title
+                    )
+                }
+                Divider()
+            }
+        }
+
+        val loadState = movies.loadState.mediator
+        item {
+            if (loadState?.refresh == LoadState.Loading) {
+                Column(
+                    modifier = Modifier
+                        .fillParentMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    androidx.compose.material.Text(
+                        modifier = Modifier
+                            .padding(8.dp),
+                        text = "Refresh Loading"
+                    )
+
+                    androidx.compose.material.CircularProgressIndicator(color = androidx.compose.material.MaterialTheme.colors.primary)
+                }
+            }
+
+            if (loadState?.append == LoadState.Loading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    androidx.compose.material.CircularProgressIndicator(color = androidx.compose.material.MaterialTheme.colors.primary)
+                }
+            }
+
+            if (loadState?.refresh is LoadState.Error || loadState?.append is LoadState.Error) {
+                val isPaginatingError = (loadState.append is LoadState.Error) || movies.itemCount > 1
+                val error = if (loadState.append is LoadState.Error)
+                    (loadState.append as LoadState.Error).error
+                else
+                    (loadState.refresh as LoadState.Error).error
+
+                val modifier = if (isPaginatingError) {
+                    Modifier.padding(8.dp)
+                } else {
+                    Modifier.fillParentMaxSize()
+                }
+                Column(
+                    modifier = modifier,
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    if (!isPaginatingError) {
+                        Icon(
+                            modifier = Modifier
+                                .size(64.dp),
+                            imageVector = Icons.Rounded.Warning, contentDescription = null
+                        )
+                    }
+
+                    androidx.compose.material.Text(
+                        modifier = Modifier
+                            .padding(8.dp),
+                        text = error.message ?: error.toString(),
+                        textAlign = TextAlign.Center,
+                    )
+
+                    Button(
+                        onClick = {
+                            movies.refresh()
+                        },
+                        content = {
+                            androidx.compose.material.Text(text = "Refresh")
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = androidx.compose.material.MaterialTheme.colors.primary,
+                            contentColor = Color.White,
+                        )
+                    )
+                }
+            }
+        }
+    }
+/*
+This is before paging-compose:1.1.1-alpha 17
     LazyColumn {
         items(
             items = movies
@@ -240,7 +377,7 @@ fun MovieListScreen() {
                 }
             }
         }
-    }
+    }*/
 }
 
 @Composable

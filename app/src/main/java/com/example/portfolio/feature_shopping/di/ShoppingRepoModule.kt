@@ -96,6 +96,9 @@ object ShoppingUseCaseModule {
             getRegular = GetRegularItem(
                 repository
             ),
+            getDetail = GetDetailItem(
+                repository
+            ) ,
             addToCart = AddToCart(
                 _repository = repository,
                 //_cartData = cart,

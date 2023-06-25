@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,7 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.items
+import androidx.paging.compose.itemKey
 import com.example.portfolio.feature_pagination3.domain.model.Beer
 
 
@@ -43,24 +45,52 @@ fun BeerScreen(
                 modifier=  Modifier.align(Alignment.Center)
             )
         }else{
+            //Pagination was working with "androidx.paging:paging-compose:1.0.0-alpha16"
+            // but not compatible with vertical grid view unless version is higher than alpha19
+
             LazyColumn(
                 modifier= Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-                items(beers){ beer->
-                    if(beer != null){
-                        BeerItem(
-                            beer = beer,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+
+                items(
+                    count = beers.itemCount,
+                    key = beers.itemKey{ item ->
+                        item.id
                     }
+                ){index ->
+                    val beer = beers[index]
+                    BeerItem(
+                        beer = beer!!,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
+                
                 item{
                     if(beers.loadState.append is LoadState.Loading){
                         CircularProgressIndicator()
                     }
                 }
+/*
+                items(
+                    items = beers.,
+                    key = { index:Int, item:Beer ->
+                        item.id
+                    },
+                    contentType = "beer"
+                ){ index:Int , item:Beer->
+                    var beer = item
+                    BeerItem(
+                        beer = beer,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                item{
+                    if(beers.loadState.append is LoadState.Loading){
+                        CircularProgressIndicator()
+                    }
+                }*/
             }
         }
     }

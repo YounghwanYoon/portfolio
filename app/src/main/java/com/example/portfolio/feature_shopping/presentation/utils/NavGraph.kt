@@ -2,6 +2,7 @@ package com.example.portfolio.feature_shopping.presentation.utils
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -9,6 +10,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
 import com.example.portfolio.feature_shopping.presentation.cart.ShoppingCartScreen
 import com.example.portfolio.feature_shopping.presentation.detail.ShoppingDetailScreen
@@ -82,10 +84,20 @@ fun setNavGraph(navController: NavHostController, isTablet:Boolean){
                         navController.getBackStackEntry(Screens.Main.rout)
                 }
             //val viewModel:ShoppingItemStateViewModel = hiltViewModel(navController.previousBackStackEntry!!)
+
+            //This should be non-null since it won't be execute without data
+            val selectedId = navBackStackEntry.arguments?.getString("id")!!.toInt()
+
+            println("received id: $selectedId")
+            val selectedItem = itemStateViewModel.detailItemState.collectAsState().value ?: SellingItem()
+
+            println("selectedItem is $selectedItem")
+
             ShoppingDetailScreen(
                 navController = navController,
-                selectedItemId = navBackStackEntry.arguments?.getString("id").toString(),
-                itemStateVM = itemStateViewModel,
+                //selectedItemId = navBackStackEntry.arguments?.getString("id").toString(),
+                selectedItem = selectedItem,
+                //itemStateVM = itemStateViewModel,
                 cartStateViewModel = cartStateViewModel,
                 cartUIClicked = cartStateViewModel::setCartUIEvent,
                 isTablet = isTablet

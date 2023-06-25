@@ -12,6 +12,7 @@ import com.example.portfolio.feature_shopping.data.local.entities.PaginationKeys
 import com.example.portfolio.feature_shopping.data.local.entities.SellingItemEntity
 import com.example.portfolio.feature_shopping.data.mapper.SellingItemMapperLocal
 import com.example.portfolio.feature_shopping.data.remote.PixabayAPI
+import com.example.portfolio.feature_shopping.presentation.utils.Helper
 import retrofit2.HttpException
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -137,10 +138,6 @@ class ShoppingMediator @Inject constructor(
             )
             val sellingItems = apiResponse.body()?.items
 
-            println("selling items size - ${sellingItems!!.size}")
-            println("selling items size - ${sellingItems!!.last().id}")
-
-
             val reachedEndPage = apiResponse.body()?.items?.isEmpty()
 
             shoppingDB.withTransaction {
@@ -171,16 +168,16 @@ class ShoppingMediator @Inject constructor(
                         SellingItemEntity(
                             itemId = it.id,
                             cartId = null,
-                            imageUrl = it.imageURL,
-                            title = it.user,
+                            imageUrl = it.webformatURL,
+                            title = "Coffee Bean By " + it.user,
                             description = it.tags,
-                            price = Random.nextDouble(4.99,8.99),
+                            price = Helper.formatHelper(Random.nextDouble(4.99,8.99)),
                             quantity = Random.nextInt(10,100),
                             page = nextKey,
                         )
-                    })
+                    }
+                )
             }
-
 
             return MediatorResult.Success(
                 endOfPaginationReached = reachedEndPage ?: false

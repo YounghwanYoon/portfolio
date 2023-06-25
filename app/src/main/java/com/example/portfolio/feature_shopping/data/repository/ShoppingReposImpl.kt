@@ -6,6 +6,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.example.portfolio.feature_shopping.data.local.CartDao
 import com.example.portfolio.feature_shopping.data.local.SellingItemDao
+import com.example.portfolio.feature_shopping.data.local.ShoppingDataBase
 import com.example.portfolio.feature_shopping.data.local.SpecialItemDao
 import com.example.portfolio.feature_shopping.data.local.entities.SellingItemEntity
 import com.example.portfolio.feature_shopping.data.local.entities.SpecialItemEntity
@@ -19,6 +20,7 @@ import com.example.portfolio.feature_shopping.domain.repository.webservices.Shop
 import com.example.portfolio.utils.Resource
 import com.example.portfolio.utils.ServerSideError
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -30,11 +32,9 @@ class ShoppingReposImpl @Inject constructor(
     @Named("PixabayKey") private val pixabayKey: String = "",
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val cartDao: CartDao,
-    private val itemDao: SellingItemDao,
-    private val specialDao: SpecialItemDao,
+    private val shoppingDataBase: ShoppingDataBase,
     private val mapperSellingItem: SellingItemMapperLocal,
     private val mapperSpecialItem: SpecialItemMapperLocal,
-
     //for pagination
     private val pager: Pager<Int, SellingItemEntity>
 
@@ -50,6 +50,16 @@ class ShoppingReposImpl @Inject constructor(
                     it.toSellingItem()
                 }
             }
+    }
+
+    override suspend fun  getItemById(id: Int): Flow<SellingItem> {
+        return flow<SellingItem>{
+            val entity = shoppingDataBase.sellingItemDao().getSelectedItem(id)
+            val sellingItem = entity.toSellingItem()
+            sellingItem?.let{
+                emit(it)
+            }
+        }.flowOn(dispatcher)
     }
 
     override fun fetchAndLoadSpecialItems(): Flow<Resource<List<SpecialItem>>> {
@@ -146,7 +156,7 @@ class ShoppingReposImpl @Inject constructor(
         return flow<Resource<List<SellingItem>>> {
 
             //get data from localDB and if not null, temporary load it.
-            val localData: List<SellingItem> = itemDao.getSellingItems().let {
+            val localData: List<SellingItem> = shoppingDataBase.sellingItemDao().getSellingItems().let {
                 mapperSellingItem.mapToListOf(it)
             }
 /*
@@ -282,10 +292,10 @@ class ShoppingReposImpl @Inject constructor(
         when (dataType) {
             is ShoppingDataType.SellingItems -> {
                 return mapperSellingItem
-                    .mapToListOf(itemDao.getSellingItems()) //Resource.Success(model)
+                    .mapToListOf(shoppingDataBase.sellingItemDao().getSellingItems()) //Resource.Success(model)
             }
             is ShoppingDataType.SpecialItems -> {
-                val dataEntity = specialDao.getSpecialItems()
+                val dataEntity = shoppingDataBase.specialItemDao().getSpecialItems()
                 return mapperSpecialItem.mapToListOf(dataEntity) //Resource.Success(model)
             }
             else -> {
@@ -298,25 +308,30 @@ class ShoppingReposImpl @Inject constructor(
     }
 
 
+/*
     override suspend fun getItemById(
-        id: Int, dataType: ShoppingReposImpl.ShoppingDataType
+        id: Int
     ): SellingItem? {
-        return mapperSellingItem.mapTo(itemDao.getSelectedItem(id))
+        val sellingItemEntity = shoppingDataBase.sellingItemDao().getSelectedItem(id)
+        val sellingItem = mapperSellingItem.mapTo(sellingItemEntity)
+
+        return sellingItem
     }
+*/
 
     override suspend fun insertItem(data: ShoppingReposImpl.ShoppingDataType) {
         when (data) {
             is ShoppingDataType.SellingItem -> {
-                itemDao.insertItem(mapperSellingItem.mapFrom(data.data as SellingItem))
+                shoppingDataBase.sellingItemDao().insertItem(mapperSellingItem.mapFrom(data.data as SellingItem))
             }
             is ShoppingDataType.SellingItems -> {
-                itemDao.insertItems(mapperSellingItem.mapFromListOf(data.listData as List<SellingItem>))
+                shoppingDataBase.sellingItemDao().insertItems(mapperSellingItem.mapFromListOf(data.listData as List<SellingItem>))
             }
             is ShoppingDataType.SpecialItem -> {
-                specialDao.insertItem(mapperSpecialItem.mapFrom(data.data as SpecialItem))
+                shoppingDataBase.specialItemDao().insertItem(mapperSpecialItem.mapFrom(data.data as SpecialItem))
             }
             is ShoppingDataType.SpecialItems -> {
-                specialDao.insertItems(mapperSpecialItem.mapFromListOf(data.listData as List<SpecialItem>))
+                shoppingDataBase.specialItemDao().insertItems(mapperSpecialItem.mapFromListOf(data.listData as List<SpecialItem>))
             }
         }
     }
@@ -324,10 +339,10 @@ class ShoppingReposImpl @Inject constructor(
     override suspend fun deleteItem(data: ShoppingReposImpl.ShoppingDataType) {
         when (data) {
             is ShoppingDataType.SellingItem -> {
-                itemDao.deleteSellingItem(mapperSellingItem.mapFrom(data.data as SellingItem))
+                shoppingDataBase.sellingItemDao().deleteSellingItem(mapperSellingItem.mapFrom(data.data as SellingItem))
             }
             is ShoppingDataType.SpecialItem -> {
-                specialDao.deleteSpecialItem(mapperSpecialItem.mapFrom(data.data as SpecialItem))
+                shoppingDataBase.specialItemDao().deleteSpecialItem(mapperSpecialItem.mapFrom(data.data as SpecialItem))
             }
 
             else -> {}

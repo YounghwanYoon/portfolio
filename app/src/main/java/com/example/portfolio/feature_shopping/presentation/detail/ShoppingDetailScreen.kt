@@ -58,15 +58,17 @@ fun ShoppingDetailScreen (
     screenWidth: Dp = 360.dp,
     window: Window ? = null,
     navController:NavController,
-    selectedItemId:String,
-    itemStateVM:ShoppingItemStateViewModel,
+    //selectedItemId:String,
+    selectedItem:SellingItem,
+    //itemStateVM:ShoppingItemStateViewModel,
     cartStateViewModel: CartStateViewModel,
     cartUIClicked: (CartUIEvent) -> Unit = {},
     isTablet:Boolean
 ){
+    /*
     println("ShoppingItemStateVM - $itemStateVM")
     val selectedItem = itemStateVM.getSelectedItem(selectedItemId.toInt())
-
+*/
     val size = remember{mutableStateOf(IntSize.Zero)}
     println("height is ${size.value.height}")
     println("width is ${size.value.width}")

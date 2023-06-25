@@ -41,13 +41,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
-import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.paging.compose.items
-
-
+import androidx.paging.compose.itemKey
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberAsyncImagePainter
 import com.example.portfolio.R
@@ -412,8 +409,9 @@ fun Body(
         navController = navController,
         itemStateVM = itemStateVM,
         pagingData = itemStateVM.pager.collectAsLazyPagingItems(),
-
-        )
+        onDetailRequested = itemStateVM::getSelectedItem,
+        onUIEvent = itemStateVM::onUIEvent
+    )
     //com.example.portfolio.feature_shopping.presentation.main.GridView(modifier)
 }
 
@@ -433,7 +431,9 @@ fun BodyContent(
     screenWidth: Dp = 640.dp,
     navController: NavController,
     itemStateVM: ShoppingItemStateViewModel,
-    pagingData: LazyPagingItems<SellingItem>
+    pagingData: LazyPagingItems<SellingItem>,
+    onDetailRequested: (id:Int)->Unit,
+    onUIEvent:(event: ShoppingUIEvent) -> Unit
 ) {
     val config = LocalConfiguration.current
     val deviceWidth = config.screenWidthDp.dp
@@ -459,8 +459,7 @@ fun BodyContent(
             cells = 3
             span = GridItemSpan(cells)
         }
-    }
-/*
+    }/*
     LazyVerticalGrid(
         modifier = modifier,
         //This asking into how many cells do you want to divide and control for grid view
@@ -499,14 +498,14 @@ fun BodyContent(
                     .height(itemHeight),
                 specialItems = specialItems
             )
-*//*            AutomaticPager(
+            AutomaticPager(
                 modifier = Modifier
                     .width(360.dp)
                     .height(400.dp)
                     .defaultMinSize(minWidth = 360.dp,minHeight = 400.dp),
 
                 specialItems = specialItems
-            )*//*
+            )
         }
 
         //Section Item
@@ -554,9 +553,8 @@ fun BodyContent(
             )
         }
 
-    }*/
+    }
 
-/*
     LazyVerticalGrid(
         modifier = modifier,
         //This asking into how many cells do you want to divide and control for grid view
@@ -613,9 +611,9 @@ fun BodyContent(
         ){index->
             var item:SellingItem = pagingData[index]!!
 
-*//*            pagingData[index]?.let{
+            pagingData[index]?.let{
                 item = it
-            }*//*
+            }
 
             EachItemTwo(
                 modifier = Modifier
@@ -641,8 +639,8 @@ fun BodyContent(
             )
         }
 
-    }*/
-
+    }
+//LazyColumn
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(8.dp),
@@ -709,69 +707,155 @@ fun BodyContent(
             }
         }
     }
+*/
+    LazyVerticalGrid(
+        modifier = modifier,
+        columns = GridCells
+            .Fixed(cells),
+        // content padding
+        contentPadding = PaddingValues(
+            start = 12.dp,
+            top = 16.dp,
+            end = 12.dp,
+            bottom = 16.dp
+        ),
+        userScrollEnabled = true,
+    ){
+        //First Section Title
+        item(
+            span = {span}
+        ){
+            Text(
+                text = "Season Special",
+                fontStyle = FontStyle.Italic,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+        //First Section Content
+        item(
+            span = {span}
+        ){
+            AutomaticPager(
+                modifier = Modifier
+                    .width(itemWidth)
+                    .height(itemHeight),
+                specialItems = specialItems
+            )
+        }
+        //Section Item
+        //Start with title
+        item(
+            span = {span}
+        ) {
+            Text(
+                text = "Regular Items",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
+
+        items(
+            //span = {span},
+            count = pagingData.itemCount,
+            key = pagingData.itemKey { it.id },
+            
+            //key = pagingData.itemKey{it},
+            //contentType = pagingData.itemContentType{"pagingData"}
+        ){itemIndex->
+            val item = pagingData[itemIndex]
+            EachItemTwo(
+                modifier = Modifier
+                    .width(
+                        //Rotated
+                        if (screenWidth > screenHeight) screenWidth.times(0.27f) else screenWidth.times(
+                            0.48f
+                        )
+                    )
+                    .height(
+                        if (screenWidth > screenHeight) screenHeight.times(0.48f) else screenHeight.times(
+                            0.27f
+                        )
+                    )
+                    .clickable {
+                        println("clicked item")
+                        item?.let{
+                            onDetailRequested(it.id)
+                            onUIEvent(ShoppingUIEvent.RequestedDetail(selectedID = it.id))
+                            navController.navigate(route = Screens.Detail.withArgs("${item.id}"))
+                        }
+                    },
+                painter = if (item?.imageUrl != null || item?.imageUrl != "") rememberAsyncImagePainter(model = item?.imageUrl)
+                //Image for local use for design
+                else painterResource(item.image),
+                text = item!!.title//item.description
+            )
+        }
+    }
+
 }
 
+private val testingList:List<SellingItem> = listOf(
+    SellingItem(
+        0,
+        (R.drawable.coffee_animation),
+        description = "1",
+        title = "One",
+        price = 1.99,
+        supplyQty = 10,
+    ),
+    SellingItem(
+        1,
+        (R.drawable.coffee_animation),
+        description = "2",
+        title = "Two",
+        price = 2.99,
+        supplyQty = 10,
+    ),
+    SellingItem(
+        2,
+        (R.drawable.coffee_animation),
+        description = "3",
+        title = "Three",
+        price = 3.99,
+        supplyQty = 10,
+    ),
+    SellingItem(
+        3,
+        (R.drawable.coffee_animation),
+        description = "4",
+        title = "Four",
+        price = 4.99,
+        supplyQty = 10,
+    ),
+    SellingItem(
+        4,
+        (R.drawable.coffee_animation),
+        description = "5",
+        title = "Five",
+        price = 5.99,
+        supplyQty = 10,
+    ),
+    SellingItem(
+        5,
+        (R.drawable.coffee_animation),
+        description = "6",
+        title = "Six",
+        price = 6.99,
+        supplyQty = 10,
+    ),
+    SellingItem(
+        6,
+        (R.drawable.coffee_animation),
+        description = "7",
+        title = "Seven",
+        price = 7.99,
+        supplyQty = 10,
+    )
+)
 @Composable
 fun GridView(
     modifier: Modifier = Modifier,
-    list: List<SellingItem> = listOf(
-        SellingItem(
-            0,
-            (R.drawable.coffee_animation),
-            description = "1",
-            title = "One",
-            price = 1.99,
-            supplyQty = 10,
-        ),
-        SellingItem(
-            1,
-            (R.drawable.coffee_animation),
-            description = "2",
-            title = "Two",
-            price = 2.99,
-            supplyQty = 10,
-        ),
-        SellingItem(
-            2,
-            (R.drawable.coffee_animation),
-            description = "3",
-            title = "Three",
-            price = 3.99,
-            supplyQty = 10,
-        ),
-        SellingItem(
-            3,
-            (R.drawable.coffee_animation),
-            description = "4",
-            title = "Four",
-            price = 4.99,
-            supplyQty = 10,
-        ),
-        SellingItem(
-            4,
-            (R.drawable.coffee_animation),
-            description = "5",
-            title = "Five",
-            price = 5.99,
-            supplyQty = 10,
-        ),
-        SellingItem(
-            5,
-            (R.drawable.coffee_animation),
-            description = "6",
-            title = "Six",
-            price = 6.99,
-            supplyQty = 10,
-        ),
-        SellingItem(
-            6,
-            (R.drawable.coffee_animation),
-            description = "7",
-            title = "Seven",
-            price = 7.99,
-            supplyQty = 10,
-        ),
-    )
+    list: List<SellingItem> = testingList
 ) {
     val mlist = list
 

@@ -20,20 +20,6 @@
       </configuration>
     </facet>
   </component>
-  <component name="ModuleClassLoaderOverlays">
-    <paths>
-      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay13069351037684778055" />
-      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay4468215790382404833" />
-      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay4514590388546921494" />
-      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay332857713719449997" />
-      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay18076135111084576280" />
-      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay17703008025619350325" />
-      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay8037715708673354727" />
-      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay15910317729752673319" />
-      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay10873827769743879062" />
-      <option value="C:\Users\RAYYOO~1\AppData\Local\Temp\overlay6016175182986058592" />
-    </paths>
-  </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/../../../app/build/intermediates/javac/debug/classes" />
     <output-test url="file://$MODULE_DIR$/../../../app/build/intermediates/javac/debugUnitTest/classes" />

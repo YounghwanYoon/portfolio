@@ -3,6 +3,7 @@ package com.example.portfolio.feature_shopping.data.local
 import androidx.paging.PagingSource
 import androidx.room.*
 import com.example.portfolio.feature_shopping.data.local.entities.SellingItemEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SellingItemDao {
@@ -17,9 +18,9 @@ interface SellingItemDao {
     @Query("Select * FROM selling_items WHERE cartId = :cartId")
     suspend fun getUserCartItems(cartId:Long):List<SellingItemEntity>
 
-    @Transaction
-    @Query("SELECT * FROM selling_items WHERE itemId = :itemId")
-    suspend fun getSelectedItem(itemId:Int):SellingItemEntity
+    //@Transaction
+    @Query("SELECT * FROM selling_items WHERE itemId = :id")
+    suspend fun getSelectedItem(id:Int): SellingItemEntity
 
 
     @Transaction
