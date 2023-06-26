@@ -98,7 +98,7 @@ fun setNavGraph(navController: NavHostController, isTablet:Boolean){
                 //selectedItemId = navBackStackEntry.arguments?.getString("id").toString(),
                 selectedItem = selectedItem,
                 //itemStateVM = itemStateViewModel,
-                cartStateViewModel = cartStateViewModel,
+                //cartStateViewModel = cartStateViewModel,
                 cartUIClicked = cartStateViewModel::setCartUIEvent,
                 isTablet = isTablet
             )

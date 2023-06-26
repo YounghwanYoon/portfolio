@@ -34,6 +34,7 @@ android {
         buildConfigField ("String", "API_KEY", "\"${properties.getProperty("API_KEY")}\"")
         buildConfigField("String", "TBDM_API_KEY", "\"${properties.getProperty("TBDM_API_KEY")}\"")
         buildConfigField("String", "TBDM_API_READ_ACCESS_TOKEN", "\"${properties.getProperty("TBDM_API_READ_ACCESS_TOKEN")}\"")
+        buildConfigField("String", "PIXABAY_API_KEY", "\"${properties.getProperty("PIXABAY_API_KEY")}\"")
 
         //String API_KEY = BuildConfig.API_KEY
 

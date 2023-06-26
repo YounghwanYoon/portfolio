@@ -14,6 +14,7 @@
           <stringArguments>
             <stringArg name="classpath">
               <args>
+                <arg>$MODULE_DIR$/../../../benchmark/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/benchmark/R.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/424c3048636ed673682b1780f9c77abe/transformed/jetified-kotlin-stdlib-jdk8-1.8.0.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/7c20c9cc4103031d68f8a9d11f1f0180/transformed/espresso-core-3.5.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/a73298a907e7839253e5a9b5de0a7a6d/transformed/jetified-benchmark-macro-junit4-1.1.0-beta05-api.jar</arg>
@@ -80,6 +81,7 @@
     <content url="file://$MODULE_DIR$/../../../benchmark/build/generated/aidl_source_output_dir/benchmark/out" />
     <content url="file://$MODULE_DIR$/../../../benchmark/build/generated/ap_generated_sources/benchmark/out">
       <sourceFolder url="file://$MODULE_DIR$/../../../benchmark/build/generated/ap_generated_sources/benchmark/out" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../benchmark/build/generated/ap_generated_sources/benchmark/out" isTestSource="false" generated="true" />
     </content>
     <content url="file://$MODULE_DIR$/../../../benchmark/build/generated/renderscript_source_output_dir/benchmark/out" />
     <content url="file://$MODULE_DIR$/../../../benchmark/build/generated/res/resValues/benchmark">
@@ -87,6 +89,7 @@
     </content>
     <content url="file://$MODULE_DIR$/../../../benchmark/build/generated/res/rs/benchmark" />
     <content url="file://$MODULE_DIR$/../../../benchmark/build/generated/source/buildConfig/benchmark">
+      <sourceFolder url="file://$MODULE_DIR$/../../../benchmark/build/generated/source/buildConfig/benchmark" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../../benchmark/build/generated/source/buildConfig/benchmark" isTestSource="false" generated="true" />
     </content>
     <content url="file://$MODULE_DIR$/../../../benchmark/src">

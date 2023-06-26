@@ -1,7 +1,5 @@
 package com.example.portfolio.feature_shopping.presentation.detail
 
-import android.view.Window
-import androidx.compose.Context
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -15,7 +13,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,13 +25,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,31 +42,42 @@ import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
-import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
-import com.example.portfolio.feature_shopping.presentation.main.ShoppingItemStateViewModel
+import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
 import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
 import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
 
+@Preview
+@Composable
+fun PreviewScreen() {
+    ShoppingTheme{
+        ShoppingDetailScreen(
+            navController = NavController(LocalContext.current),
+            selectedItem = SellingItem(
+                id = 1177,
+                image = 7270,
+                imageUrl = null,
+                title = "doming",
+                description = "decore",
+                price = 0.1,
+                supplyQty = 7515,
+                quantityInCart = 9860,
+                itemTotal = 2.3
+            ),
+            isTablet = false,
+        )
+    }
+    
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingDetailScreen (
     modifier: Modifier = Modifier,
-    screenHeight:Dp = 640.dp,
-    screenWidth: Dp = 360.dp,
-    window: Window ? = null,
     navController:NavController,
-    //selectedItemId:String,
     selectedItem:SellingItem,
-    //itemStateVM:ShoppingItemStateViewModel,
-    cartStateViewModel: CartStateViewModel,
     cartUIClicked: (CartUIEvent) -> Unit = {},
     isTablet:Boolean
 ){
-    /*
-    println("ShoppingItemStateVM - $itemStateVM")
-    val selectedItem = itemStateVM.getSelectedItem(selectedItemId.toInt())
-*/
     val size = remember{mutableStateOf(IntSize.Zero)}
     println("height is ${size.value.height}")
     println("width is ${size.value.width}")
@@ -100,7 +109,7 @@ fun ShoppingDetailScreen (
             }
         ){
             //com.example.portfolio.feature_shopping.presentation.main.Header() // Skip in this section
-            selectedItem?.let{
+            selectedItem.let{
                 BodyContent(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -122,26 +131,22 @@ fun ShoppingDetailScreen (
 fun BodyContent(
     modifier:Modifier = Modifier,
     painter: Painter = painterResource(R.drawable.coffee_animation),
-    context:Context = LocalContext.current,
     selectedItem:SellingItem = SellingItem(title = "Image title"),
-    onAddClicked:(CartUIEvent)->Unit = {},//(item: CartUIEvent, quantity:Int) -> Unit,
+    onAddClicked:(CartUIEvent)->Unit = {},
     onCompletion: () -> Unit = {},
     isTablet:Boolean = false
 ) {
 
-    //val webImage= rememberAsyncImagePainter(model = selectedItem.imageUrl)
-    var quanity: MutableState<Int> = remember{ mutableStateOf(1) }
     val isTabletMode = remember{mutableStateOf(isTablet)}
-
     if(!isTabletMode.value){
         ConstraintLayout(modifier = modifier){
-            val (image, imageTitle, keyDescription, controlCard) = createRefs()
+            val (image, imageTitlePrefix,imageTitle, keyDescription, controlCard) = createRefs()
 
             //image
             Card(
                 modifier = Modifier
                     .constrainAs(image) {
-                        top.linkTo(parent.top, margin = 16.dp)
+                        top.linkTo(parent.top, margin = 12.dp)
                         start.linkTo(parent.absoluteLeft, margin = 16.dp)
                         end.linkTo(parent.absoluteRight, margin = 16.dp)
                         linkTo(top = parent.top, bottom = parent.bottom, bias = 0.20f)
@@ -150,12 +155,14 @@ fun BodyContent(
                     .background(color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
                     .border(4.dp, color = Color.DarkGray, shape = RoundedCornerShape(16.dp))
                     .clip(shape = ShapeDefaults.ExtraLarge)
-                    .fillMaxWidth(0.7f)
+                    .fillMaxWidth(0.8f)
+                    .height(200.dp)
             ){
                 if (selectedItem.imageUrl != ""){
                     SubcomposeAsyncImage(
                         model = selectedItem.imageUrl,
                         contentDescription = selectedItem.description,
+                        contentScale = ContentScale.Crop,
                         loading = {CircularProgressIndicator()},
                     )
                 } else Image(
@@ -167,8 +174,26 @@ fun BodyContent(
 
             //image title
             Text(modifier = Modifier
+                .constrainAs(imageTitlePrefix){
+                    top.linkTo(image.bottom, margin = 12.dp)
+                    start.linkTo(parent.absoluteLeft, margin = 16.dp)
+                    end.linkTo(parent.absoluteRight, margin = 16.dp)
+                },
+                text = stringResource(R.string.detail_title_pretext),
+                fontFamily = FontFamily.Cursive,
+                fontStyle = FontStyle.Italic,
+                fontWeight = FontWeight.Bold,
+                fontSize = 32.sp,
+                textDecoration = null,
+                softWrap = true,
+                maxLines = 1,
+                overflow= TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+            )
+            //image title
+            Text(modifier = Modifier
                 .constrainAs(imageTitle){
-                    top.linkTo(image.bottom, margin = 32.dp)
+                    top.linkTo(imageTitlePrefix.bottom, margin = 8.dp)
                     start.linkTo(parent.absoluteLeft, margin = 16.dp)
                     end.linkTo(parent.absoluteRight, margin = 16.dp)
                 },
@@ -179,22 +204,20 @@ fun BodyContent(
                 fontSize = 32.sp,
                 textDecoration = null,
                 softWrap = true,
-                maxLines = 2,
+                maxLines = 1,
                 overflow= TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
-                //letterSpacing = 8.sp
             )
 
             ItemDescriptionCards(
                 modifier = Modifier
                     .fillMaxWidth(0.95f)
-                    .height(150.dp)
+                    .height(100.dp)
                     .constrainAs(keyDescription) {
-                        bottom.linkTo(controlCard.top, margin = 16.dp)
+                        bottom.linkTo(controlCard.top, margin = 4.dp)
                         start.linkTo(parent.absoluteLeft, margin = 4.dp)
                         end.linkTo(parent.absoluteRight, margin = 4.dp)
                     }
-                    .padding(8.dp)
             )
 
             ItemPriceAndCart(
@@ -208,6 +231,7 @@ fun BodyContent(
                     .padding(all = 12.dp),
                 price = "$${selectedItem.price}",
                 selectedItem = selectedItem,
+                title = selectedItem.title,
                 eventListener = onAddClicked,
                 onCompletion = onCompletion
             )
@@ -303,42 +327,37 @@ fun ItemDescriptionCards(
     descriptionTwo: String = "Smooth",
     descriptionThree: String = "Creamy"
 ) {
-    val spacerWeight = 0.03f
-    val BoxWeight = 0.3f
+    val boxWeight = 0.3f
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center
     ) {
-
         BoxDescriptionItem(
-            modifier = Modifier.weight(BoxWeight),
-            painter = painterResource(id = R.drawable.coffee_bean),
+            modifier = Modifier.weight(boxWeight),
+            painter = painterResource(id = R.drawable.flavor___medium),
             text = descriptionOne
         )
         Spacer(modifier = Modifier.width(8.dp))
         BoxDescriptionItem(
-            modifier = Modifier.weight(BoxWeight),
-            painter = painterResource(id = R.drawable.coffee_bean),
+            modifier = Modifier.weight(boxWeight),
+            painter = painterResource(id = R.drawable.texture_smooth),
             text = descriptionTwo
         )
         Spacer(modifier = Modifier.width(8.dp))
 
         BoxDescriptionItem(
             modifier = Modifier
-                .weight(BoxWeight)
+                .weight(boxWeight)
                 .background(color = Color.White, shape = RoundedCornerShape(16.dp)),
             painter = painterResource(id = R.drawable.coffee_bean),
             text = descriptionThree
         )
-
     }
 }
 
 @Composable
 fun BoxDescriptionItem(
-    modifier:Modifier = Modifier
-        .height(80.dp)
-        .width(50.dp),
+    modifier:Modifier = Modifier,
     painter:Painter = painterResource(id = R.drawable.coffee_bean),
     text:String = "Dark",
 ) {
@@ -352,16 +371,16 @@ fun BoxDescriptionItem(
             verticalArrangement = Arrangement.Center,
             //modifier = Modifier.padding(4.dp),
         ){
+            Spacer(modifier = Modifier.height(16.dp))
             Icon(
                 painter = painter ,
                 contentDescription = null,
-                modifier = Modifier.weight(0.65f)
+                modifier = Modifier.weight(0.50f)
             )
             Text(
                 text = text,
-                modifier = Modifier.weight(0.15f)
+                modifier = Modifier.weight(0.40f)
             )
-            Spacer(modifier = Modifier.weight(0.2f))
         }
     }
 }
@@ -372,6 +391,7 @@ fun ItemPriceAndCart(
     modifier: Modifier = Modifier,
     price:String = "7.99",
     selectedItem: SellingItem = SellingItem(),
+    title:String = "title",
     eventListener:(CartUIEvent) -> Unit,//(item:SellingItem,quantity:Int) -> Unit,
     onCompletion: () -> Unit
 ) {
@@ -589,7 +609,6 @@ fun Detail_ImageAndTitle(
                     )
                 )
             }
-
     }
 }
 
@@ -625,8 +644,6 @@ fun Detail_AddItemFloatBtn(
     modifier:Modifier = Modifier,
     selectedItem: SellingItem,
     onClick: (CartUIEvent) -> Unit,
-    //cartStateVM: CartStateViewModel //= hiltViewModel<CartStateViewModel>()
-
 ){
      Row(
         modifier = modifier,
@@ -641,7 +658,6 @@ fun Detail_AddItemFloatBtn(
         ){
             Shopping_FloatBtn(
                 onClick = {
-                    //cartStateVM.addItem(selectedItem)
                     onClick(CartUIEvent.AddToCart(selectedItem))
                 }
             )
@@ -669,8 +685,6 @@ data class SelectedData(
             "Once upon a time, there was a coffee bean grow from Northern America." +
             "It was so flavorful and gave so much energy to people whoever had a chance to sip of it" +
             "This was one of many reasons how American worked harder than other countries."
-
-
 )
 enum class BeanType{
     Espresso, Dark, Medium, Light

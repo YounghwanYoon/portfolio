@@ -5,6 +5,7 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
+import com.example.portfolio.BuildConfig
 import com.example.portfolio.feature_shopping.data.local.ShoppingDataBase
 import com.example.portfolio.feature_shopping.data.local.entities.SellingItemEntity
 import com.example.portfolio.feature_shopping.data.mediator.ShoppingMediator
@@ -27,24 +28,24 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ShoppingRepoModule{
-    //private const val BASE_URL = "https://pixabay.com"
     private const val BASE_URL = "http://pixabay.com"
 
     @Singleton
     @Provides
     @Named("PixabayKey")
-    fun providePixabayKEY():String = "15227824-a2215005f70965bf20cc7de51"
-/*
-    @Singleton
-    @Provides
-    fun provideRepository(
-        @Named("ShoppingAPI")
-        api:PixabayAPI
-    ): ShoppingRepository{
-        return ShoppingReposImpl(
-            pixabayApi = api,
-        )
-    }*/
+    fun providePixabayKEY():String = BuildConfig.PIXABAY_API_KEY
+
+    /*
+        @Singleton
+        @Provides
+        fun provideRepository(
+            @Named("ShoppingAPI")
+            api:PixabayAPI
+        ): ShoppingRepository{
+            return ShoppingReposImpl(
+                pixabayApi = api,
+            )
+        }*/
 
 
 

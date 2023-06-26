@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Portfolio</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="homeFrag">fragment_home</string>
     <string name="myAppListFrag">fragment_my_app_list</string>
@@ -39,6 +38,7 @@
     <string name="cart_title">Shopping Cart</string>
     <string name="payment_summary">Payment Summary</string>
     <string name="title_activity_pagination">PaginationActivity</string>
+    <string name="detail_title_pretext">"Coffee Bean By "</string>
 
 
 </resources>

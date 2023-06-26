@@ -136,10 +136,14 @@ class ShoppingMediator @Inject constructor(
                 imageType = "photo",
                 page = nextKey
             )
+
+            //fetch data from server
             val sellingItems = apiResponse.body()?.items
 
             val reachedEndPage = apiResponse.body()?.items?.isEmpty()
 
+            //withTransaction will execute all or nothing.
+            //This helps to prevent alter partial changes
             shoppingDB.withTransaction {
                 if(loadType == LoadType.REFRESH){
                     shoppingDB.paginationKeyDao().clearRemoteKeys()
@@ -149,36 +153,34 @@ class ShoppingMediator @Inject constructor(
                 val prevPage:Int? = if(nextKey >1) nextKey-1 else null
                 val nextPage:Int? = if(reachedEndPage == true) null else nextKey + 1
 
-                println("prevPage - $prevPage")
-                println("curPage - $nextKey")
-                println("nextPage - $nextPage")
-
-                val remoteKeys = sellingItems!!.map{
-                    PaginationKeysEntity(
-                        sellingItemId = it.id,
-                        prePage = prevPage,
-                        curPage = nextKey,
-                        nextPage = nextPage
-                    )
-                }
-                shoppingDB.paginationKeyDao().insertAll(remoteKeys)
-
-                shoppingDB.sellingItemDao().insertItems(
-                    sellingItems.map{
-                        SellingItemEntity(
-                            itemId = it.id,
-                            cartId = null,
-                            imageUrl = it.webformatURL,
-                            title = "Coffee Bean By " + it.user,
-                            description = it.tags,
-                            price = Helper.formatHelper(Random.nextDouble(4.99,8.99)),
-                            quantity = Random.nextInt(10,100),
-                            page = nextKey,
+                if(sellingItems != null){
+                    //map fetch api response (DTO) to local data(Entity)
+                    val remoteKeys = sellingItems.map{
+                        PaginationKeysEntity(
+                            sellingItemId = it.id,
+                            prePage = prevPage,
+                            curPage = nextKey,
+                            nextPage = nextPage
                         )
                     }
-                )
+                    //insert to local room db
+                    shoppingDB.paginationKeyDao().insertAll(remoteKeys)
+                    shoppingDB.sellingItemDao().insertItems(
+                        sellingItems.map{
+                            SellingItemEntity(
+                                itemId = it.id,
+                                cartId = null,
+                                imageUrl = it.webformatURL,
+                                title = it.user,
+                                description = it.tags,
+                                price = Helper.formatHelper(Random.nextDouble(4.99,8.99)),
+                                quantity = Random.nextInt(10,100),
+                                page = nextKey,
+                            )
+                        }
+                    )
+                }
             }
-
             return MediatorResult.Success(
                 endOfPaginationReached = reachedEndPage ?: false
             )
