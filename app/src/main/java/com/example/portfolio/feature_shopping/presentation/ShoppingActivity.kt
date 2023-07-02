@@ -12,25 +12,22 @@ import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingThem
 import com.example.portfolio.feature_shopping.presentation.utils.Helper
 import com.example.portfolio.feature_shopping.presentation.utils.setNavGraph
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class ShoppingActivity : ComponentActivity() {
     private val TAG = "ShoppingMain.kt"
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
-
-        val testingHiddenAPI = BuildConfig.TBDM_API_KEY
-        val testingHiddenAPIToken = BuildConfig.TBDM_API_READ_ACCESS_TOKEN
-
         setContent {
             ShoppingTheme {
                 val isTabletOrRoated=
                     if(Helper.isRoated()) true
                     else booleanResource(id = R.bool.is_tablet)
-                println("is Tablet or Rotated $isTabletOrRoated")
-                val color = colorResource(id = R.color.brown_300)
+
+                Timber.tag(TAG).d("is Tablet or Rotated %s", isTabletOrRoated)
+
                 val navController = rememberNavController()
                 setNavGraph(navController, isTabletOrRoated)
 /*

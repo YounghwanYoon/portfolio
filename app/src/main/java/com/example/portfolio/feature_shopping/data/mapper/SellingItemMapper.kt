@@ -2,29 +2,34 @@ package com.example.portfolio.feature_shopping.data.mapper
 
 import com.example.portfolio.feature_shopping.data.local.entities.SellingItemEntity
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
-import com.example.portfolio.utils.EntityMapper
+import com.example.portfolio.feature_shopping.data.local.util.NetworkMapper
+import com.example.portfolio.feature_shopping.data.remote.dto.SellingItemDTO
+import com.example.portfolio.feature_shopping.domain.model.util.EntityMapper
 import javax.inject.Inject
+import kotlin.random.Random
 
-class SellingItemMapperLocal @Inject constructor(): EntityMapper<SellingItem,SellingItemEntity> {
-    override fun mapFrom(data: SellingItem): SellingItemEntity {
+class SellingItemMapper @Inject constructor():
+    NetworkMapper<SellingItemDTO, SellingItemEntity>,
+    EntityMapper<SellingItemEntity, SellingItem>
+{
+    override fun mapFromDTO(data: SellingItemDTO): SellingItemEntity {
         return SellingItemEntity(
             itemId = data.id,
             cartId = null,
-            image = 0,
-            imageUrl = data.imageUrl,
-            title = data.title,
-            description = data.description,
-            price = data.price,
-            quantity = data.supplyQty
+            imageUrl = data.imageURL,
+            title = data.user,
+            description = data.tags,
+            price = Random.nextDouble(4.99,8.99),
+            quantity = Random.nextInt(10,100),
         )
     }
-    override fun mapFromListOf(listData: List<SellingItem>): List<SellingItemEntity> {
+    override fun mapFromListDTO(listData: List<SellingItemDTO>): List<SellingItemEntity> {
         return listData.map{
-            mapFrom(it)
+            mapFromDTO(it)
         }
     }
 
-    fun mapTo(data: SellingItemEntity): SellingItem {
+    override fun mapFromEntity(data: SellingItemEntity): SellingItem {
         return SellingItem(
             id= data.itemId,
             image = 0,
@@ -35,9 +40,28 @@ class SellingItemMapperLocal @Inject constructor(): EntityMapper<SellingItem,Sel
             supplyQty = data.quantity
         )
     }
-    fun mapToListOf(listData: List<SellingItemEntity>): List<SellingItem> {
+    override fun mapFromEntities(listData: List<SellingItemEntity>): List<SellingItem> {
         return listData.map{
-            mapTo(it)
+            mapFromEntity(it)
+        }
+    }
+
+    override fun mapToEntity(model: SellingItem): SellingItemEntity {
+        return SellingItemEntity(
+            itemId = model.id,
+            cartId = null,
+            image = model.image,
+            imageUrl = model.imageUrl,
+            title = model.title,
+            description = model.description,
+            price = model.price,
+            quantity = model.supplyQty,
+        )
+    }
+
+    override fun mapToEntities(models: List<SellingItem>): List<SellingItemEntity> {
+        return models.map{
+            mapToEntity(it)
         }
     }
 }

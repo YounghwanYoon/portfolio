@@ -85,7 +85,7 @@ fun MovieListScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-                items(movies){item ->
+                SellingItem(movies){item ->
                     item?.let{
                         MovieItem(it)
                     }
@@ -247,8 +247,8 @@ fun MovieListScreen() {
 /*
 This is before paging-compose:1.1.1-alpha 17
     LazyColumn {
-        items(
-            items = movies
+        SellingItem(
+            SellingItem = movies
         ) { movie ->
             movie?.let {
                 Row(

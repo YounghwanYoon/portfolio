@@ -143,6 +143,7 @@
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/2366132ec0b536c79a9331d85193465f/transformed/jetified-dagger-2.44.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/55970693922085f51a712d9ccdd331dd/transformed/jetified-accompanist-permissions-0.28.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/ff4912b117dd314d558692dd0db58518/transformed/jetified-profileinstaller-1.3.0-api.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/fea626a62185a88684c128c95e332105/transformed/jetified-timber-5.0.1-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/6f11861a12708314f5f1c6befd605c04/transformed/core-testing-2.1.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/acec21dbd8aacfb8895f625a76e55f72/transformed/cursoradapter-1.0.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/077ae3953e3c039b02a7b98bf981c054/transformed/jetified-savedstate-ktx-1.2.1-api.jar</arg>
@@ -172,7 +173,7 @@
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/daf3985cbbd687d7e56a1b405fd678f8/transformed/jetified-annotation-experimental-1.3.0-api.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/2f52d9c4cfaa6ee790e907efbd57e849/transformed/jetified-kotlin-stdlib-1.8.21.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/4d414005b4ee31e86b8474fc4b77b59f/transformed/jetified-kotlin-stdlib-common-1.8.21.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/transforms-3/64fb8822c3c0c5fb9f890331ef66a349/transformed/jetified-annotations-13.0.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/transforms-3/80f52612a9ad5d754ae9ec472c020215/transformed/jetified-annotations-20.1.0.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/d2e8820ed4ef757d142735dbeaaa07ff/transformed/jetified-truth-1.1.3.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/e5aedb465726d71c6bbcd5335e44222d/transformed/jetified-junit-4.13.2.jar</arg>
                 <arg>$USER_HOME$/.gradle/caches/transforms-3/c169b3b6f31871ef9934bc475d704cfd/transformed/jetified-hamcrest-core-1.3.jar</arg>
@@ -303,7 +304,7 @@
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.annotation:annotation:1.5.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.8.21" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains:annotations:20.1.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4" level="project" />
@@ -506,6 +507,7 @@
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.accompanist:accompanist-pager:0.19.0@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.accompanist:accompanist-pager-indicators:0.19.0@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.profileinstaller:profileinstaller:1.3.0@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.jakewharton.timber:timber:5.0.1@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.arch.core:core-testing:2.1.0@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.dagger:hilt-android-testing:2.44@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.multidex:multidex:2.0.1@aar" level="project" />

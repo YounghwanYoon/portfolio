@@ -73,8 +73,8 @@ fun BeerScreen(
                     }
                 }
 /*
-                items(
-                    items = beers.,
+                SellingItem(
+                    SellingItem = beers.,
                     key = { index:Int, item:Beer ->
                         item.id
                     },

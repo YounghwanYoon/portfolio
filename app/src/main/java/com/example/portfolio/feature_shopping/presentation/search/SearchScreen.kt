@@ -86,7 +86,7 @@ fun SearchScreen(
        },
     ){
         //for content, show different item base on isSearching state
-        //need to display items on body.
+        //need to display SellingItem on body.
         Spacer(modifier = Modifier.height(4.dp))
         when(isSearching){
             true -> {

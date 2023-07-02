@@ -85,11 +85,11 @@ class AddToCart @Inject constructor(
     fun addItem(selectedItem: SellingItem):Boolean{
         _cart.let{
             if(isContain(selectedItem,it)){
-                it.items[selectedItem] = it.items[selectedItem]!! + 1
+                it.SellingItem[selectedItem] = it.SellingItem[selectedItem]!! + 1
                 it.totalQuantity += 1
                 it.subTotal += selectedItem.price
             }else{
-                it.items[selectedItem] = 1
+                it.SellingItem[selectedItem] = 1
                 it.totalQuantity += 1
                 it.subTotal += selectedItem.price
             }
@@ -99,7 +99,7 @@ class AddToCart @Inject constructor(
         //return false
     }
     private fun isContain(selectedItem:SellingItem, fromData:Cart):Boolean{
-        return fromData.items.containsKey(selectedItem)
+        return fromData.SellingItem.containsKey(selectedItem)
     }*/
 
 }

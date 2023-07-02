@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Devices.AUTOMOTIVE_1024p
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -46,8 +47,11 @@ import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingThem
 import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
 import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
 
-@Preview
-@Composable
+
+@Preview(
+    showSystemUi = true,
+    device = "spec:width=411dp,height=891dp,dpi=420,isRound=false,chinSize=0dp,orientation=landscape"
+)@Composable
 fun PreviewScreen() {
     ShoppingTheme{
         ShoppingDetailScreen(
@@ -76,7 +80,7 @@ fun ShoppingDetailScreen (
     navController:NavController,
     selectedItem:SellingItem,
     cartUIClicked: (CartUIEvent) -> Unit = {},
-    isTablet:Boolean
+    isTablet:Boolean = true
 ){
     val size = remember{mutableStateOf(IntSize.Zero)}
     println("height is ${size.value.height}")
@@ -127,6 +131,7 @@ fun ShoppingDetailScreen (
 }
 
 
+
 @Composable
 fun BodyContent(
     modifier:Modifier = Modifier,
@@ -134,7 +139,7 @@ fun BodyContent(
     selectedItem:SellingItem = SellingItem(title = "Image title"),
     onAddClicked:(CartUIEvent)->Unit = {},
     onCompletion: () -> Unit = {},
-    isTablet:Boolean = false
+    isTablet:Boolean
 ) {
 
     val isTabletMode = remember{mutableStateOf(isTablet)}
@@ -173,12 +178,13 @@ fun BodyContent(
             }
 
             //image title
-            Text(modifier = Modifier
-                .constrainAs(imageTitlePrefix){
-                    top.linkTo(image.bottom, margin = 12.dp)
-                    start.linkTo(parent.absoluteLeft, margin = 16.dp)
-                    end.linkTo(parent.absoluteRight, margin = 16.dp)
-                },
+            Text(
+                modifier = Modifier
+                    .constrainAs(imageTitlePrefix) {
+                        top.linkTo(image.bottom, margin = 12.dp)
+                        start.linkTo(parent.absoluteLeft, margin = 16.dp)
+                        end.linkTo(parent.absoluteRight, margin = 16.dp)
+                    },
                 text = stringResource(R.string.detail_title_pretext),
                 fontFamily = FontFamily.Cursive,
                 fontStyle = FontStyle.Italic,
@@ -187,16 +193,17 @@ fun BodyContent(
                 textDecoration = null,
                 softWrap = true,
                 maxLines = 1,
-                overflow= TextOverflow.Ellipsis,
+                overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
             )
             //image title
-            Text(modifier = Modifier
-                .constrainAs(imageTitle){
-                    top.linkTo(imageTitlePrefix.bottom, margin = 8.dp)
-                    start.linkTo(parent.absoluteLeft, margin = 16.dp)
-                    end.linkTo(parent.absoluteRight, margin = 16.dp)
-                },
+            Text(
+                modifier = Modifier
+                    .constrainAs(imageTitle) {
+                        top.linkTo(imageTitlePrefix.bottom, margin = 8.dp)
+                        start.linkTo(parent.absoluteLeft, margin = 16.dp)
+                        end.linkTo(parent.absoluteRight, margin = 16.dp)
+                    },
                 text = selectedItem.title,
                 fontFamily = FontFamily.Cursive,
                 fontStyle = FontStyle.Italic,
@@ -205,7 +212,7 @@ fun BodyContent(
                 textDecoration = null,
                 softWrap = true,
                 maxLines = 1,
-                overflow= TextOverflow.Ellipsis,
+                overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
             )
 
@@ -270,13 +277,14 @@ fun BodyContent(
             }
 
             //image title
-            Text(modifier = Modifier
-                .constrainAs(imageTitle){
-                    top.linkTo(image.bottom, margin = 8.dp)
-                    bottom.linkTo(parent.bottom, margin = 8.dp)
-                    start.linkTo(parent.absoluteLeft, margin =8.dp)
-                    end.linkTo(image.absoluteRight, margin = 8.dp)
-                },
+            Text(
+                modifier = Modifier
+                    .constrainAs(imageTitle) {
+                        top.linkTo(image.bottom, margin = 8.dp)
+                        bottom.linkTo(parent.bottom, margin = 8.dp)
+                        start.linkTo(parent.absoluteLeft, margin = 8.dp)
+                        end.linkTo(image.absoluteRight, margin = 8.dp)
+                    },
                 text = selectedItem.title,
                 fontFamily = FontFamily.Cursive,
                 fontStyle = FontStyle.Italic,
@@ -290,14 +298,13 @@ fun BodyContent(
             ItemDescriptionCards(
                 modifier = Modifier
                     .fillMaxWidth(0.50f)
-                    .fillMaxHeight(0.50f)
+                    .fillMaxHeight(0.30f)
                     .height(150.dp)
                     .constrainAs(keyDescription) {
                         top.linkTo(parent.top, margin = 16.dp)
                         start.linkTo(image.absoluteRight, margin = 4.dp)
                         end.linkTo(parent.absoluteRight, margin = 4.dp)
                     }
-                    .padding(8.dp)
             )
 
             ItemPriceAndCart(
@@ -311,6 +318,7 @@ fun BodyContent(
                     .fillMaxWidth(0.50f)
                     .padding(all = 16.dp),
                 price = "$${selectedItem.price}",
+                title = selectedItem.title,
                 selectedItem = selectedItem,
                 eventListener = onAddClicked,
                 onCompletion = onCompletion
@@ -391,8 +399,8 @@ fun ItemPriceAndCart(
     modifier: Modifier = Modifier,
     price:String = "7.99",
     selectedItem: SellingItem = SellingItem(),
-    title:String = "title",
-    eventListener:(CartUIEvent) -> Unit,//(item:SellingItem,quantity:Int) -> Unit,
+    title:String = selectedItem.title ?:" ",
+    eventListener:(CartUIEvent) -> Unit,
     onCompletion: () -> Unit
 ) {
     val _quantity = remember{mutableStateOf(1)}
@@ -407,7 +415,7 @@ fun ItemPriceAndCart(
             Row{
                 Column(){
                     Text(
-                        text = _selectedItem.value.title,
+                        text = title,
                         fontSize = 18.sp,
                         fontWeight= FontWeight.SemiBold,
                         maxLines = 1,
@@ -515,8 +523,7 @@ fun QuantityControlButton(
                 text = "${currentQuantity.value}",
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .weight(0.50f)
-                ,
+                    .weight(0.50f),
             )
 
             IconButton(
@@ -545,147 +552,6 @@ fun QuantityControlButton(
     }
 }
 
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun Detail_ImageAndTitle(
-    modifier:Modifier = Modifier,
-    painter:Painter = painterResource(R.drawable.coffee_animation),
-    modelUrl:String = "",
-    description:String = "Coffee Image",
-    itemTitle:String = "American Coffee"
-){
-    Box(modifier = modifier){
-            Column(
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(16.dp)
-            ){
-                Card(
-                    elevation = 8.dp,
-                    modifier = Modifier
-                        .weight(7f)
-                        .border(
-                            width = 2.dp,
-                            color = MaterialTheme.colorScheme.onTertiary,
-                            shape = RoundedCornerShape(6.dp)
-                        )
-                ){
-                    println("selected Image Url is $modelUrl")
-                    if(modelUrl != ""){
-                        //val onlinePainter = rememberAsyncImagePainter(model = modelUrl)
-                        AsyncImage(
-                            model = modelUrl,
-                            contentDescription = description,
-                            modifier = Modifier,
-                            placeholder = painter,
-                        )
-                        /*Canvas(
-                            modifier = Modifier,
-                            contentDescription = description
-                        ){
-                            with(onlinePainter){
-                                draw()
-                            }
-                        }*/
-                    }else{
-                        Image(
-                            painter =painter,
-                            contentDescription = description,
-                            contentScale = ContentScale.FillBounds,
-                            modifier = Modifier
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.weight(1f))
-
-                Text(
-                    text = itemTitle,
-                    modifier = Modifier.weight(1f),
-                    style = TextStyle(
-                        fontSize = 22.sp,
-                        fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Bold,
-                    )
-                )
-            }
-    }
-}
-
-@Composable
-fun Detail_ProductInfo(
-    modifier:Modifier = Modifier.verticalScroll(rememberScrollState()),
-    data: SelectedData = SelectedData(1)
-){
-
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.SpaceEvenly,
-    ){
-        Text("Country:  ${data.country}")
-        Spacer(modifier.height(4.dp))
-        Text("Bean Type:  ${
-            when (data.type) {
-                BeanType.Espresso -> {"Espresso Roast"}
-                BeanType.Dark -> {"Dark Roast"}
-                BeanType.Medium -> {"Medium Roast"}
-                BeanType.Light -> {"Light Roast"}
-                //else -> {"Dark Roast"}
-            }
-        }")
-        Spacer(modifier.height(4.dp))
-        Text("Information: \n   ${data.information}")
-        Spacer(modifier.height(8.dp))
-    }
-}
-
-@Composable
-fun Detail_AddItemFloatBtn(
-    modifier:Modifier = Modifier,
-    selectedItem: SellingItem,
-    onClick: (CartUIEvent) -> Unit,
-){
-     Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ){
-        Box(modifier = Modifier
-            .weight(8f)
-            .padding(start = 16.dp)){
-            Text(text="$${selectedItem.price?:0.99}", fontSize = 30.sp)
-        }
-        Box(modifier = Modifier.weight(2f)
-        ){
-            Shopping_FloatBtn(
-                onClick = {
-                    onClick(CartUIEvent.AddToCart(selectedItem))
-                }
-            )
-        }
-    }
-}
-
-@Composable
-fun Shopping_FloatBtn(modifier:Modifier = Modifier, onClick:() -> Unit = {}){
-    FloatingActionButton(
-        onClick = onClick,
-        shape = CircleShape,
-        contentColor = MaterialTheme.colorScheme.tertiary,
-        backgroundColor = MaterialTheme.colorScheme.onTertiary
-    ){
-        Icon(Icons.Filled.Add, "Adding Button with Plus Icon")
-    }
-}
-
-data class SelectedData(
-    val id:Int = 0,
-    val country:String = "North America",
-    val type: BeanType = BeanType.Dark,
-    val information:String =
-            "Once upon a time, there was a coffee bean grow from Northern America." +
-            "It was so flavorful and gave so much energy to people whoever had a chance to sip of it" +
-            "This was one of many reasons how American worked harder than other countries."
-)
 enum class BeanType{
     Espresso, Dark, Medium, Light
 }

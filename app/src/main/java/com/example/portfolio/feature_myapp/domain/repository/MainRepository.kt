@@ -6,7 +6,7 @@ import com.example.demoapp.repository.webservices.fakedata.FakeServer
 import com.example.portfolio.feature_myapp.domain.repository.local.myapp.MyAppDao
 import com.example.demoapp.repository.local.myapp.MyAppLocal
 import com.example.demoapp.repository.webservices.myapp.LocalMapper
-import com.example.demoapp.repository.webservices.myapp.NetworkMapper
+import com.example.demoapp.repository.webservices.myapp.NetworkMapperImpl
 import com.example.portfolio.utils.DataState
 import com.example.portfolio.utils.NetworkError
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,7 @@ import javax.inject.Inject
 class MainRepository @Inject constructor(
     /*val apiServices:ApiServices,*/
     val db_dao: MyAppDao,
-    val networkMapper: NetworkMapper,
+    val networkMapper: NetworkMapperImpl,
     val localMapper: LocalMapper,
     ) {
     /*
@@ -64,7 +64,7 @@ class MainRepository @Inject constructor(
                 Log.d(TAG, "getMyApp: from server ${listOfmyApp.toString()}")
 
                 //map them to local data
-                val listOfmyAppLocal = networkMapper.mapFromListOf(listOfmyApp)
+                val listOfmyAppLocal = networkMapper.mapFromListDTO(listOfmyApp)
 
                 //insert them into database
                 cacheDataToRoom(listOfmyAppLocal)

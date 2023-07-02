@@ -307,9 +307,9 @@ fun CartListAndSubTotal(
         CartItem(id = 5, count = 1, price = 6.99, itemTitle = "Italia Coffee", image = painterResource(R.drawable.coffee_animation),),
     )
 ){
-/*    var items = cart.items
-    var totalSize = items.size
-    var list = cart.items.toList()*/
+/*    var SellingItem = cart.SellingItem
+    var totalSize = SellingItem.size
+    var list = cart.SellingItem.toList()*/
     println("CartListAndSubTotal")
 
     Box(
@@ -318,7 +318,7 @@ fun CartListAndSubTotal(
         LazyColumn(
             modifier = Modifier.background(color = Color.Transparent)
         ){
-            items(items.toList() /*cartState.items.toList()*/){(SellingItem, Quantity)->
+            items(items.toList() /*cartState.SellingItem.toList()*/){(SellingItem, Quantity)->
                 CartEachItem(
                     modifier = Modifier.padding(bottom = 16.dp),
                     curQuantity = Quantity,//SellingItem.quantity,

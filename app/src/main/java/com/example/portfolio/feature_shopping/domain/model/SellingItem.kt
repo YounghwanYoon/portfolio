@@ -2,6 +2,7 @@ package com.example.portfolio.feature_shopping.domain.model
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
+import kotlin.random.Random
 
 @Parcelize
 data class SellingItem(
@@ -10,8 +11,8 @@ data class SellingItem(
     var imageUrl:String? = null,
     var title:String = "",
     var description:String = "null ",
-    var price:Double = 0.00,
-    var supplyQty:Int = 0,
+    var price:Double = (Random.nextInt(4, 10) + 0.99),
+    var supplyQty:Int = (Random.nextInt(3, 99)),
     var quantityInCart:Int = 0,
     var itemTotal:Double = price.times(quantityInCart)
 ):Parcelable{

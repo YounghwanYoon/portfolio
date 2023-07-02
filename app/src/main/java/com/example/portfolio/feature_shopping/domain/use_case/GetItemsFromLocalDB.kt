@@ -4,6 +4,7 @@ package com.example.portfolio.feature_shopping.domain.use_case
 import com.example.portfolio.feature_shopping.data.repository.ShoppingReposImpl
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.repository.webservices.ShoppingRepository
+import com.example.portfolio.feature_shopping.domain.repository.webservices.utils.ShoppingDataType
 import com.example.portfolio.utils.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +19,7 @@ class GetItemsFromLocalDB @Inject constructor(
             emit(Resource.Loading(null))
 
             val listOfItems:List<SellingItem> =
-                repository.getDataFromRoom(ShoppingReposImpl.ShoppingDataType.SellingItems()) as List<SellingItem>
+                repository.getDataFromRoom(ShoppingDataType.SellingItems()) as List<SellingItem>
 
             if(listOfItems.isNotEmpty()){
                 emit(Resource.Success(listOfItems))

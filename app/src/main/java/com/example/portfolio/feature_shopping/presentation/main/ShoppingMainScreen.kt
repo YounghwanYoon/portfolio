@@ -3,24 +3,19 @@ package com.example.portfolio.feature_shopping.presentation.main
 import Footer
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.*
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -32,20 +27,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.paging.compose.itemKey
-import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberAsyncImagePainter
 import com.example.portfolio.R
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
@@ -55,11 +46,9 @@ import com.example.portfolio.feature_shopping.domain.use_case.*
 import com.example.portfolio.feature_shopping.presentation.cart.CartStateViewModel
 import com.example.portfolio.feature_shopping.presentation.main.*
 import com.example.portfolio.feature_shopping.presentation.utils.*
-import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.*
 
-
-private val TAG = "ShoppingMainScreen.kt"
 
 @SuppressLint("ObsoleteSdkInt")
 @Composable
@@ -70,7 +59,6 @@ fun ShoppingMainScreen(
     tabletState:Boolean
 ) {
     val isTablet = remember{tabletState}
-    val totalQuantity = remember{cartStateVM.cartUIState.totalQuantity}
     Column(
         modifier = Modifier.fillMaxSize()
     ){
@@ -306,84 +294,15 @@ fun SearchViewBtn(
     )
 }
 
-@Composable
-fun ItemList(state: MutableState<TextFieldValue>) {
-    val items = remember() {
-        mutableStateOf(listOf("Drink water", "Walk"))
-    }
-    var filteredItems: List<String>
-
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        val searchedText = state.value.text
-
-        filteredItems = if (searchedText.isEmpty()) {
-            items.value
-        } else {
-            val resultList = ArrayList<String>()
-            for (item in items.value) {
-                if (item.lowercase(Locale.getDefault())
-                        .contains(searchedText.lowercase(Locale.getDefault()))
-                ) {
-                    resultList.add(item)
-                }
-            }
-            resultList
-        }
-        items(filteredItems) { filteredItem ->
-
-            ItemListItem(
-                ItemText = filteredItem,
-                onItemClick = { /*Click event code needs to be implement*/
-                }
-            )
-        }
-
-    }
-}
-
-@Composable
-fun ItemListItem(ItemText: String, onItemClick: (String) -> Unit) {
-    Row(
-        modifier = Modifier
-            .clickable(onClick = { onItemClick(ItemText) })
-            .background(color = Color.Gray)//colorResource(id = R.color.purple_700))
-            .height(57.dp)
-            .fillMaxWidth()
-            .padding(PaddingValues(8.dp, 16.dp))
-    ) {
-        Text(text = ItemText, fontSize = 18.sp, color = Color.White)
-    }
-}
-
-
-@Composable
-fun registerItemStateVM(itemStateVM: ShoppingItemStateViewModel): Boolean {
-    Log.d(TAG, "registerItemStateVM: registerVM is called")
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    LaunchedEffect(key1 = Unit) {
-        lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
-            launch {
-                itemStateVM.onUIEvent(ShoppingUIEvent.AppLaunched)
-            }
-        }
-    }
-    return true
-}
-
-//---com.example.portfolio.feature_shopping.presentation.main.Body ----
-
 @SuppressLint("ObsoleteSdkInt")
 @Composable
 fun Body(
     modifier: Modifier = Modifier,
-    screenHeight: Dp = 640.dp,
-    screenWidth: Dp = 360.dp,
     navController: NavController,
     itemStateVM: ShoppingItemStateViewModel,
 ) {
-    println("Body()")
+    Timber.d("Body()")
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-
     val configuration = LocalConfiguration.current
     val screenHeight: Dp
     val screenWidth: Dp
@@ -403,11 +322,7 @@ fun Body(
         specialItems = itemStateVM.specialItems.collectAsStateWithLifecycle(
             lifecycle = lifecycle, minActiveState = Lifecycle.State.STARTED
         ).value,
-        regularItems = itemStateVM.sellingItems.collectAsStateWithLifecycle(
-            lifecycle = lifecycle, minActiveState = Lifecycle.State.STARTED
-        ).value,
         navController = navController,
-        itemStateVM = itemStateVM,
         pagingData = itemStateVM.pager.collectAsLazyPagingItems(),
         onDetailRequested = itemStateVM::getSelectedItem,
         onUIEvent = itemStateVM::onUIEvent
@@ -416,21 +331,18 @@ fun Body(
 }
 
 /**
- * Ref: https://stackoverflow.com/questions/70590404/jetpack-compose-lazyverticalgrid-items-throws-java-lang-illegalstateexception
- * Any extra composables must be added outside the items block,
- * or as extra items block inside the LazyVerticalGrid()
+ * Ref: https://stackoverflow.com/questions/70590404/jetpack-compose-lazyverticalgrid-SellingItem-throws-java-lang-illegalstateexception
+ * Any extra composables must be added outside the SellingItem block,
+ * or as extra SellingItem block inside the LazyVerticalGrid()
  * will cause Error : Place was called on a node which was placed already
  */
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun BodyContent(
     modifier: Modifier = Modifier,
     specialItems: List<SpecialItem>,
-    regularItems: List<SellingItem>,
     screenHeight: Dp = 360.dp,
     screenWidth: Dp = 640.dp,
     navController: NavController,
-    itemStateVM: ShoppingItemStateViewModel,
     pagingData: LazyPagingItems<SellingItem>,
     onDetailRequested: (id:Int)->Unit,
     onUIEvent:(event: ShoppingUIEvent) -> Unit
@@ -439,7 +351,7 @@ fun BodyContent(
     val deviceWidth = config.screenWidthDp.dp
     val deviceHeight = config.screenHeightDp.dp
 
-    println("current width & height $deviceWidth, $deviceHeight ")
+    Timber.d("current width & height $deviceWidth, $deviceHeight ")
     val itemWidth:Dp
     val itemHeight:Dp
     val span:GridItemSpan
@@ -459,266 +371,11 @@ fun BodyContent(
             cells = 3
             span = GridItemSpan(cells)
         }
-    }/*
+    }
     LazyVerticalGrid(
         modifier = modifier,
-        //This asking into how many cells do you want to divide and control for grid view
-        // In this case, it is divided into two, so width is controlled by two cells.
-        columns = GridCells
-            .Fixed(cells),
-
-        // content padding
-        contentPadding = PaddingValues(
-            start = 12.dp,
-            top = 16.dp,
-            end = 12.dp,
-            bottom = 16.dp
-        ),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-
-        ) {
-
-        item(span = {span}){
-            Text(
-                text = "Season Special",
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.SemiBold,
-            )
-        }
-
-
-
-        item(
-            span = {span}
-        ){
-            AutomaticPager(
-                modifier = Modifier
-                    .width(itemWidth)
-                    .height(itemHeight),
-                specialItems = specialItems
-            )
-            AutomaticPager(
-                modifier = Modifier
-                    .width(360.dp)
-                    .height(400.dp)
-                    .defaultMinSize(minWidth = 360.dp,minHeight = 400.dp),
-
-                specialItems = specialItems
-            )
-        }
-
-        //Section Item
-        //Start with title
-        item(
-            span = {span}
-        ) {
-            Text(
-                text = "Regular Items",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
-
-        // Third Section with grid items
-        // Grid To Display
-        itemsIndexed(
-            items = regularItems,
-            key = { index, item ->
-                item.id
-            }
-        ) { index, item ->
-
-            EachItemTwo(
-                modifier = Modifier
-                    .width(
-                        //Rotated
-                        if (screenWidth > screenHeight) screenWidth.times(0.27f) else screenWidth.times(
-                            0.48f
-                        )
-                    )
-                    .height(
-                        if (screenWidth > screenHeight) screenHeight.times(0.48f) else screenHeight.times(
-                            0.27f
-                        )
-                    )
-                    .clickable {
-                        println("clicked item")
-                        navController.navigate(route = Screens.Detail.withArgs("${item.id}"))//navigate(route = "detail_screen/$index")
-                    },
-                painter = if (item.imageUrl != "") rememberAsyncImagePainter(item.imageUrl)
-                //Image for local use for design
-                else painterResource(item.image),
-                text = item.title//item.description
-            )
-        }
-
-    }
-
-    LazyVerticalGrid(
-        modifier = modifier,
-        //This asking into how many cells do you want to divide and control for grid view
-        // In this case, it is divided into two, so width is controlled by two cells.
-        columns = GridCells
-            .Fixed(cells),
-
-
-        // content padding
-        contentPadding = PaddingValues(
-            start = 12.dp,
-            top = 16.dp,
-            end = 12.dp,
-            bottom = 16.dp
-        ),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-
-    ) {
-
-        item(span = {span}){
-            Text(
-                text = "Season Special",
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.SemiBold,
-            )
-        }
-        item(
-            span = {span}
-        ){
-            AutomaticPager(
-                modifier = Modifier
-                    .width(itemWidth)
-                    .height(itemHeight),
-                specialItems = specialItems
-            )
-        }
-        //Section Item
-        //Start with title
-        item(
-            span = {span}
-        ) {
-            Text(
-                text = "Regular Items",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
-
-        items(
-            count = pagingData.itemCount,
-            //key = pagingData.itemKey{it},
-            //contentType = pagingData.itemContentType{"pagingData"}
-        ){index->
-            var item:SellingItem = pagingData[index]!!
-
-            pagingData[index]?.let{
-                item = it
-            }
-
-            EachItemTwo(
-                modifier = Modifier
-                    .width(
-                        //Rotated
-                        if (screenWidth > screenHeight) screenWidth.times(0.27f) else screenWidth.times(
-                            0.48f
-                        )
-                    )
-                    .height(
-                        if (screenWidth > screenHeight) screenHeight.times(0.48f) else screenHeight.times(
-                            0.27f
-                        )
-                    )
-                    .clickable {
-                        println("clicked item")
-                        navController.navigate(route = Screens.Detail.withArgs("${item.id}"))//navigate(route = "detail_screen/$index")
-                    },
-                painter = if (item.imageUrl != null || item.imageUrl != "") rememberAsyncImagePainter(model = item.imageUrl)
-                //Image for local use for design
-                else painterResource(item.image),
-                text = "Coffee By " + item.title//item.description
-            )
-        }
-
-    }
-//LazyColumn
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = PaddingValues(8.dp),
-    ){
-        item(){
-            Text(
-                text = "Season Special",
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.SemiBold,
-            )
-        }
-        item(
-
-        ){
-            AutomaticPager(
-                modifier = Modifier
-                    .width(itemWidth)
-                    .height(itemHeight),
-                specialItems = specialItems
-            )
-        }
-        //Section Item
-        //Start with title
-        item(
-
-        ) {
-            Text(
-                text = "Regular Items",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
-
-        items(
-            pagingData
-            //key = pagingData.itemKey{it},
-            //contentType = pagingData.itemContentType{"pagingData"}
-        ){item->
-            if (item != null) {
-                EachItemTwo(
-                    modifier = Modifier
-                        .width(
-                            //Rotated
-                            if (screenWidth > screenHeight) screenWidth.times(0.27f) else screenWidth.times(
-                                0.48f
-                            )
-                        )
-                        .height(
-                            if (screenWidth > screenHeight) screenHeight.times(0.48f) else screenHeight.times(
-                                0.27f
-                            )
-                        )
-                        .clickable {
-                            println("clicked item")
-                            if (item != null) {
-                                navController.navigate(route = Screens.Detail.withArgs("${item.id}"))
-                            }//navigate(route = "detail_screen/$index")
-                        },
-                    painter = if (item.imageUrl != null || item.imageUrl != "") rememberAsyncImagePainter(model = item.imageUrl)
-                    //Image for local use for design
-                    else painterResource(item.image),
-                    text = "Coffee By " + item.title//item.description
-                )
-            }
-        }
-    }
-*/
-    LazyVerticalGrid(
-        modifier = modifier,
-        columns = GridCells
-            .Fixed(cells),
-        // content padding
-        contentPadding = PaddingValues(
-            start = 12.dp,
-            top = 16.dp,
-            end = 12.dp,
-            bottom = 16.dp
-        ),
+        columns = GridCells.Fixed(cells),
+        contentPadding = PaddingValues(start = 12.dp, top = 16.dp, end = 12.dp, bottom = 16.dp),
         userScrollEnabled = true,
     ){
         //First Section Title
@@ -758,12 +415,9 @@ fun BodyContent(
             //span = {span},
             count = pagingData.itemCount,
             key = pagingData.itemKey { it.id },
-            
-            //key = pagingData.itemKey{it},
-            //contentType = pagingData.itemContentType{"pagingData"}
         ){itemIndex->
             val item = pagingData[itemIndex]
-            EachItemTwo(
+            EachItem(
                 modifier = Modifier
                     .width(
                         //Rotated
@@ -777,7 +431,7 @@ fun BodyContent(
                         )
                     )
                     .clickable {
-                        println("clicked item")
+                        Timber.d("clicked item")
                         item?.let{
                             onDetailRequested(it.id)
                             onUIEvent(ShoppingUIEvent.RequestedDetail(selectedID = it.id))
@@ -794,235 +448,8 @@ fun BodyContent(
 
 }
 
-private val testingList:List<SellingItem> = listOf(
-    SellingItem(
-        0,
-        (R.drawable.coffee_animation),
-        description = "1",
-        title = "One",
-        price = 1.99,
-        supplyQty = 10,
-    ),
-    SellingItem(
-        1,
-        (R.drawable.coffee_animation),
-        description = "2",
-        title = "Two",
-        price = 2.99,
-        supplyQty = 10,
-    ),
-    SellingItem(
-        2,
-        (R.drawable.coffee_animation),
-        description = "3",
-        title = "Three",
-        price = 3.99,
-        supplyQty = 10,
-    ),
-    SellingItem(
-        3,
-        (R.drawable.coffee_animation),
-        description = "4",
-        title = "Four",
-        price = 4.99,
-        supplyQty = 10,
-    ),
-    SellingItem(
-        4,
-        (R.drawable.coffee_animation),
-        description = "5",
-        title = "Five",
-        price = 5.99,
-        supplyQty = 10,
-    ),
-    SellingItem(
-        5,
-        (R.drawable.coffee_animation),
-        description = "6",
-        title = "Six",
-        price = 6.99,
-        supplyQty = 10,
-    ),
-    SellingItem(
-        6,
-        (R.drawable.coffee_animation),
-        description = "7",
-        title = "Seven",
-        price = 7.99,
-        supplyQty = 10,
-    )
-)
-@Composable
-fun GridView(
-    modifier: Modifier = Modifier,
-    list: List<SellingItem> = testingList
-) {
-    val mlist = list
-
-    LazyVerticalGrid(
-        modifier = modifier,
-        columns = GridCells.Fixed(2),//.Adaptive(minSize = 128.dp),
-        content = {
-            items(mlist.size) { item ->
-                EachItem(
-                    modifier = Modifier.wrapContentWidth(),
-                    painter = painterResource(list[item].image),
-                    text = list[item].description
-                )
-                /* when{
-                     item.type == SellingItem.DisplayType.SINGLE -> {
-                         Column(modifier = modifier
-                             .fillMaxWidth()
-                             .height(128.dp)
-                         ){
-                             Text("Single Item Display")
-                             com.example.portfolio.feature_shopping.presentation.main.EachItem(
-                                 modifier = Modifier.fillMaxWidth(),
-                                 painter = item.image,
-                                 //contentDescription = item.description,
-                                 text = item.description
-                             )
-                         }
-                     }
-                     item.type == SellingItem.DisplayType.MULTIPLE -> {
-                         com.example.portfolio.feature_shopping.presentation.main.EachItem(
-                             modifier = Modifier.wrapContentWidth(),
-                             painter = item.image,
-                             text= item.description
-                         )
-                     }
-                 }*/
-            }
-        }
-    )
-}
-@OptIn(ExperimentalCoilApi::class)
-@Composable
-fun SpecialSection(
-    modifier: Modifier = Modifier,
-    specialItems: List<SpecialItem> = listOf(
-        SpecialItem(
-            id = 0,
-            image = R.drawable.coffee_animation,
-            description = "1",
-            title = "first",
-            start_date = "",
-            end_date = ""
-        ),
-        SpecialItem(
-            id = 1,
-            image = R.drawable.coffee_animation,
-            description = "2",
-            title = "second",
-            start_date = "",
-            end_date = ""
-        ),
-        SpecialItem(
-            id = 2,
-            image = R.drawable.coffee_animation,
-            description = "3",
-            title = "third",
-            start_date = "",
-            end_date = ""
-        )
-    ),
-) {
-    ConstraintLayout(
-        modifier = modifier
-    ) {
-        val (titleString, content, spacer) = createRefs()
-        Box(
-            modifier = Modifier
-                //.padding(start =0.dp, bottom = 8.dp)
-                .constrainAs(titleString) {
-                    top.linkTo(parent.top, margin = 8.dp)
-                },
-        ) {
-            Text(
-                text = "Special Section",
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-        Box(
-            modifier = Modifier
-                //.background(color=Color.Blue)
-                //.padding(top= 8.dp, bottom = 8.dp)
-                .constrainAs(content) {
-                    top.linkTo(titleString.bottom, margin = 8.dp)
-                    bottom.linkTo(parent.bottom, margin = 8.dp)
-                    absoluteLeft.linkTo(parent.absoluteLeft, margin = 8.dp)
-                    absoluteRight.linkTo(parent.absoluteRight, margin = 8.dp)
-                }
-        ) {
-            LazyRow(
-                modifier = Modifier
-                //.fillMaxHeight()
-                //.height(100.dp),
-            ) {
-                items(
-                    items = specialItems,
-                    key = { each ->
-                        each.id
-                    }
-                ) { item ->
-                    EachItem(
-                        modifier = Modifier
-                            .fillParentMaxWidth(1f)
-                            .fillParentMaxHeight(0.8f),
-                        painter =
-                        //Image data from Server
-                        if (item.imageUrl != "") rememberAsyncImagePainter(item.imageUrl)
-                        //Image for local use for design
-                        else painterResource(item.image),
-                        contentDescription = item.description,
-                        text = item.description
-                    )
-                }
-            }
-        }
-    }
-}
-
 @Composable
 fun EachItem(
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier.size(128.dp),
-    painter: Painter = painterResource(R.drawable.coffee_animation),
-    contentDescription: String = "null",
-    text: String = "Title of Item",
-    onTouch:()->Unit ={},
-) {
-    val radius = 10.dp
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(radius),
-        elevation = 8.dp
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth()
-                    .weight(0.8f),
-                contentScale = ContentScale.Crop,
-                painter = painter,
-                contentDescription = contentDescription
-            )
-            Text(
-                text = text,
-                modifier = Modifier
-                    .weight(0.2f)
-                    .padding(start = 8.dp, end = 8.dp)
-                    .align(alignment = Alignment.CenterHorizontally)
-                    .fillMaxWidth()
-                    .background(ShoppingColors.LightColors.primary)
-            )
-        }
-    }
-}
-@Composable
-fun EachItemTwo(
     modifier: Modifier,
     painter: Painter = painterResource(R.drawable.coffee_animation),
     contentDescription: String = "null",
@@ -1053,7 +480,6 @@ fun EachItemTwo(
                     contentDescription = contentDescription
                 )
 
-
                 Text(
                     text = text,
                     modifier = Modifier
@@ -1062,8 +488,6 @@ fun EachItemTwo(
                         .background(ShoppingColors.LightColors.primary)
                         .constrainAs(textLayout) {
                             bottom.linkTo(parent.bottom, margin = 8.dp)
-                            //https://stackoverflow.com/questions/64171607/how-to-use-bias-in-constraint-layout-compose
-                            // linkTo(bias = 0f)
                         },
                 )
             }

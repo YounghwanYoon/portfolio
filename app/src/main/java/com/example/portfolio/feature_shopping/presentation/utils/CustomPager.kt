@@ -312,7 +312,7 @@ fun AutomaticPager(
     val contentPadding = PaddingValues(start = padding, end = padding)// (screenWidth - itemWidth + horizontalPadding))
     val pagerState = rememberPagerState()
 
-    val items by remember{mutableStateOf(specialItems)}
+    val SellingItem by remember{mutableStateOf(specialItems)}
 
     val pauseState = remember{mutableStateOf(false)}
     var userPressed by remember{mutableStateOf(isUserPressing)}
@@ -320,17 +320,17 @@ fun AutomaticPager(
     Column(modifier = modifier.background(color= Color.White)){
         HorizontalPager(
             modifier = Modifier.size(width= itemWidth, height = itemHeight),
-            count = items?.size ?: 0,
+            count = SellingItem?.size ?: 0,
             state = pagerState,
             itemSpacing = 1.dp,
             contentPadding = contentPadding //PaddingValues( start = 24.dp, end = 24.dp),
         ) { page ->
 
-            if(items == null){
+            if(SellingItem == null){
                 CircularProgressIndicator()
             }else {
                 // Our page content
-                val curItem = items!![pagerState.currentPage]
+                val curItem = SellingItem!![pagerState.currentPage]
                 EachItem(
                     modifier = Modifier.graphicsLayer {
                         val pageOffset =
@@ -353,7 +353,7 @@ fun AutomaticPager(
                 )
             }
         }
-        if(items !=null){
+        if(SellingItem !=null){
 
             val coroutineScope = rememberCoroutineScope()
 
@@ -369,10 +369,10 @@ fun AutomaticPager(
                                     delay(5000L)
                                     userPressed = false
                                 }
-                                pagerState.currentPage < items!!.size-1 ->{
+                                pagerState.currentPage < SellingItem!!.size-1 ->{
                                     pagerState.animateScrollToPage(page = pagerState.currentPage +1)
                                 }
-                                pagerState.currentPage == items!!.size-1 ->{
+                                pagerState.currentPage == SellingItem!!.size-1 ->{
                                     pagerState.animateScrollToPage(page = 0)
                                 }
                             }

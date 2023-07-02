@@ -5,7 +5,7 @@ import com.example.portfolio.feature_shopping.data.local.entities.SellingItemEnt
 import com.google.gson.annotations.SerializedName
 import kotlin.random.Random
 
-data class items(
+data class SellingItemDTO(
     @SerializedName("comments")
     val comments: Int,
     @SerializedName("downloads")

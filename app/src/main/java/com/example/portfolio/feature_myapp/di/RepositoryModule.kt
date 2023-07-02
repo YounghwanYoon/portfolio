@@ -3,7 +3,7 @@ package com.example.portfolio.feature_myapp.di
 import com.example.portfolio.feature_myapp.domain.repository.MainRepository
 import com.example.portfolio.feature_myapp.domain.repository.local.myapp.MyAppDao
 import com.example.demoapp.repository.webservices.myapp.LocalMapper
-import com.example.demoapp.repository.webservices.myapp.NetworkMapper
+import com.example.demoapp.repository.webservices.myapp.NetworkMapperImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,7 +19,7 @@ object RepositoryModule {
     fun provideMainRepository(
         /*apiServices: ApiServices,*/
         db_dao: MyAppDao,
-        networkMapper: NetworkMapper,
+        networkMapper: NetworkMapperImpl,
         localMapper: LocalMapper
     ): MainRepository {
         return MainRepository(/*apiServices,*/ db_dao,networkMapper, localMapper)

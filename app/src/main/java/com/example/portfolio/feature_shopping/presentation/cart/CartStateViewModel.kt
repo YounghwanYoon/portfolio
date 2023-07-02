@@ -13,6 +13,7 @@ import com.example.portfolio.feature_shopping.presentation.utils.CartUIEvent
 import com.example.portfolio.utils.ConstKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import timber.log.Timber
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import javax.inject.Inject
@@ -50,14 +51,14 @@ class CartStateViewModel @Inject constructor(
     fun setCartUIEvent(event : CartUIEvent){
         when(event){
             is CartUIEvent.AddToCart -> {
-                println("onAddEvent is triggered")
+                Timber.d("onAddEvent is triggered")
                 //addItem(item = event.selectedItem, quantity = event.quantity)
                 cartUIState = addToCart(event.selectedItem, event.quantity, this.cartUIState)
 
             }
             is CartUIEvent.ReduceFromCart -> {
 
-                println("onReduceEvent is triggered")
+                Timber.d("onReduceEvent is triggered")
                 cartUIState = removeReduceFromCart.reduceItem(
                     item = event.selectedItem,
                     reduceAmount = event.quantity,
@@ -72,17 +73,16 @@ class CartStateViewModel @Inject constructor(
                     oldCart = cartUIState
                 )
 
-                println("onRemoveEvent is triggered")
-                //removeItem(selectedItem = event.selectedItem)
+                Timber.d("onRemoveEvent is triggered")
             }
 
             is CartUIEvent.RemoveAllFromCart -> {
-                println("onRemoveAllEvent is triggered")
+                Timber.d("onRemoveAllEvent is triggered")
                 cartUIState = Cart()
                 updateCart(cartUIState)
             }
             else -> {
-                println("From CartStateViewModel: this should not be called ")
+                Timber.d("From CartStateViewModel: this should not be called ")
             }
         }
     }

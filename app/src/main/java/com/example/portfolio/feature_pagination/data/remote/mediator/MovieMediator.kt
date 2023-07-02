@@ -65,7 +65,7 @@ class MoviesRemoteMediator(
      * When we need to load data at the end of the currently loaded data set, the load parameter is LoadType.APPEND
      */
     private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, MovieEntity>): RemoteKeysEntity? {
-        // Get the last page that was retrieved, that contained items.
+        // Get the last page that was retrieved, that contained SellingItem.
         // From that last page, get the last item
         return state.pages.lastOrNull {
             it.data.isNotEmpty()
@@ -78,7 +78,7 @@ class MoviesRemoteMediator(
      * When we need to load data at the beginning of the currently loaded data set, the load parameter is LoadType.PREPEND
      */
     private suspend fun getRemoteKeyForFirstItem(state: PagingState<Int, MovieEntity>): RemoteKeysEntity? {
-        // Get the first page that was retrieved, that contained items.
+        // Get the first page that was retrieved, that contained SellingItem.
         // From that first page, get the first item
         return state.pages.firstOrNull {
             it.data.isNotEmpty()

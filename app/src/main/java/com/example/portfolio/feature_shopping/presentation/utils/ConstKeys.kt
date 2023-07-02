@@ -4,7 +4,7 @@ object ConstKeys {
     const val USER = "user"
     const val CART = "cart"
     const val PAYMENT = "payment"
-    const val SELLING_ITEMS = "sellingItems"
+    const val SELLING_ITEMS = "sellingItemsDTO"
     const val SPECIAL_ITEM = "specialItems"
     const val SELECTED_ITEM = "selectedItem"
 }

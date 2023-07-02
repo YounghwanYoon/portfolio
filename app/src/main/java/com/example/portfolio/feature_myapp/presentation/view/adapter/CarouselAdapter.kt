@@ -53,7 +53,7 @@ class CarouselAdapter: RecyclerView.Adapter<CarouselAdapter.MyViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        //holder.bind(items[position])
+        //holder.bind(SellingItem[position])
         holder.bind(localData[position])
     }
 

@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class PixabayDTO(
     @SerializedName("hits")
-    val items: List<items>,
+    val sellingItemsDTO: List<SellingItemDTO>,
     @SerializedName("total")
     val total: Int,
     @SerializedName("totalHits")

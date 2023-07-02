@@ -4,7 +4,7 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.portfolio.feature_shopping.data.local.ShoppingDataBase
-import com.example.portfolio.feature_shopping.data.mapper.SellingItemMapperLocal
+import com.example.portfolio.feature_shopping.data.mapper.SellingItemMapper
 import com.example.portfolio.feature_shopping.data.remote.PixabayAPI
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.utils.Resource
@@ -24,11 +24,11 @@ import java.io.IOException
 class ShoppingReposImplTest constructor(){
     lateinit var repo:ShoppingReposImpl
     lateinit var roomDB:ShoppingDataBase
-    lateinit var localMapper: SellingItemMapperLocal
+    lateinit var localMapper: SellingItemMapper
 
     @Before
     fun initShoppingRepo(){
-        localMapper = SellingItemMapperLocal()
+        localMapper = SellingItemMapper()
 
         roomDB = Room.inMemoryDatabaseBuilder(
             InstrumentationRegistry.getInstrumentation().context,

@@ -5,12 +5,10 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
-import com.example.portfolio.feature_pagination.data.local.entity.MovieEntity
-import com.example.portfolio.feature_pagination.data.local.entity.RemoteKeysEntity
 import com.example.portfolio.feature_shopping.data.local.ShoppingDataBase
 import com.example.portfolio.feature_shopping.data.local.entities.PaginationKeysEntity
 import com.example.portfolio.feature_shopping.data.local.entities.SellingItemEntity
-import com.example.portfolio.feature_shopping.data.mapper.SellingItemMapperLocal
+import com.example.portfolio.feature_shopping.data.mapper.SellingItemMapper
 import com.example.portfolio.feature_shopping.data.remote.PixabayAPI
 import com.example.portfolio.feature_shopping.presentation.utils.Helper
 import retrofit2.HttpException
@@ -21,6 +19,15 @@ import javax.inject.Named
 import kotlin.random.Random
 
 
+/**
+ * Shopping Mediator Class where it handles fetching unlimited data,called pagination, from server
+ *
+ * @property apiKey String
+ * @property shoppingDB ShoppingDataBase
+ * @property pixabayAPI PixabayAPI
+ * @property mapper SellingItemMapper
+ * @constructor
+ */
 @OptIn(ExperimentalPagingApi::class)
 class ShoppingMediator @Inject constructor(
     @Named("PixabayKey")
@@ -28,22 +35,37 @@ class ShoppingMediator @Inject constructor(
     private val shoppingDB:ShoppingDataBase,
     @Named("ShoppingAPI")
     private val pixabayAPI: PixabayAPI,
-    private val mapper: SellingItemMapperLocal
+    private val mapper: SellingItemMapper
 ):RemoteMediator<Int,SellingItemEntity > () {
 
+    /**
+     * Before fetching is called, initialized() will determine whether it is first time calling or cachedItem is old or not.
+     * Pagination will load Refresh -> Prepend -> Load in order.
+     * But with initialize() and when it return LAUNCH_INITIAL_REFRESH,
+     * it will load data as refresh first and wait until fetch is completed, then load as prepend and append.
+     * @return InitializeAction
+     */
     override suspend fun initialize(): InitializeAction {
         return InitializeAction.LAUNCH_INITIAL_REFRESH
-
-        /*     val cacheTimeout = TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS)
-             return if(System.currentTimeMillis() - (shoppingDB.paginationKeyDao().getCreationTime() ?: 0) < cacheTimeout){
-                 println("Initial Refresh")
-                 InitializeAction.LAUNCH_INITIAL_REFRESH
-             }else{
-                 println("SKIP Refresh")
-                 InitializeAction.SKIP_INITIAL_REFRESH
-             }*/
+/*
+         val cacheTimeout = TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS)
+         return if(System.currentTimeMillis() - (shoppingDB.paginationKeyDao().getCreationTime() ?: 0) < cacheTimeout){
+             println("Initial Refresh")
+             InitializeAction.LAUNCH_INITIAL_REFRESH
+         }else{
+             println("SKIP Refresh")
+             InitializeAction.SKIP_INITIAL_REFRESH
+         }
+        */
     }
 
+    /**
+     * This is what prepend load state will use to determine next page/key information.
+     * Calculated Pagination Keys is cached in database. It contains pre-key/page, current page, next page information
+     *
+     * @param state PagingState<Int, SellingItemEntity> - current Paging State
+     * @return PaginationKeysEntity?
+     */
     //Prepend
     private suspend fun getRemoteKeyForFirstItem(state:PagingState<Int,SellingItemEntity>):PaginationKeysEntity?{
         return state.pages.firstOrNull{
@@ -54,9 +76,11 @@ class ShoppingMediator @Inject constructor(
     }
 
     //Append
-    /*
-        Entities will be organized by primary key, therefore, it is better to create and use separate id as pimary key
-        if data is fetched/provided in random order( by the server or depends on the data type like top 10 can be change ever time).
+    /**
+     * Entities will be organized by primary key, therefore, it is better to create and use separate id as primary key
+     * if data is fetched/provided in random order( by the server or depends on the data type like top 10 can be change ever time).
+     * @param state PagingState<Int, SellingItemEntity> - current Paging State
+     * @return PaginationKeysEntity?
      */
     private suspend fun getRemoteKeyForLastItem(state:PagingState<Int,SellingItemEntity>):PaginationKeysEntity?{
 
@@ -82,6 +106,13 @@ class ShoppingMediator @Inject constructor(
     }
 
 
+    /**
+     * will load and cache api data based on loadType.
+     * It will normally called
+     * @param loadType LoadType
+     * @param state PagingState<Int, SellingItemEntity>
+     * @return MediatorResult
+     */
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, SellingItemEntity>
@@ -123,7 +154,7 @@ class ShoppingMediator @Inject constructor(
             }
         }
         println("next page - $nextKey")
-        //TODO: Limiting api data to 100 items for this demo/portfolio case due to the limit.
+        // ! Limiting api data to 100 SellingItem for this demo/portfolio case due to the limit.
         if(nextKey > 5) return MediatorResult.Success(endOfPaginationReached = true)
         try{
             //To Do
@@ -138,9 +169,9 @@ class ShoppingMediator @Inject constructor(
             )
 
             //fetch data from server
-            val sellingItems = apiResponse.body()?.items
+            val sellingItems = apiResponse.body()?.sellingItemsDTO
 
-            val reachedEndPage = apiResponse.body()?.items?.isEmpty()
+            val reachedEndPage = apiResponse.body()?.sellingItemsDTO?.isEmpty()
 
             //withTransaction will execute all or nothing.
             //This helps to prevent alter partial changes

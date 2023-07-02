@@ -4,7 +4,7 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.portfolio.feature_shopping.data.local.entities.SellingItemEntity
-import com.example.portfolio.feature_shopping.data.mapper.SellingItemMapperLocal
+import com.example.portfolio.feature_shopping.data.mapper.SellingItemMapper
 
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -20,10 +20,10 @@ class ShoppingDataBaseTest{
     lateinit var roomDB:ShoppingDataBase
     lateinit var cartDao:CartDao
     lateinit var itemDao:SellingItemDao
-    lateinit var localMapper: SellingItemMapperLocal
+    lateinit var localMapper: SellingItemMapper
     @Before
     fun setUp(){
-        localMapper = SellingItemMapperLocal()
+        localMapper = SellingItemMapper()
 
         roomDB = Room.inMemoryDatabaseBuilder(
             InstrumentationRegistry.getInstrumentation().context,

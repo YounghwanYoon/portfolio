@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        //inflate the men; this adds items to the action bar if it is present
+        //inflate the men; this adds SellingItem to the action bar if it is present
         //menuInflater.inflate(R.menu.menu_main, menu)
         return super.onCreateOptionsMenu(menu)
     }

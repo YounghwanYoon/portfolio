@@ -4,8 +4,11 @@ import android.util.Log
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
 import com.example.portfolio.feature_shopping.domain.repository.webservices.ShoppingRepository
 import com.example.portfolio.utils.Resource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import timber.log.Timber
 import javax.inject.Inject
 
 class GetSpecialItem @Inject constructor(
@@ -21,28 +24,23 @@ class GetSpecialItem @Inject constructor(
             repository.fetchAndLoadSpecialItems().collect{
                 when(it){
                     is Resource.Error -> {
-                        Log.d(TAG, "invoke: Error is called")
+                        Timber.tag(TAG).d("invoke: Error is called")
                         handleError(it)
                     }
                     is Resource.Loading -> {
-                        Log.d(TAG, "invoke: Loading is called")
+                        Timber.tag(TAG).d("invoke: Loading is called")
                         emit(it)
                     }
                     is Resource.Success -> {
-                        Log.d(TAG, "invoke: Success from GetSpecialItem UseCase" +
-                                "Total amount of new data from server is ${
-                                    it.data?.size
-                                } " + it.data?.get(0)?.imageUrl
-
-                        )
+                        Timber.tag(TAG).d("fetching and loading was success")
                         emit(it)
                     }
                 }
             }
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
     private fun handleError(resource: Resource.Error<List<SpecialItem>>) {
-        Log.d(TAG, "handleError: message from error ${resource.message}")
+        Timber.tag(TAG).d("handleError: message from error %s", resource.message)
     }
 }
