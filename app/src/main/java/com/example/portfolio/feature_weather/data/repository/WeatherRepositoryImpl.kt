@@ -1,11 +1,14 @@
 package com.example.portfolio.feature_weather.data.repository
 
+import android.annotation.SuppressLint
 import android.util.Log
+import androidx.room.withTransaction
 import com.example.portfolio.feature_weather.data.local.WeatherDao
+import com.example.portfolio.feature_weather.data.local.WeatherDataBase
 import com.example.portfolio.feature_weather.data.local.entity.forecast.ForecastDao
 import com.example.portfolio.feature_weather.data.local.entity.forecasthourly.ForecastHourlyDao
 import com.example.portfolio.feature_weather.data.remote.dto.WeatherDto
-import com.example.portfolio.feature_weather.data.remote.dto.forecast_dto.ForecastDto
+import com.example.portfolio.feature_weather.data.remote.dto.forecast_dto.ForecastDTO
 import com.example.portfolio.feature_weather.data.remote.dto.forecasthourly_dto.ForecastHourlyDto
 import com.example.portfolio.feature_weather.domain.model.Weather
 import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
@@ -19,16 +22,18 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import retrofit2.HttpException
+import timber.log.Timber
 import javax.inject.Inject
 
+@SuppressLint("LogNotTimber")
 class WeatherRepositoryImpl @Inject constructor(
     private val weatherServices: WeatherServices,
     private val weather_dao: WeatherDao? = null,
     private val forecast_dao: ForecastDao,
+    private val weatherDataBase: WeatherDataBase,
     private val forecastHourly_dao: ForecastHourlyDao,
     private val ioDispatcher:CoroutineDispatcher = Dispatchers.IO
-    ): WeatherRepository{
+): WeatherRepository{
 
     override fun getWeather(gpsData:Map<String, Int?>):Flow<DataState<Weather>>{
         Log.d(TAG, "getWeather: getWeather is called from repository implement with gps${gpsData["latitude"]!!} ${gpsData["longitude"]}")
@@ -63,61 +68,64 @@ class WeatherRepositoryImpl @Inject constructor(
         }
         .flowOn(ioDispatcher)
     }
-
-
-    override fun getForecast(gridId:String,gridX:Int,gridY:Int): Flow<DataState<Forecast>> {
-        Log.d(TAG, "getForecast: getForecast is called from repository implement")
+    override fun getWeeklyForecast(gridId:String, gridX:Int, gridY:Int): Flow<DataState<Forecast>> {
+        Log.d(TAG, "getWeeklyForecast: getWeeklyForecast is called from repository implement")
         return flow<DataState<Forecast>>{
-            emit(DataState.Loading())
 
-            var data:ForecastDto? = null
-/*
-            //if forecast_dao is not null, then return Loading state with previously stored data.
-            val forecast : ForecastEntity? = forecast_dao.getAllForecast()
-            forecast?.let{
-                Log.d(TAG, "getForecast: hey room is not emptied")
-                emit(DataState.Loading(it.toForecast()))
+            val cachedData = forecast_dao.getAllForecast()
+
+            if(cachedData != null){
+                Timber.tag(TAG).d("cached is found")
+                val cachedForecast = cachedData.toForecast()
+                emit(DataState.Loading(cachedForecast))
+            }else{
+                Timber.tag(TAG).d("cached is empty")
+                emit(DataState.Loading())
             }
 
- */
+            var forecastDTO:ForecastDTO? = null
 
-            val response = weatherServices.getForecast(gridId, gridX, gridY)
+            val response = weatherServices.getWeeklyForecast(gridId, gridX, gridY)
             if(response.code() == 500){
                 Log.d(TAG, "getWeather: Error code 500 alert!")
                 throw ServerSideError("ServerSide Error with code 500")
             }
             try {
-                Log.d(TAG, "getForecast: code ${response.code()}")
+                Log.d(TAG, "getWeeklyForecast: code ${response.code()}")
                 if(response.isSuccessful){
-                    data = response.body()
-                    delay(1000)
-                    emit(DataState.Success(data?.toForecastEntity()?.toForecast()))
+                    forecastDTO = response.body()
 
-                    //data = response.body()
-                    Log.d(TAG, "getForecast: success with DTO with updateTime of ${data!!.propertiesDto.updateTime}")
-                }
-                //store to local data ...causing so much error
-                //it kept saying data is null when trying to storing it to room.
-                //then it said not null when returning directly to main thread...hm.
-                //possible suspending /delaying thread
-                data?.let{
-                    forecast_dao.insertForecast(it.toForecastEntity())
+                    // * RoomDataBase.withTrasaction() is used to prevent any alternation to database
+                    // * If any of transaction is failed, it will all cancel and data will be not changed.
+                    weatherDataBase.withTransaction {
+                        //store into Database if it is not empty
+                        forecastDTO?.let{
+                            weatherDataBase.forecastDao().insertForecast(it.toForecastEntity())
+                        }
+
+                        val forecast = weatherDataBase.forecastDao().getAllForecast()
+                        forecast?.let{
+                            //data = response.body()
+                            Log.d(TAG, "getWeeklyForecast: success with DTO with updateTime of ${forecastDTO!!.propertiesDto.updateTime}")
+                            emit(DataState.Success(it.toForecast()))
+                        }
+                    }
                 }
             }catch (e:Exception) {
-                Log.d(TAG, "getForecast: Something went wrong")
+                Log.d(TAG, "getWeeklyForecast: Something went wrong")
                 emit(returnErrorByType(response.code(), e))
             }
-//s            Log.d(TAG, "getForecast: ${forecast_dao.getAllForecast().properties.elevation}")
+//s            Log.d(TAG, "getWeeklyForecast: ${forecast_dao.getAllForecast().properties.elevation}")
             //val forecast = forecast_dao.getAllForecast().toForecast()
             //emit(DataState.Success(data?.toForecastEntity()?.toForecast()))
         }
             .retry(2) { exception ->
-                Log.d(TAG, "getForecast: serverside error and retrying from repository")
+                Log.d(TAG, "getWeeklyForecast: serverside error and retrying from repository")
                 (exception is ServerSideError).also{if(it) delay(1000)}
             }
             .catch { exception ->
-                Log.d(TAG, "getForecast: inside catch block ${exception.cause}")
-                emit(DataState.Error(exception.message ?: "Unknown Error from repository-getForecast()"))
+                Log.d(TAG, "getWeeklyForecast: inside catch block ${exception.cause}")
+                emit(DataState.Error(exception.message ?: "Unknown Error from repository-getWeeklyForecast()"))
             }
             .flowOn(ioDispatcher)
     }
@@ -168,13 +176,6 @@ class WeatherRepositoryImpl @Inject constructor(
             }
             .catch { exception -> Log.d(TAG, "getForecastHourly: inside catch block ${exception.cause}") }
             .flowOn(ioDispatcher)
-    }
-    private suspend fun insertForecast(data:ForecastDto){
-        forecast_dao.insertForecast(data.toForecastEntity())
-    }
-
-    private suspend fun insertForecastHourly(data:ForecastHourlyDto){
-        forecastHourly_dao.insertForecastHourly(data.toForecastHourlyEntity())
     }
 
 

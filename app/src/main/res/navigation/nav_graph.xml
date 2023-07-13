@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/shoppingFragment">
+    app:startDestination="@id/mainFragment">
 
     <fragment
         android:id="@+id/homeFragment"
@@ -60,8 +60,11 @@
             android:id="@+id/action_mainFragment_to_resumeFragment"
             app:destination="@id/resumeFragment" />
         <action
-            android:id="@+id/action_mainFragment_to_shoppingFragment"
-            app:destination="@id/shoppingFragment" />
+            android:id="@+id/action_mainFragment_to_shoppingActivity"
+            app:destination="@id/shoppingActivity" />
+        <!--        <action
+                    android:id="@+id/action_mainFragment_to_shoppingFragment"
+                    app:destination="@id/shoppingFragment" />-->
     </fragment>
     <fragment
         android:id="@+id/weatherFragment"
@@ -72,12 +75,18 @@
             android:id="@+id/action_weatherFragment_to_mainFragment"
             app:destination="@id/mainFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/shoppingFragment"
-        android:name="com.example.portfolio.feature_shopping.presentation.ShoppingDemo"
-        android:label="ShoppingFragment" >
-        <action
-            android:id="@+id/action_shoppingFragment_to_mainFragment"
-            app:destination="@id/mainFragment" />
-    </fragment>
+    <activity
+        android:id="@+id/shoppingActivity"
+        android:name="com.example.portfolio.feature_shopping.presentation.ShoppingActivity"
+        android:label="ShoppingActivity" />
+    <!--
+        <activity
+            android:id="@+id/shoppingFragment"
+            android:name="com.example.portfolio.feature_shopping.presentation.ShoppingActivity"
+            android:label="ShoppingFragment" >
+            <action
+                android:id="@+id/action_shoppingFragment_to_mainFragment"
+                app:destination="@id/mainFragment" />
+        </activity>
+    -->
 </navigation>

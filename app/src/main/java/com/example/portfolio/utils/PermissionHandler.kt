@@ -2,34 +2,58 @@ package com.example.portfolio.utils
 
 import android.app.Activity
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
-import android.util.Log
 import androidx.fragment.app.Fragment
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.callbackFlow
+import com.google.accompanist.permissions.PermissionStatus
 import pub.devrel.easypermissions.EasyPermissions
 
-fun main(){
-    println("Hello World")
-}
 
 object PermissionHandler:EasyPermissions.PermissionCallbacks {
     private const val TAG = "PermissionHandler"
+    private val listOfPermissions = arrayOf<String>(
+        android.Manifest.permission.ACCESS_FINE_LOCATION,
+        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+    )
+    private const val permRequestCode = 123
 
-    fun isPermissionAvailable(perm:String, context: Context):Boolean{
-        return EasyPermissions.hasPermissions(
-            context,
-            perm
-        )
+    private var _permState:PermsStatus = PermsStatus.Requesting
+
+    operator fun invoke(vararg perms:String= emptyArray(), context:Context, activity: Activity):PermsStatus{
+
+        val isPermGranted =
+            if(perms.isNotEmpty())
+                arePermissionAvailable(*perms, context = context)
+            else
+                arePermissionAvailable(*listOfPermissions, context = context)
+
+
+        return when(isPermGranted){
+            true ->{
+                PermsStatus.Granted
+            }
+
+            false ->{
+                requestPermission(
+                    context =context,
+                    rationale = "Location Permission is required to obtain weather information for a specific location",
+                    code = permRequestCode,
+                    activity = activity,
+                    fragment = null
+                )
+                PermsStatus.Requesting
+            }
+        }
+
     }
 
-    fun requestPermission(
+    fun arePermissionAvailable(vararg perms:String, context: Context):Boolean{
+        return EasyPermissions.hasPermissions(context, *perms)
+    }
+
+    fun isPermissionAvailable(perm:String, context: Context):Boolean{
+        return EasyPermissions.hasPermissions(context, perm)
+    }
+
+    private fun requestPermission(
             vararg perms:String,
             context:Context,
             rationale:String,
@@ -40,7 +64,7 @@ object PermissionHandler:EasyPermissions.PermissionCallbacks {
         when{
             activity != null -> {
                 perms.forEach{
-                    if(!isPermissionAvailable(it,context)){
+                    if(!isPermissionAvailable(it,context = context)){
                         EasyPermissions.requestPermissions(
                             activity,
                             rationale,
@@ -52,7 +76,7 @@ object PermissionHandler:EasyPermissions.PermissionCallbacks {
             }
             fragment != null ->{
                 perms.forEach{
-                    if(!isPermissionAvailable(it,context)){
+                    if(!isPermissionAvailable(it, context =context)){
                         EasyPermissions.requestPermissions(
                             fragment,
                             rationale,
@@ -80,17 +104,34 @@ object PermissionHandler:EasyPermissions.PermissionCallbacks {
     }
 
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
+        when{
+            requestCode == permRequestCode ->{
+                _permState = PermsStatus.Granted
+            }
+            else ->{
+                _permState = PermsStatus.Denied
+            }
+        }
     }
 
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
+        _permState = PermsStatus.Denied
     }
 
 
 }
-sealed interface NetworkStatus{
-    object Available:NetworkStatus
-    object Unavailable:NetworkStatus
-    object ConnectionLost:NetworkStatus
+sealed class GPSStatus: PermsStatus {
+    object Available:GPSStatus()
+    object Unavailable:GPSStatus()
+    object Error:GPSStatus()
+
+}
+
+sealed interface PermsStatus{
+    object Granted:PermsStatus
+    object Denied:PermsStatus
+    object Requesting:PermsStatus
+
 }
 
 

@@ -161,10 +161,10 @@ class MainFragment : Fragment(R.layout.fragment_main), RecyclerViewClickListner 
                 action= MainFragmentDirections.actionMainFragmentToWeatherFragment()
                 navController.navigate(action)
             }
-            1->{
+/*            1->{
                 action = MainFragmentDirections.actionMainFragmentToShoppingFragment()
                 navController.navigate(action)
-            }
+            }*/
 
             4 ->{
                 val intent:Intent = Intent(requireContext(), SecondActivity::class.java)

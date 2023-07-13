@@ -9,16 +9,15 @@ import com.example.portfolio.feature_weather.data.repository.WeatherRepositoryIm
 import com.example.portfolio.feature_weather.domain.use_case.GetWeatherInfo
 import com.example.portfolio.feature_weather.presentation.PermissionState.*
 import com.example.portfolio.feature_weather.domain.model.Weather
-import com.example.portfolio.feature_weather.domain.model.forecast.Forecast
 import com.example.portfolio.feature_weather.domain.model.forecast.Period
 import com.example.portfolio.feature_weather.domain.model.forecasthourly.ForecastHourly
-import com.example.portfolio.utils.Constants
 import com.example.portfolio.utils.NetworkError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
 import kotlin.coroutines.suspendCoroutine
@@ -28,7 +27,7 @@ class WeatherViewModel @Inject constructor(
     private val weatherRepositoryImpl: WeatherRepositoryImpl,
     private val getWeatherInfo: GetWeatherInfo,
     private val dispatcherIO: CoroutineDispatcher,
-    application: Application
+    private val application: Application,
 ): AndroidViewModel(application) {
 
     companion object{
@@ -38,13 +37,13 @@ class WeatherViewModel @Inject constructor(
         PermissionState.Requesting
     )
     val permState:StateFlow<PermissionState> = _permState.asStateFlow()
-
-    //update PermState
     fun setPermState(newPermState: PermissionState){
         when(newPermState){
             is Requesting -> {
                 Log.d(TAG, "setPermState: Requesting")
-                _permState.value = newPermState
+                _permState.update{
+                    newPermState
+                }
             }
             is Granted -> {
                 Log.d(TAG, "setPermState: Granted calling getWeather()")
@@ -53,14 +52,48 @@ class WeatherViewModel @Inject constructor(
                     newPermState
                 }
 
-                getWeather(newPermState.currentGPS)
+                //getWeather(newPermState.currentGPS)
             }
-
             is Error -> {
                 Log.d(TAG, "setPermState: Error with ${newPermState.message}")
                 _permState.value = newPermState
             }
 
+            Denied -> {
+                Log.d(TAG, "setPermState: Denied")
+                _permState.value = newPermState
+            }
+        }
+    }
+
+    private val _gpsState: MutableStateFlow<GPSState> = MutableStateFlow(GPSState.Requesting)
+    val gpsState:StateFlow<GPSState> = _gpsState.asStateFlow()
+    fun setGPSState(newState: GPSState){
+        when(newState){
+            is GPSState.Requesting -> {
+                Log.d(TAG, "setPermState: Requesting")
+                _gpsState.update{
+                    newState
+                }
+            }
+            is GPSState.Granted -> {
+                Log.d(TAG, "setPermState: Granted calling getWeather()")
+                //_gpsState.value = newState
+                _gpsState.update {
+                    newState
+                }
+                getWeather(newState.currentGPS)
+            }
+
+            is GPSState.Error -> {
+                Log.d(TAG, "setPermState: Error with ${newState.message}")
+                _gpsState.value = newState
+            }
+
+            GPSState.Denied -> {
+                Log.d(TAG, "setPermState: Denied")
+                _gpsState.value = newState
+            }
         }
     }
 
@@ -80,8 +113,6 @@ class WeatherViewModel @Inject constructor(
     )
     val forecastHourlyState:Flow<ForecastHourly?> = _forecastHourlyState.distinctUntilChanged()
 
-    private val _gpsState: MutableStateFlow<PermissionState> = MutableStateFlow(Requesting)
-    val gpsState:StateFlow<PermissionState> = _gpsState.asStateFlow()
 
     private fun getWeather(currentGPS: CurrentGPS = CurrentGPS(gps= mutableMapOf("latitude" to 37, "longitude" to -122))){
         viewModelScope.launch {
@@ -118,7 +149,6 @@ class WeatherViewModel @Inject constructor(
             }
         }
     }
-
     private suspend fun getForecast(gridId:String, gridX:Int, gridY:Int){
         forecastJob?.cancel()
         forecastJob = viewModelScope.launch{
@@ -128,10 +158,10 @@ class WeatherViewModel @Inject constructor(
                 .onEach{ dataState ->
                     when(dataState){
                         is DataState.Error -> {
-                            Log.d(TAG, "getForecast: Error() with ${dataState.message}")
+                            Log.d(TAG, "getWeeklyForecast: Error() with ${dataState.message}")
                         }
                         is DataState.Loading -> {
-                            Log.d(TAG, "getForecast: Loading()")
+                            Log.d(TAG, "getWeeklyForecast: Loading()")
                         }
                         is DataState.Success -> {
 
@@ -143,7 +173,7 @@ class WeatherViewModel @Inject constructor(
                             //_forecastState.value = dataState.data?.copy()
 
                             forecastListState.onEach {
-                                Log.d(TAG, "getForecast: ${it.size}")
+                                Log.d(TAG, "getWeeklyForecast: ${it.size}")
 
                             }
 
@@ -195,19 +225,28 @@ class WeatherViewModel @Inject constructor(
         }
     }
 
-
-
 }
 
 
 data class CurrentGPS(
     var gps: Map<String, Int?>? = null,
     var isInternetAvaiable:Boolean = false,
+    var isGPSEnabled:Boolean = false,
 )
 sealed class PermissionState(){
-    data class Granted(val currentGPS: CurrentGPS): PermissionState()
+    //data class Granted(val currentGPS: CurrentGPS): PermissionState()
+    object Granted: PermissionState()
+    object Denied: PermissionState()
     class Error(val message:String): PermissionState()
     object Requesting: PermissionState()
+    //data class Error(val gpsState: GPSState, val e:Exception):PermissionState()
+}
+
+sealed class GPSState(){
+    data class Granted(val currentGPS: CurrentGPS): GPSState()
+    object Denied: GPSState()
+    class Error(val message:String): GPSState()
+    object Requesting: GPSState()
     //data class Error(val gpsState: GPSState, val e:Exception):PermissionState()
 }
 

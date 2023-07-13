@@ -41,7 +41,7 @@ class ShoppingActivity : ComponentActivity() {
                     )
                 )
 
-                permissionHandlerCompose(
+                PermissionHandlerCompose(
                     multiplePermissionsState = multiplePermissionsState,
                     afterGrant = {
                         setNavGraph(navController)

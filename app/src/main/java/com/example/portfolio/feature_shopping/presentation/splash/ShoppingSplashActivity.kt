@@ -1,11 +1,5 @@
 package com.example.portfolio.feature_shopping.presentation.splash
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.os.Build
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.animation.fadeIn
@@ -14,7 +8,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,14 +18,9 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.lifecycleScope
 import com.example.portfolio.R
-import com.example.portfolio.feature_shopping.presentation.ui.theme.Brown_700
-import com.example.portfolio.feature_shopping.presentation.ui.theme.ShoppingTheme
 import com.example.portfolio.feature_shopping.presentation.utils.ShoppingColors
-import com.example.portfolio.utils.permissionHandlerCompose
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
+
 /*
 
 @SuppressLint("CustomSplashScreen")

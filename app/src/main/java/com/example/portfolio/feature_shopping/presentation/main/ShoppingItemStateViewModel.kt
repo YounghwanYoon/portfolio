@@ -1,16 +1,10 @@
 package com.example.portfolio.feature_shopping.presentation.main
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.filter
-import androidx.paging.map
-import com.example.portfolio.feature_shopping.data.repository.ShoppingReposImpl
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.model.ShoppingUIEvent
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
@@ -19,11 +13,8 @@ import com.example.portfolio.feature_shopping.domain.use_case.ShoppingUseCases
 import com.example.portfolio.utils.ConstKeys
 import com.example.portfolio.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 @HiltViewModel
@@ -57,7 +48,7 @@ class ShoppingItemStateViewModel @Inject constructor(
     }
 
     val pager = shoppingRepository
-        .getPagingDate()
+        .getPagingData()
         .cachedIn(viewModelScope)
 
 

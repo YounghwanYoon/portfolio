@@ -4,7 +4,7 @@ import com.example.portfolio.feature_weather.data.local.entity.forecast.entity.F
 import com.google.gson.annotations.SerializedName
 
 
-data class ForecastDto(
+data class ForecastDTO(
     //val geometry: Geometry,
     @SerializedName("properties")
     val propertiesDto: PropertiesDto,

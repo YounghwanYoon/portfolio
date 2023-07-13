@@ -6,14 +6,18 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" / -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <!-- uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" / -->
     <!-- GPS Permission -->
     <!-- Needed only if your app targets Android 5.0 (API level 21) or higher. -->
     <uses-feature android:name="android.hardware.location.gps" />
-    <uses-feature android:name="android.hardware.location.network" /> <!-- Permission for weather app -->
+    <uses-feature android:name="android.hardware.location.network" />
+
+    <!-- Permission for weather app -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- For Device Version Q and higher -->
-    <uses-permission android:name="adroid.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <application
@@ -27,21 +31,25 @@
         android:theme="@style/Theme.Portfolio"
         android:usesCleartextTraffic="true">
 
+        <!-- Recommended for Android 9 (API level 28) and lower. -->
+        <!-- Required for Android 10 (API level 29) and higher. -->
+        <service
+            android:name=".feature_permission.presentation.LocationForegroundService"
+            android:foregroundServiceType="location"
+            android:enabled="true"
+            android:exported="true"/>
+
         <activity
             android:name=".feature_pagination.presentation.PaginationActivity"
             android:label="@string/title_activity_pagination"
             android:theme="@style/Theme.Portfolio"
             android:exported="true">
-
         </activity>
         <activity
             android:name=".feature_pagination3.presentation.PaginationThreeActivity"
             android:label="@string/title_activity_pagination"
             android:theme="@style/Theme.Portfolio"
             android:exported="true">
-
-
-
         </activity>
 
         <profileable
@@ -50,7 +58,13 @@
 
         <activity
             android:name=".MainActivity"
-            android:exported="true" />
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".feature_secondactivity.presentation.SecondActivity"
             android:exported="true" />
@@ -58,18 +72,21 @@
             android:name=".feature_shopping.presentation.ShoppingActivity"
             android:exported="true"
             android:theme="@style/Theme.Portfolio">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
 
             <meta-data
                 android:name="preloaded_fonts"
                 android:resource="@array/preloaded_fonts" />
         </activity>
-
         <receiver android:name=".feature_shopping.presentation.utils.ConfirmationNotificationReceiver" />
-    </application>
+        <!-- Recommended for Android 9 (API level 28) and lower. -->
+        <!-- Required for Android 10 (API level 29) and higher. -->
+        <service
+            android:name=".MyNavigationService"
+            android:foregroundServiceType="location" >
+        <!-- Any inner elements would go here. -->
+        </service>
+
+
+</application>
 
 </manifest>

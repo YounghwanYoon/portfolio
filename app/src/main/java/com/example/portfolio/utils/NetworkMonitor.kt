@@ -21,6 +21,7 @@ class NetworkMonitor @Inject constructor(
 
     @SuppressLint("ObsoleteSdkInt")
     val isConnected: Flow<Boolean> = callbackFlow {
+
         val callback = object : ConnectivityManager.NetworkCallback(){
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)

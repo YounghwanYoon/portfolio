@@ -7,15 +7,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import coil.request.Disposable
 import com.google.accompanist.permissions.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -43,7 +40,7 @@ class RequestMultiplePermissionsSample : ComponentActivity() {
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun permissionHandlerCompose(
+fun PermissionHandlerCompose(
     multiplePermissionsState: MultiplePermissionsState,
     activity:Activity = LocalContext.current as Activity,
     afterGrant:@Composable ()->Unit,

@@ -41,5 +41,5 @@ interface ShoppingRepository {
      * Call API Service to fetch Selling data, store response to room database then emit to caller as Pager
      * @return Flow<PagingData<SellingItem>>
      */
-    fun getPagingDate(): Flow<PagingData<SellingItem>>
+    fun getPagingData(): Flow<PagingData<SellingItem>>
 }

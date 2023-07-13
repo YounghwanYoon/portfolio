@@ -107,8 +107,14 @@ class ShoppingMediator @Inject constructor(
 
 
     /**
-     * will load and cache api data based on loadType.
-     * It will normally called
+     * Load will be called based on three load types
+     * 1. Refresh - this will be called either refresh or first time calling (initialize)
+     * 2. Prepend - this will be called when user reach top of page or first time calling
+     * 3. Prepend - this will be called when user reach bottom of page or first time calling/
+     *
+     * If initialize() is return LAUNCH_INITIAL_REFRESH, then it will call Refresh
+     * and wait Prepend and Prepend until Refresh call is completed.
+     *
      * @param loadType LoadType
      * @param state PagingState<Int, SellingItemEntity>
      * @return MediatorResult
@@ -154,7 +160,7 @@ class ShoppingMediator @Inject constructor(
             }
         }
         println("next page - $nextKey")
-        // ! Limiting api data to 100 SellingItem for this demo/portfolio case due to the limit.
+        // ! Limiting api call to 100 SellingItem for this demo/portfolio case due to the limit.
         if(nextKey > 5) return MediatorResult.Success(endOfPaginationReached = true)
         try{
             //To Do

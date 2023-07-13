@@ -2,9 +2,9 @@ package com.example.portfolio.feature_weather.presentation
 
 
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,7 +12,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.portfolio.R
@@ -23,21 +27,21 @@ import com.example.portfolio.feature_weather.presentation.adapter.WeatherHourlyA
 import com.example.portfolio.feature_weather.presentation.adapter.WeatherWeeklyAdapter
 import com.example.portfolio.feature_weather.presentation.helper.WeatherHelper
 import com.example.portfolio.utils.DataState
-import com.example.portfolio.utils.LocationService
-import com.example.portfolio.utils.PermissionHandler
+import com.example.portfolio.utils.LocationPermissionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-
+import timber.log.Timber
 class WeatherFragment : Fragment(R.layout.fragment_weather){
-    private lateinit var locationService:LocationService
+    private lateinit var locationHandler:LocationPermissionHandler
     private val vm: WeatherViewModel by activityViewModels()
     private lateinit var binding: FragmentWeatherBinding
     private lateinit var weeklyAdapter: WeatherWeeklyAdapter
     private lateinit var hourlyAdapter: WeatherHourlyAdapter
+    private lateinit var navController: NavController
 
     companion object {
         private const val TAG = "WeatherFragment"
@@ -50,6 +54,7 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
         savedInstanceState: Bundle?
     ): View {
         Log.d(TAG, "onCreateView: ")
+        navController = findNavController()
         binding = FragmentWeatherBinding.inflate(inflater,container, false)
         val view = binding.root
         return view
@@ -58,54 +63,84 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
 
     override fun onStart() {
         Log.d(TAG, "onStart: ")
-        locationHelper()
-        subscribeVM()
+/*        locationHelper()
+        subscribeVM()*/
         super.onStart()
     }
 
+    private fun subscribePermissionState(){
+        viewLifecycleOwner.lifecycleScope.launch{
+            repeatOnLifecycle(Lifecycle.State.CREATED){
+                vm.permState.collect{
+                    when(it){
+                        // * Requesting state will be called at every time app is launched/or at Created State
+                        // * Then it will check permission state, if it not granted, request permission from User
+                        is PermissionState.Requesting -> {
+                            Timber.tag("WeatherFragment").d("subscribePermissionState: Requesting")
+                            if(!LocationPermissionHandler.hasLocationForegroundPermission(this@WeatherFragment.requireContext())){
+                                Timber.tag("WeatherFragment").d("subscribePermissionState: permission has not granted.")
+                                initLocationHandler(this@WeatherFragment)
+                            }else{
+                                Timber.tag("WeatherFragment").d("subscribePermissionState: permission is granted")
+                                vm.setPermState(PermissionState.Granted)
+                            }
+                        }
+                        is PermissionState.Error -> {
+                            Timber.tag(TAG).e("Permission Error Occured")
+                        }
+
+                        // * When Permission is Granted, request user to enable GPS, if it is not.
+                        is PermissionState.Granted -> {
+/*                            Timber.tag("WeatherFragment").d("subscribePermissionState: Permission is granted. Requesting Enable GPS")
+                            locationHandler.requestEnableGPS(
+                                context = this@WeatherFragment.requireContext(),
+                                onGranted = {
+                                    Timber.tag("WeatherFragment").d("subscribePermissionState: GPS Enable is Granted")
+                                    vm.setGPSState(
+                                        GPSState.Granted(it)
+                                    )
+                                },
+                                onDenied = {
+                                    Timber.tag("WeatherFragment").d("subscribePermissionState: Denied because $it")
+                                }
+                            )*/
+                        }
+
+                        is PermissionState.Denied -> {
+                            vm.setPermState(PermissionState.Denied)
+                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+                                activity?.onBackInvokedDispatcher
+                                ///MainFragment
+                                //navController.navigate()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        //Check Permission Status
+        vm.setPermState(PermissionState.Requesting)
+        subscribePermissionState()
+
+
+
         Log.d(TAG, "onViewCreated: ")
-        //locationHelper()
-        //vm.setPermState(PermissionState.Requesting)
         //setWeather(requireContext())
-        //initRecyclerview()
-        //setUpForecastRecyclerView()
-        //setUpHourlyRecycleView()
-        //subscribeVM()
+        initRecyclerview()
+        setUpForecastRecyclerView()
+        setUpHourlyRecycleView()
+        subscribeVM()
         super.onViewCreated(view, savedInstanceState)
-    }
-
-    override fun onResume() {
-        Log.d(TAG, "onResume: ")
-
-        super.onResume()
-    }
-
-    override fun onPause() {
-        Log.d(TAG, "onPause: ")
-        super.onPause()
-    }
-
-    override fun onStop() {
-        Log.d(TAG, "onStop: ")
-        super.onStop()
-    }
-
-    override fun onDestroyView() {
-        Log.d(TAG, "onDestroyView: ")
-        super.onDestroyView()
-    }
-
-    override fun onDestroy() {
-        Log.d(TAG, "onDestroy: ")
-        super.onDestroy()
     }
 
     private fun toggleProgressBarTop(viewType:Int){
         binding.progressBarTop.visibility = viewType
     }
     private fun toggleProgressBarBtm(viewType:Int){
-      binding.progressBarBtm.visibility = viewType
+        binding.progressBarBtm.visibility = viewType
     }
 
     private fun initRecyclerview(){
@@ -154,11 +189,14 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
 
 
     //view model relate
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged" )
     private fun subscribeVM(){
         //must be separate lifecycleScope or data will not be updated.
         //but why?
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted{
+
+        //TODO Adopt GPSState, then GPS is granted, call vm to update data.
+
+        viewLifecycleOwner.lifecycleScope.launch{
             vm.weatherState.collect{ dataState->
                 when(dataState){
                     is DataState.Error -> {
@@ -177,70 +215,48 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            vm.forecastHourlyState
-                .collect{ data ->
-                    delay(1000)
-                    if(data!= null){
-                        Log.d(TAG, "subscribeVM: updating forecast hourly data to adapter")
-                        withContext(Dispatchers.Main){
-                            val startingIndex:Int
-                            val forecastHourlyList: List<Period>
-                            val totalHoursToDisplay = 24
-                            data.properties.apply{
-                                startingIndex = WeatherHelper.findStartingIndex(this.periods,
-                                    WeatherHelper.getCurrentYYMMDD().toInt(),
-                                    0,
-                                    this.periods.size-1
-                                )
-                                forecastHourlyList = WeatherHelper.sliceForecastHourlyList(this.periods, startingIndex, totalHoursToDisplay)
-                                setUpView(WeatherHelper.findTodayData(this.periods))
+        //Subscribe VM for hourly forecast data
+        viewLifecycleOwner.lifecycleScope.launch{
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                vm.forecastHourlyState
+                    .collect{ data ->
+                        delay(1000)
+                        if(data!= null){
+                            Log.d(TAG, "subscribeVM: updating forecast hourly data to adapter")
+                            withContext(Dispatchers.Main){
+                                val startingIndex:Int
+                                val forecastHourlyList: List<Period>
+                                val totalHoursToDisplay = 24
+                                data.properties.apply{
+                                    startingIndex = WeatherHelper.findStartingIndex(this.periods,
+                                        WeatherHelper.getCurrentYYMMDD().toInt(),
+                                        0,
+                                        this.periods.size-1
+                                    )
+                                    forecastHourlyList = WeatherHelper.sliceForecastHourlyList(this.periods, startingIndex, totalHoursToDisplay)
+                                    setUpView(WeatherHelper.findTodayData(this.periods))
+                                }
+
+                                Log.d(TAG, "subscribeVM: forecastHourlyList - ${forecastHourlyList.size}")
+                                toggleProgressBarTop(View.GONE)
+                                setUpHourlyRecycleView()
+                                hourlyAdapter.updateHourlyForecast(forecastHourlyList)
                             }
 
-                            Log.d(TAG, "subscribeVM: forecastHourlyList - ${forecastHourlyList.size}")
-                            toggleProgressBarTop(View.GONE)
-                            setUpHourlyRecycleView()
-                            hourlyAdapter.updateHourlyForecast(forecastHourlyList)
-                        }
-
-                    }
-                }
-        }
-/*
-
-        viewLifecycleOwner.lifecycleScope.launchWhenResumed {
-            vm.forecastState
-                .distinctUntilChangedBy {  }
-                .collect { data ->
-                    if (data != null) {
-                        Log.d(TAG, "subscribeVM: forecast data is ${data.properties.updateTime}")
-                        Log.d(TAG, "subscribeVM: updating forecast to adapter")
-
-                        toggleProgressBarBtm(View.GONE)
-
-                        val totalDaysToDisplay = 7
-                        val customData: List<CustomData>
-
-                        data.properties.periods?.let {
-                            customData = WeatherHelper.filterForecast(it, totalDaysToDisplay)
-                            setUpForecastRecyclerView()
-                            weeklyAdapter.updateWeeklyForecast(customData)
                         }
                     }
             }
-        }
-*/
-/*
-        if(vm._forecastListState.value != emptyList<Period>()){
 
-            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        }
+        //Subscribe VM for weekly forecast data
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
                 vm.forecastListState
                     .distinctUntilChangedBy {  }
                     .collectLatest { data ->
                         if (data != null) {
                             Log.d(TAG, "subscribeVM: forecast data is ${data[0].startTime}")
                             Log.d(TAG, "subscribeVM: updating forecast to adapter")
-
                             toggleProgressBarBtm(View.GONE)
 
                             val totalDaysToDisplay = 7
@@ -253,94 +269,13 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
                     }
             }
         }
-        */
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            vm.forecastListState
-                .distinctUntilChangedBy {  }
-                .collectLatest { data ->
-                    if (data != null) {
-                        Log.d(TAG, "subscribeVM: forecast data is ${data[0].startTime}")
-                        Log.d(TAG, "subscribeVM: updating forecast to adapter")
-
-                        toggleProgressBarBtm(View.GONE)
-
-                        val totalDaysToDisplay = 7
-                        val customData: List<CustomData> = WeatherHelper.filterForecast(data, totalDaysToDisplay)
-                        setUpForecastRecyclerView()
-                        weeklyAdapter.updateWeeklyForecast(customData)
-
-                    }else
-                        Log.d(TAG, "subscribeVM: data is empty for forecast")
-                }
-        }
-
-/*
-
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            vm.forecastState.collect{ state ->
-                when(state){
-                    is DataState.Error -> TODO()
-                    is DataState.Loading -> TODO()
-                    is DataState.Success -> {
-                        withContext(Dispatchers.Main) {
-                            toggleProgressBarBtm(View.GONE)
-
-                            val totalDaysToDisplay = 7
-                            val customData: List<CustomData>
-
-                            state.data?.properties?.periods?.let{
-                                customData = WeatherHelper.filterForecast(it, totalDaysToDisplay)
-                                setUpForecastRecyclerView()
-                                weeklyAdapter.updateWeeklyForecast(customData)
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
-*/
-
-
-
-    }
-    private fun setPermState(permState:Boolean){
-        Log.d(TAG, "setPermState: permState $permState")
-        vm.apply{
-            setPermState(PermissionState.Requesting)
-            when(permState){
-                true -> setPermState(PermissionState.Granted(getCurrentGPS()))
-                false -> setPermState(PermissionState.Error("Permission Error"))
-            }
-        }
     }
 
-    private fun isInternetAvailable(context:Context):Boolean{
-        return PermissionHandler.isPermissionAvailable(Manifest.permission.INTERNET,context)
-    }
 
-    // Location Permission and GPS related
-    //receive either fragment or activity
-    private fun locationHelper(){
-        initLocationService(this)
-
-        if(isPermissionGranted(requireContext()))
-            setPermState(true)
-    }
-    private fun initLocationService(fragment: Fragment){
-        locationService = LocationService(fragment = fragment)
-    }
-    private fun isPermissionGranted(context:Context):Boolean{
-        return LocationService.hasLocationForegroundPermission(context)
-    }
-    private fun getCurrentGPS(): CurrentGPS {
-        //val fusedLocationProviderClient: FusedLocationProviderClient = this.L
-
-        return locationService.getCurrentGPS() ?: throw Exception("GPS got a problem")
-    }
-
-    private fun returnToMainPage(){
-
+    private fun initLocationHandler(fragment: Fragment){
+        Timber.tag("WeatherFragment").d("initLocationHandler: is called")
+        locationHandler = LocationPermissionHandler(fragment = fragment)
+        locationHandler.requestPermission()
     }
 
     override fun onRequestPermissionsResult(
@@ -349,15 +284,16 @@ class WeatherFragment : Fragment(R.layout.fragment_weather){
         grantResults: IntArray
     ) {
         Log.d(TAG, "onRequestPermissionsResult: ")
-        locationService.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        locationHandler.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        val isGranted = LocationService.hasLocationForegroundPermission(requireContext())
+        val isGranted = LocationPermissionHandler.hasLocationForegroundPermission(requireContext())
         if(!isGranted){
             Log.d(TAG, "onRequestPermissionsResult: is Granted false - $isGranted ")
-            setPermState(false)
+            vm.setPermState(PermissionState.Denied)
         }
         else{
             Log.d(TAG, "onRequestPermissionsResult: is Granted $isGranted ")
+            vm.setPermState(PermissionState.Granted)
             //this.onStart()
         }
 

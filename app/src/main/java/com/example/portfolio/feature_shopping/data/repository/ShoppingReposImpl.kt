@@ -11,7 +11,6 @@ import com.example.portfolio.feature_shopping.data.mapper.SellingItemMapper
 import com.example.portfolio.feature_shopping.data.mapper.SpecialItemMapper
 import com.example.portfolio.feature_shopping.data.remote.PixabayAPI
 import com.example.portfolio.feature_shopping.data.remote.dto.PixabayDTO
-import com.example.portfolio.feature_shopping.data.remote.dto.SellingItemDTO
 import com.example.portfolio.feature_shopping.domain.model.SellingItem
 import com.example.portfolio.feature_shopping.domain.model.SpecialItem
 import com.example.portfolio.feature_shopping.domain.repository.webservices.ShoppingRepository
@@ -56,7 +55,7 @@ class ShoppingReposImpl @Inject constructor(
     private val TAG = "ShoppingReposImpl"
 
 
-    override fun getPagingDate(): Flow<PagingData<SellingItem>> {
+    override fun getPagingData(): Flow<PagingData<SellingItem>> {
         Timber.tag(TAG).d("getPagingDate: is called")
         return pager
             .flow
@@ -163,12 +162,15 @@ class ShoppingReposImpl @Inject constructor(
     }
 
     /**
+     * Deprecated and replaced with pagination
+
      * Handles fetch Selling Item data from API then cache to room data base,
      * then emit the cached data to caller.
      * It is following single source of truth principle.
      *
      * @return Flow<Resource<List<SpecialItem>>>
      */
+    @Deprecated(message = "This class is now deprecated", replaceWith = ReplaceWith("getPagingData()"))
     override fun fetchAndLoadSellingItems(): Flow<Resource<List<SellingItem>>> {
         Log.d(TAG, "getSellingItem: is called()")
 
@@ -269,6 +271,11 @@ class ShoppingReposImpl @Inject constructor(
     }
 
 
+    /**
+     * Handling API Call from Server
+     * @param data ShoppingDataType
+     * @return Any?
+     */
     override suspend fun getDataFromAPI(data: ShoppingDataType): Any? {
         when (data) {
             is ShoppingDataType.SpecialItems -> {
